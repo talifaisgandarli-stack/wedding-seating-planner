@@ -1,4 +1,4 @@
-import { useState, useMemo, useCallback, useRef } from "react";
+import { useState, useMemo, useCallback, useRef, useEffect } from "react";
 
 let _id = 200;
 function uid() { return ++_id; }
@@ -38,24 +38,6 @@ const INIT_TABLES = [
   {id:101,label:"REZ",cap:12,side:"special",x:75,y:77,r:24,special:"rez"},
 ];
 
-const SAMPLE = `Ad Soyad, Tərəf, Kateqoriya
-Əli Həsənov, oğlan, Ailə
-Leyla Həsənova, oğlan, Ailə
-Kamran Əliyev, oğlan, Yaxın dost
-Nigar Əliyeva, oğlan, Yaxın dost
-Rəşad Məmmədov, oğlan, İş yoldaşı
-Vüqar Hüseynov, oğlan, İş yoldaşı
-Fərid Nəsirov, oğlan, Qohum
-Günel Nəsirova, oğlan, Qohum
-Orxan Babayev, oğlan, Universitet dostu
-Aygün Rzayeva, oğlan, Universitet dostu
-Səbinə Quliyeva, qız, Ailə
-Tural Babayev, qız, Ailə
-Aynur İsmayılova, qız, Yaxın dost
-Elvin Cəfərov, qız, Yaxın dost
-Lamiyə Kərimova, qız, İş yoldaşı
-Samir Əhmədov, qız, Qohum`;
-
 function parseCSV(text) {
   var lines = text.trim().split("\n").filter(function(l) { return l.trim(); });
   if (lines.length < 2) return [];
@@ -78,9 +60,13 @@ function parseCSV(text) {
 
 var CC = {};
 var HUES = [210,340,30,160,270,50,190,0,130,300,80,230];
-var hi = 0;
+// Deterministic color by category name hash — consistent across sessions
 function cCol(c) {
-  if (!CC[c]) { CC[c] = "hsl(" + HUES[hi % HUES.length] + ",55%,48%)"; hi++; }
+  if (!CC[c]) {
+    var h = 0;
+    for (var i = 0; i < c.length; i++) h = (h * 31 + c.charCodeAt(i)) % HUES.length;
+    CC[c] = "hsl(" + HUES[h] + ",55%,48%)";
+  }
   return CC[c];
 }
 
@@ -93,13 +79,33 @@ function Badge(props) {
   );
 }
 
+const STORAGE_KEY = "wsp_v1";
+
+function loadSaved() {
+  try {
+    var raw = localStorage.getItem(STORAGE_KEY);
+    if (raw) {
+      var d = JSON.parse(raw);
+      if (d && Array.isArray(d.guests) && Array.isArray(d.tables)) {
+        var allIds = d.guests.map(function(g){return g.id;}).concat(d.tables.map(function(t){return t.id;}));
+        if (allIds.length) _id = Math.max.apply(null, [_id].concat(allIds));
+        return d;
+      }
+    }
+  } catch (e) {}
+  return null;
+}
+
+var _saved = loadSaved();
+
 export default function WeddingPlanner() {
   var hallRef = useRef(null);
 
-  var [step, setStep] = useState(0);
-  var [csv, setCsv] = useState(SAMPLE);
-  var [guests, setGuests] = useState([]);
-  var [tables, setTables] = useState(INIT_TABLES);
+  var [step, setStep] = useState(_saved ? (_saved.step != null ? _saved.step : 0) : 0);
+  var [csv, setCsv] = useState("");
+  var [csvError, setCsvError] = useState("");
+  var [guests, setGuests] = useState(_saved ? (_saved.guests || []) : []);
+  var [tables, setTables] = useState(_saved ? (_saved.tables || INIT_TABLES) : INIT_TABLES);
   var [selTable, setSelTable] = useState(null);
   var [view, setView] = useState("hall");
   var [dragId, setDragId] = useState(null);
@@ -116,6 +122,14 @@ export default function WeddingPlanner() {
   var [editTableId, setEditTableId] = useState(null);
   var [etf, setEtf] = useState({label:"",cap:12,side:"oglan"});
   var [confirmDel, setConfirmDel] = useState(null);
+  var [showResetConfirm, setShowResetConfirm] = useState(false);
+
+  // Persist all data to localStorage on every relevant change
+  useEffect(function() {
+    try {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify({step:step, guests:guests, tables:tables}));
+    } catch (e) {}
+  }, [step, guests, tables]);
 
   var cats = useMemo(function() {
     var s = new Set(guests.map(function(g){return g.cat;}));
@@ -215,6 +229,19 @@ export default function WeddingPlanner() {
     setConfirmDel(null);
   }, []);
 
+  function handleResetAll() {
+    try { localStorage.removeItem(STORAGE_KEY); } catch (e) {}
+    setStep(0);
+    setCsv("");
+    setCsvError("");
+    setGuests([]);
+    setTables(INIT_TABLES);
+    setSelTable(null);
+    setView("hall");
+    setAddMode(false);
+    setShowResetConfirm(false);
+  }
+
   var selTD = tables.find(function(t){return t.id===selTable;});
   var selG = guests.filter(function(g){return g.tableId===selTable;});
   var filtUn = guests.filter(function(g) {
@@ -240,10 +267,40 @@ export default function WeddingPlanner() {
       </div>
       <div style={{background:"#fafaf7",border:"1px solid #e8e4db",borderRadius:12,padding:22}}>
         <div style={{fontSize:11,color:"#aaa",marginBottom:6,fontFamily:"system-ui"}}>Format: <b>Ad Soyad, Tərəf (oğlan/qız), Kateqoriya</b></div>
-        <textarea value={csv} onChange={function(e){setCsv(e.target.value);}} rows={14}
-          style={{width:"100%",border:"1px solid #ddd",borderRadius:8,padding:14,fontSize:12.5,fontFamily:"monospace",resize:"vertical",outline:"none",background:"#fff",boxSizing:"border-box"}} />
-        <button onClick={function(){var p=parseCSV(csv);if(p.length){setGuests(p);setStep(1);}}}
-          style={Object.assign({},s("#1a1a1a","#fff"),{width:"100%",marginTop:14,padding:"13px 0",letterSpacing:1.5})}>SİYAHINI YÜKLƏ →</button>
+        <textarea
+          value={csv}
+          onChange={function(e){setCsv(e.target.value);setCsvError("");}}
+          rows={14}
+          placeholder={"Ad Soyad, Tərəf, Kateqoriya\nƏli Həsənov, oğlan, Ailə\nLeyla Həsənova, qız, Ailə\nKamran Əliyev, oğlan, Yaxın dost\n..."}
+          style={{width:"100%",border:"1px solid #ddd",borderRadius:8,padding:14,fontSize:12.5,fontFamily:"monospace",resize:"vertical",outline:"none",background:"#fff",boxSizing:"border-box"}}
+        />
+        {csvError && (
+          <div style={{color:"#e53e3e",fontSize:11.5,marginTop:8,padding:"8px 12px",background:"#fff5f5",borderRadius:6,border:"1px solid #fdd",fontFamily:"system-ui"}}>
+            ⚠ {csvError}
+          </div>
+        )}
+        <button
+          onClick={function(){
+            var trimmed = csv.trim();
+            if (!trimmed) { setCsvError("Siyahı boşdur. Zəhmət olmasa qonaq məlumatlarını daxil edin."); return; }
+            var p = parseCSV(trimmed);
+            if (p.length === 0) { setCsvError("Format düzgün deyil. Birinci sətir başlıq, sonrakılar: Ad Soyad, Tərəf, Kateqoriya olmalıdır."); return; }
+            setGuests(p);
+            setStep(1);
+            setCsvError("");
+          }}
+          style={Object.assign({},s("#1a1a1a","#fff"),{width:"100%",marginTop:14,padding:"13px 0",letterSpacing:1.5})}
+        >
+          SİYAHINI YÜKLƏ →
+        </button>
+        {guests.length > 0 && (
+          <button
+            onClick={function(){setStep(guests.some(function(g){return g.tableId!==null;})?2:1);}}
+            style={Object.assign({},s("#f0f0f0","#444"),{width:"100%",marginTop:8,border:"1px solid #ddd"})}
+          >
+            Əvvəlki plana davam et ({guests.length} qonaq) →
+          </button>
+        )}
       </div>
     </div>
   );
@@ -378,7 +435,6 @@ export default function WeddingPlanner() {
   var seen = {};
   guests.forEach(function(g){if(g.tableId!==null&&!seen[g.cat]){seen[g.cat]=true;activeCats.push(g.cat);}});
 
-  // Right panel category breakdown
   var selCatBreak = {};
   selG.forEach(function(g){selCatBreak[g.cat]=(selCatBreak[g.cat]||0)+1;});
 
@@ -405,8 +461,16 @@ export default function WeddingPlanner() {
           </span>
           <button onClick={autoAssign} style={s("#2a6f97","#fff",{padding:"5px 11px",fontSize:11})}>⚡ Kateqoriya üzrə Böl</button>
           <button onClick={function(){setGuests(function(p){return p.map(function(g){return Object.assign({},g,{tableId:null});});});}} style={s("#333","#aaa",{padding:"5px 11px",fontSize:11})}>↺ Sıfırla</button>
-          <button onClick={function(){setStep(1);setGuests(function(p){return p.map(function(g){return Object.assign({},g,{tableId:null});});});}}
-            style={s("#333","#aaa",{padding:"5px 11px",fontSize:11})}>← Siyahı</button>
+          <button onClick={function(){setStep(1);}} style={s("#333","#aaa",{padding:"5px 11px",fontSize:11})}>← Siyahı</button>
+          {showResetConfirm ? (
+            <span style={{display:"flex",gap:4,alignItems:"center"}}>
+              <span style={{fontSize:10,color:"#f6ad55"}}>Hər şey silinəcək!</span>
+              <button onClick={handleResetAll} style={s("#e53e3e","#fff",{padding:"5px 10px",fontSize:10})}>Bəli</button>
+              <button onClick={function(){setShowResetConfirm(false);}} style={s("#333","#aaa",{padding:"5px 10px",fontSize:10})}>Xeyr</button>
+            </span>
+          ) : (
+            <button onClick={function(){setShowResetConfirm(true);}} style={s("#2a1a1a","#666",{padding:"5px 11px",fontSize:10,border:"1px solid #333"})}>🗑 Yeni Plan</button>
+          )}
         </div>
       </div>
 
@@ -586,7 +650,6 @@ export default function WeddingPlanner() {
                 <button onClick={function(){setSelTable(null);setEditTableId(null);setConfirmDel(null);}} style={{background:"none",border:"none",fontSize:16,cursor:"pointer",color:"#bbb"}}>✕</button>
               </div>
 
-              {/* Table actions */}
               <div style={{display:"flex",gap:6,marginTop:10}}>
                 {editTableId === selTable ? (
                   <>
