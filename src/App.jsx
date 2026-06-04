@@ -842,11 +842,11 @@ export default function WeddingPlanner() {
               })}
             </div>
             {cats.length>0&&(
-              <div style={{display:"flex",gap:3,marginTop:5,flexWrap:"wrap"}}>
-                <button onClick={function(){setFCat("all");}} style={{padding:"3px 7px",fontSize:9,border:"none",borderRadius:10,cursor:"pointer",
+              <div style={{display:"flex",gap:3,marginTop:5,flexWrap:"wrap",maxHeight:52,overflowY:"auto",paddingBottom:2}}>
+                <button onClick={function(){setFCat("all");}} style={{padding:"3px 7px",fontSize:9,border:"none",borderRadius:10,cursor:"pointer",flexShrink:0,
                   background:fCat==="all"?"#1a1a1a":"#f0f0f0",color:fCat==="all"?"#fff":"#888"}}>Hamısı</button>
                 {cats.map(function(c){
-                  return <button key={c} onClick={function(){setFCat(c);}} style={{padding:"3px 7px",fontSize:9,border:"none",borderRadius:10,cursor:"pointer",
+                  return <button key={c} onClick={function(){setFCat(c);}} style={{padding:"3px 7px",fontSize:9,border:"none",borderRadius:10,cursor:"pointer",flexShrink:0,
                     background:fCat===c?cCol(c):cCol(c)+"12",color:fCat===c?"#fff":cCol(c),fontWeight:600}}>{c}</button>;
                 })}
               </div>
@@ -884,23 +884,37 @@ export default function WeddingPlanner() {
               </div>
               <div ref={hallRef} onClick={handleHallClick}
                 style={{position:"relative",maxWidth:780,margin:"0 auto",aspectRatio:"1.5/1",
-                  border:addMode?"2px dashed #48bb78":"1px solid #ddd",
-                  borderRadius:14,background:addMode?"#f0fff4":"#faf9f6",overflow:"visible",minHeight:400,
-                  cursor:addMode?"crosshair":"default",transition:"border .2s,background .2s"}}>
-                <div style={{position:"absolute",top:6,left:"50%",transform:"translateX(-50%)",fontSize:10,letterSpacing:3,color:"#b8860b",fontWeight:700,zIndex:10,whiteSpace:"nowrap"}}>MAKET GALLERY HALL</div>
-                <div style={{position:"absolute",left:0,top:"15%",background:"#48bb78",color:"#fff",padding:"6px 6px 6px 4px",borderRadius:"0 5px 5px 0",fontSize:9,fontWeight:800,zIndex:10,letterSpacing:1}}>GİRİŞ →</div>
-                <div style={{position:"absolute",right:0,top:"22%",height:"50%",width:26,background:"#2a6f97",borderRadius:"6px 0 0 6px",display:"flex",alignItems:"center",justifyContent:"center",zIndex:10}}>
-                  <span style={{writingMode:"vertical-rl",color:"#fff",fontSize:10,fontWeight:800,letterSpacing:4}}>SƏHNƏ</span>
+                  border:addMode?"2px dashed #48bb78":"1px solid #d8d5ce",
+                  borderRadius:14,background:addMode?"#f0fff4":"#f7f5f1",overflow:"visible",minHeight:400,
+                  cursor:addMode?"crosshair":"default",transition:"border .2s,background .2s",
+                  boxShadow:addMode?"none":"inset 0 1px 4px rgba(0,0,0,.04)"}}>
+                {/* Section tinted backgrounds */}
+                <div style={{position:"absolute",left:"3%",right:"5%",top:"2%",height:"39%",background:"rgba(42,111,151,0.05)",borderRadius:8,zIndex:0,pointerEvents:"none"}} />
+                <div style={{position:"absolute",left:"3%",right:"5%",top:"44%",height:"54%",background:"rgba(194,82,139,0.05)",borderRadius:8,zIndex:0,pointerEvents:"none"}} />
+                {/* Hall title */}
+                <div style={{position:"absolute",top:7,left:"50%",transform:"translateX(-50%)",fontSize:10,letterSpacing:3,color:"#b8860b",fontWeight:700,zIndex:10,whiteSpace:"nowrap"}}>MAKET GALLERY HALL</div>
+                {/* Section labels - left aligned */}
+                <div style={{position:"absolute",left:8,top:"3%",fontSize:7.5,fontWeight:800,color:"#2a6f97",letterSpacing:1,zIndex:10,display:"flex",alignItems:"center",gap:4}}>
+                  <span style={{width:5,height:5,borderRadius:"50%",background:"#2a6f97",display:"inline-block"}} />
+                  OĞLAN EVİ · {tables.filter(function(t){return t.side==="oglan";}).length} masa
                 </div>
-                <div style={{position:"absolute",right:34,top:4,fontSize:8,fontWeight:800,color:"#2a6f97",letterSpacing:1,zIndex:10,textAlign:"right",lineHeight:1.3}}>
-                  OĞLAN EVİ<br/><span style={{fontWeight:500,color:"#999"}}>{tables.filter(function(t){return t.side==="oglan";}).length} masa</span>
+                <div style={{position:"absolute",left:8,top:"45%",fontSize:7.5,fontWeight:800,color:"#c2528b",letterSpacing:1,zIndex:10,display:"flex",alignItems:"center",gap:4}}>
+                  <span style={{width:5,height:5,borderRadius:"50%",background:"#c2528b",display:"inline-block"}} />
+                  QIZ EVİ · {tables.filter(function(t){return t.side==="qiz";}).length} masa
                 </div>
-                <div style={{position:"absolute",left:0,top:"35%",height:"18%",width:"5.5%",background:"linear-gradient(135deg,#d4eaf7,#b8d8ea)",borderRadius:"0 12px 12px 0",display:"flex",alignItems:"center",justifyContent:"center",zIndex:2}}>
-                  <span style={{writingMode:"vertical-rl",transform:"rotate(180deg)",fontSize:7.5,fontWeight:800,color:"#5a8fa8",letterSpacing:2}}>GƏLİN BAY</span>
+                {/* GƏLIN BAY */}
+                <div style={{position:"absolute",left:0,top:"38%",height:"7%",width:"5.5%",background:"linear-gradient(135deg,#d4eaf7,#b8d8ea)",borderRadius:"0 8px 8px 0",display:"flex",alignItems:"center",justifyContent:"center",zIndex:3,boxShadow:"2px 0 8px rgba(42,111,151,.12)"}}>
+                  <span style={{writingMode:"vertical-rl",transform:"rotate(180deg)",fontSize:7,fontWeight:800,color:"#4a7f98",letterSpacing:2}}>GƏLİN BAY</span>
                 </div>
-                <div style={{position:"absolute",left:"6%",right:"4%",top:"42%",borderTop:"1px dashed #d0cdc5",zIndex:1}} />
-                <div style={{position:"absolute",right:34,bottom:6,fontSize:8,fontWeight:800,color:"#c2528b",letterSpacing:1,zIndex:10,textAlign:"right",lineHeight:1.3}}>
-                  QIZ EVİ<br/><span style={{fontWeight:500,color:"#999"}}>{tables.filter(function(t){return t.side==="qiz";}).length} masa</span>
+                {/* Section divider */}
+                <div style={{position:"absolute",left:"6%",right:"5%",top:"43%",height:1,background:"linear-gradient(90deg,transparent,#c8c4bc 15%,#c8c4bc 85%,transparent)",zIndex:2,pointerEvents:"none"}} />
+                {/* Stage */}
+                <div style={{position:"absolute",right:0,top:"22%",height:"50%",width:24,background:"linear-gradient(180deg,#2a6f97,#1a4f77)",borderRadius:"6px 0 0 6px",display:"flex",alignItems:"center",justifyContent:"center",zIndex:10,boxShadow:"-2px 0 8px rgba(26,79,119,.2)"}}>
+                  <span style={{writingMode:"vertical-rl",color:"#fff",fontSize:9,fontWeight:800,letterSpacing:4}}>SƏHNƏ</span>
+                </div>
+                {/* GİRİŞ - bottom center, away from tables */}
+                <div style={{position:"absolute",left:"50%",transform:"translateX(-50%)",bottom:8,display:"flex",alignItems:"center",gap:5,background:"#3aad6a",color:"#fff",padding:"4px 16px 4px 12px",borderRadius:16,fontSize:9,fontWeight:800,zIndex:10,letterSpacing:1,boxShadow:"0 2px 10px rgba(58,173,106,.4)",whiteSpace:"nowrap"}}>
+                  <span>▲</span><span>GİRİŞ</span>
                 </div>
                 {addMode&&<div style={{position:"absolute",top:"50%",left:"50%",transform:"translate(-50%,-50%)",fontSize:13,color:"#48bb78",fontWeight:700,opacity:0.4,pointerEvents:"none",zIndex:0,textAlign:"center"}}>
                   Masanı yerləşdirmək üçün<br/>klik et</div>}
