@@ -149,16 +149,21 @@ export default function WeddingPlanner() {
   var [etf, setEtf] = useState({label:"",cap:12,side:"oglan"});
   var [confirmDel, setConfirmDel] = useState(null);
   var [showResetConfirm, setShowResetConfirm] = useState(false);
+  var [weddingInitialized, setWeddingInitialized] = useState(false);
 
   // ── Apply remote data (from Firebase or localStorage) ──
   function applyData(d) {
     if (!d) return;
     fromRemote.current = true;
-    if (d.step != null) setStep(d.step);
     if (Array.isArray(d.guests)) {
       var ids = d.guests.map(function(g){return g.id;});
       if (ids.length) _id = Math.max.apply(null, [_id].concat(ids));
       setGuests(d.guests);
+      // If guests exist, skip CSV screen and go straight to hall view
+      var savedStep = d.step != null ? d.step : 0;
+      setStep(d.guests.length > 0 ? Math.max(savedStep, 2) : savedStep);
+    } else {
+      if (d.step != null) setStep(d.step);
     }
     if (Array.isArray(d.tables)) {
       var tids = d.tables.map(function(t){return t.id;});
@@ -170,13 +175,16 @@ export default function WeddingPlanner() {
   // ── Load initial data when weddingId changes ──
   useEffect(function() {
     if (!weddingId || mode !== "app") return;
+    setWeddingInitialized(false);
     if (fbDb) {
       get(ref(fbDb, "weddings/"+weddingId)).then(function(snap){
         applyData(snap.val());
-      }).catch(console.error);
+        setWeddingInitialized(true);
+      }).catch(function(e){ console.error(e); setWeddingInitialized(true); });
     } else {
       var ls = lsGet();
       applyData(ls.weddings && ls.weddings[weddingId]);
+      setWeddingInitialized(true);
     }
   }, [weddingId]);
 
@@ -218,7 +226,7 @@ export default function WeddingPlanner() {
 
   // ── Persist all changes ──
   useEffect(function() {
-    if (!weddingId || mode !== "app") return;
+    if (!weddingId || mode !== "app" || !weddingInitialized) return;
     if (fromRemote.current) { fromRemote.current = false; return; }
 
     var data = { step:step, guests:guests, tables:tables };
@@ -238,7 +246,7 @@ export default function WeddingPlanner() {
       ls.weddingId = weddingId;
       lsSet(ls);
     }
-  }, [step, guests, tables, weddingId, mode]);
+  }, [step, guests, tables, weddingId, mode, weddingInitialized]);
 
   // ── Create new wedding ──
   async function handleCreate() {
@@ -764,7 +772,8 @@ export default function WeddingPlanner() {
           </span>
           <button onClick={autoAssign} style={s("#2a6f97","#fff",{padding:"4px 10px",fontSize:11})}>⚡ Böl</button>
           <button onClick={function(){setGuests(function(p){return p.map(function(g){return Object.assign({},g,{tableId:null});});});}} style={s("#333","#aaa",{padding:"4px 10px",fontSize:11})}>↺</button>
-          <button onClick={function(){setStep(1);}} style={s("#333","#aaa",{padding:"4px 10px",fontSize:11})}>← Siyahı</button>
+          <button onClick={function(){setStep(0);}} style={s("#333","#aaa",{padding:"4px 10px",fontSize:11})}>📋 Siyahı əlavə et</button>
+          <button onClick={function(){setStep(1);}} style={s("#333","#aaa",{padding:"4px 10px",fontSize:11})}>👥 Qonaqlar</button>
           {showResetConfirm ? (
             <span style={{display:"flex",gap:4,alignItems:"center"}}>
               <span style={{fontSize:10,color:"#f6ad55"}}>Əminsən?</span>
