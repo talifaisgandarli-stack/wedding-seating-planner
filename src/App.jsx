@@ -343,6 +343,19 @@ export default function WeddingPlanner() {
     return Array.from(s).sort();
   }, [guests]);
 
+  var dupCount = useMemo(function() {
+    var seen = new Set(); var n = 0;
+    guests.forEach(function(g){var k=g.name.trim().toLowerCase();if(seen.has(k))n++;else seen.add(k);});
+    return n;
+  }, [guests]);
+
+  function removeDuplicates() {
+    setGuests(function(prev){
+      var seen = new Set();
+      return prev.filter(function(g){var k=g.name.trim().toLowerCase();if(seen.has(k))return false;seen.add(k);return true;});
+    });
+  }
+
   var stats = useMemo(function() {
     var asg = guests.filter(function(g){return g.tableId!=null;});
     return {
@@ -658,7 +671,10 @@ export default function WeddingPlanner() {
       <div style={{background:"#fff",border:"1px solid #e5e2da",borderRadius:10,overflow:"hidden"}}>
         <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",padding:"10px 14px",borderBottom:"1px solid #eee"}}>
           <span style={{fontSize:11,fontWeight:700,color:"#999",fontFamily:"system-ui"}}>QONAQ SİYAHISI</span>
-          <button onClick={function(){setShowAdd(true);}} style={{fontSize:11,background:"none",border:"1px solid #ddd",borderRadius:6,padding:"3px 10px",cursor:"pointer",color:"#555"}}>+ Əlavə et</button>
+          <div style={{display:"flex",gap:6,alignItems:"center"}}>
+            {dupCount>0&&<button onClick={removeDuplicates} style={{fontSize:10,background:"#fff5f5",border:"1px solid #fcc",borderRadius:6,padding:"3px 10px",cursor:"pointer",color:"#e53e3e",fontWeight:600}}>✕ {dupCount} dublikat</button>}
+            <button onClick={function(){setShowAdd(true);}} style={{fontSize:11,background:"none",border:"1px solid #ddd",borderRadius:6,padding:"3px 10px",cursor:"pointer",color:"#555"}}>+ Əlavə et</button>
+          </div>
         </div>
         <div style={{maxHeight:380,overflowY:"auto"}}>
           {guests.map(function(g,i){
@@ -822,6 +838,7 @@ export default function WeddingPlanner() {
           <button onClick={function(){setGuests(function(p){return p.map(function(g){return Object.assign({},g,{tableId:null});});});}} style={s("#333","#aaa",{padding:"4px 10px",fontSize:11})}>↺</button>
           <button onClick={function(){setStep(0);}} style={s("#333","#aaa",{padding:"4px 10px",fontSize:11})}>📋 Siyahı əlavə et</button>
           <button onClick={function(){setStep(1);}} style={s("#333","#aaa",{padding:"4px 10px",fontSize:11})}>👥 Qonaqlar</button>
+          {dupCount>0&&<button onClick={removeDuplicates} style={s("#5a1010","#f87",{padding:"4px 10px",fontSize:11,border:"1px solid #933"})}>✕ {dupCount} dublikat</button>}
           {showResetConfirm ? (
             <span style={{display:"flex",gap:4,alignItems:"center"}}>
               <span style={{fontSize:10,color:"#f6ad55"}}>Əminsən?</span>
