@@ -564,7 +564,7 @@ export default function WeddingPlanner() {
             if(!trimmed){setCsvError("Siyahı boşdur.");return;}
             var p=parseCSV(trimmed);
             if(!p.length){setCsvError("Format düzgün deyil. Nümunəyə baxın.");return;}
-            setGuests(p); setStep(1); setCsvError("");
+            setGuests(function(prev){return prev.concat(p);}); setStep(1); setCsvError("");
           }}
           style={Object.assign({},s("#1a1a1a","#fff"),{width:"100%",marginTop:14,padding:"13px 0",letterSpacing:1.5})}
         >
