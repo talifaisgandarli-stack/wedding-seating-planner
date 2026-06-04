@@ -150,6 +150,9 @@ export default function WeddingPlanner() {
   var [confirmDel, setConfirmDel] = useState(null);
   var [showResetConfirm, setShowResetConfirm] = useState(false);
   var [weddingInitialized, setWeddingInitialized] = useState(false);
+  var [hallZoom, setHallZoom] = useState(1);
+  var [layoutMode, setLayoutMode] = useState(false);
+  var draggingTRef = useRef(null);
 
   // ── Apply remote data (from Firebase or localStorage) ──
   function applyData(d) {
@@ -412,6 +415,24 @@ export default function WeddingPlanner() {
     setNewTable({label:"",cap:12,side:"oglan",size:"normal"});
     setAddMode(false);
   }, [addMode, newTable, tables]);
+
+  function startDragTable(e, tid) {
+    if (!layoutMode || addMode) return;
+    e.stopPropagation(); e.preventDefault();
+    var t = tables.find(function(x){return x.id===tid;});
+    if (!t || !hallRef.current) return;
+    var rect = hallRef.current.getBoundingClientRect();
+    draggingTRef.current = {id:tid,sx:e.clientX,sy:e.clientY,tx:t.x,ty:t.y,rw:rect.width,rh:rect.height};
+    function onMove(ev) {
+      var dt = draggingTRef.current; if (!dt) return;
+      var dx=(ev.clientX-dt.sx)/dt.rw*100, dy=(ev.clientY-dt.sy)/dt.rh*100;
+      setTables(function(prev){return prev.map(function(t2){
+        return t2.id===dt.id?Object.assign({},t2,{x:Math.max(2,Math.min(92,dt.tx+dx)),y:Math.max(2,Math.min(94,dt.ty+dy))}):t2;
+      });});
+    }
+    function onUp(){draggingTRef.current=null;document.removeEventListener("mousemove",onMove);document.removeEventListener("mouseup",onUp);}
+    document.addEventListener("mousemove",onMove); document.addEventListener("mouseup",onUp);
+  }
 
   var deleteTable = useCallback(function(tid) {
     setGuests(function(prev){return prev.map(function(g){return g.tableId===tid?Object.assign({},g,{tableId:null}):g;});});
@@ -711,16 +732,19 @@ export default function WeddingPlanner() {
 
     return (
       <div key={t.id}
-        onClick={function(e){e.stopPropagation();if(!addMode)setSelTable(t.id);}}
-        onDragOver={function(e){e.preventDefault();setDropT(t.id);}}
+        onMouseDown={function(e){if(layoutMode){startDragTable(e,t.id);}}}
+        onClick={function(e){e.stopPropagation();if(!addMode&&!layoutMode)setSelTable(t.id);}}
+        onDragOver={function(e){if(!layoutMode){e.preventDefault();setDropT(t.id);}}}
         onDragLeave={function(){setDropT(null);}}
-        onDrop={function(e){e.preventDefault();handleDrop(t.id);}}
+        onDrop={function(e){if(!layoutMode){e.preventDefault();handleDrop(t.id);}}}
         style={{position:"absolute",left:t.x+"%",top:t.y+"%",
           width:t.r*2,height:t.r*2,marginLeft:-t.r,marginTop:-t.r,
           borderRadius:"50%",background:bg,border:"2.5px solid "+border,
-          boxShadow:shadow,display:"flex",flexDirection:"column",
-          alignItems:"center",justifyContent:"center",cursor:addMode?"default":"pointer",
-          transition:"box-shadow .2s",zIndex:sel?5:1,userSelect:"none",overflow:"visible"}}>
+          boxShadow:layoutMode?"0 0 0 2px #f6ad55,0 2px 8px rgba(0,0,0,.15)":shadow,
+          display:"flex",flexDirection:"column",
+          alignItems:"center",justifyContent:"center",
+          cursor:layoutMode?"move":addMode?"default":"pointer",
+          transition:"box-shadow .15s",zIndex:sel?5:1,userSelect:"none",overflow:"visible"}}>
         <div style={{fontSize:t.r>28?13:10.5,fontWeight:800,color:"#333",lineHeight:1}}>{t.label}</div>
         {t.cap>0&&<div style={{fontSize:t.r>28?10:8.5,color:full?"#d33":"#666",marginTop:2,fontWeight:700}}>{asg.length}/{t.cap}</div>}
         {pct>0&&pct<1&&(
@@ -730,20 +754,21 @@ export default function WeddingPlanner() {
         )}
         {asg.map(function(g,i){
           var angle = (i/asg.length)*2*Math.PI - Math.PI/2;
-          var dist = t.r+14;
+          var dist = t.r+20;
           var cx = Math.cos(angle)*dist;
           var cy = Math.sin(angle)*dist;
           var nm = g.name.split(" ")[0];
-          if(nm.length>9) nm=nm.substr(0,8)+"…";
+          if(nm.length>8) nm=nm.substr(0,7)+"…";
+          var isOg = g.side==="oglan";
           return (
             <div key={g.id} style={{
               position:"absolute",left:"50%",top:"50%",
               transform:"translate(calc(-50% + "+cx+"px), calc(-50% + "+cy+"px))",
-              fontSize:6.5,fontWeight:700,
-              color:g.side==="oglan"?"#1a5a8a":"#a03070",
-              whiteSpace:"nowrap",pointerEvents:"none",lineHeight:1,
-              textShadow:"0 0 3px #fff,0 0 3px #fff,0 0 3px #fff",
-              zIndex:10,
+              fontSize:8,fontWeight:700,lineHeight:1.3,
+              background:isOg?"rgba(30,90,150,0.88)":"rgba(150,40,100,0.88)",
+              color:"#fff",padding:"1.5px 5px",borderRadius:4,
+              whiteSpace:"nowrap",pointerEvents:"none",
+              boxShadow:"0 1px 3px rgba(0,0,0,.25)",zIndex:10,
             }}>{nm}</div>
           );
         })}
@@ -836,18 +861,20 @@ export default function WeddingPlanner() {
               style={{width:"100%",padding:"7px 10px",border:"1px solid #ddd",borderRadius:6,fontSize:11.5,outline:"none",boxSizing:"border-box"}} />
             <div style={{display:"flex",gap:3,marginTop:6}}>
               {[["all","Hamısı"],["oglan","Oğlan"],["qiz","Qız"]].map(function(p){
-                return <button key={p[0]} onClick={function(){setFSide(p[0]);}} style={{
-                  flex:1,padding:"4px 0",fontSize:10,border:"none",borderRadius:4,cursor:"pointer",
-                  background:fSide===p[0]?"#1a1a1a":"#f0f0f0",color:fSide===p[0]?"#fff":"#777"}}>{p[1]}</button>;
+                var active=fSide===p[0];
+                return <button key={p[0]} onClick={function(){setFSide(active&&p[0]!=="all"?"all":p[0]);}} style={{
+                  flex:1,padding:"4px 0",fontSize:10,border:"1px solid "+(active?"#1a1a1a":"#e0e0e0"),borderRadius:4,cursor:"pointer",
+                  background:active?"#1a1a1a":"#fff",color:active?"#fff":"#555",fontWeight:active?700:400}}>{p[1]}</button>;
               })}
             </div>
             {cats.length>0&&(
-              <div style={{display:"flex",gap:3,marginTop:5,flexWrap:"wrap",maxHeight:52,overflowY:"auto",paddingBottom:2}}>
-                <button onClick={function(){setFCat("all");}} style={{padding:"3px 7px",fontSize:9,border:"none",borderRadius:10,cursor:"pointer",flexShrink:0,
-                  background:fCat==="all"?"#1a1a1a":"#f0f0f0",color:fCat==="all"?"#fff":"#888"}}>Hamısı</button>
+              <div style={{display:"flex",gap:3,marginTop:5,flexWrap:"wrap",paddingBottom:2}}>
+                <button onClick={function(){setFCat("all");}} style={{padding:"3px 8px",fontSize:9,border:"1px solid "+(fCat==="all"?"#1a1a1a":"#ddd"),borderRadius:10,cursor:"pointer",flexShrink:0,
+                  background:fCat==="all"?"#1a1a1a":"#fff",color:fCat==="all"?"#fff":"#666"}}>Hamısı</button>
                 {cats.map(function(c){
-                  return <button key={c} onClick={function(){setFCat(c);}} style={{padding:"3px 7px",fontSize:9,border:"none",borderRadius:10,cursor:"pointer",flexShrink:0,
-                    background:fCat===c?cCol(c):cCol(c)+"12",color:fCat===c?"#fff":cCol(c),fontWeight:600}}>{c}</button>;
+                  var active=fCat===c;
+                  return <button key={c} onClick={function(){setFCat(active?"all":c);}} style={{padding:"3px 8px",fontSize:9,border:"1px solid "+(active?cCol(c):"#ddd"),borderRadius:10,cursor:"pointer",flexShrink:0,
+                    background:active?cCol(c):"#fff",color:active?"#fff":cCol(c),fontWeight:600}}>{c}</button>;
                 })}
               </div>
             )}
@@ -875,65 +902,93 @@ export default function WeddingPlanner() {
         {/* CENTER */}
         <div style={{flex:1,overflow:"auto"}}>
           {view==="hall"&&(
-            <div style={{padding:"14px 20px",minHeight:"100%"}}>
-              <div style={{display:"flex",justifyContent:"center",marginBottom:10}}>
-                <button onClick={function(){setAddMode(!addMode);setSelTable(null);}}
-                  style={Object.assign({},s(addMode?"#e53e3e":"#48bb78","#fff"),{padding:"6px 16px",fontSize:11,borderRadius:20})}>
-                  {addMode?"✕ Ləğv et":"+ Yeni Masa"}
+            <div style={{height:"100%",display:"flex",flexDirection:"column",overflow:"hidden"}}>
+              {/* Hall toolbar */}
+              <div style={{padding:"5px 10px",display:"flex",gap:5,alignItems:"center",borderBottom:"1px solid #eee",flexShrink:0,background:"#fafaf8",flexWrap:"wrap"}}>
+                <button onClick={function(){setAddMode(!addMode);setLayoutMode(false);setSelTable(null);}}
+                  style={{padding:"4px 12px",fontSize:10.5,border:"1px solid "+(addMode?"#e53e3e":"#48bb78"),borderRadius:16,cursor:"pointer",
+                    background:addMode?"#fff5f5":"#f0fff4",color:addMode?"#e53e3e":"#2a7a4a",fontWeight:700}}>
+                  {addMode?"✕ Ləğv et":"＋ Masa əlavə et"}
                 </button>
+                <button onClick={function(){setLayoutMode(!layoutMode);setAddMode(false);setSelTable(null);}}
+                  style={{padding:"4px 12px",fontSize:10.5,border:"1px solid "+(layoutMode?"#f6ad55":"#ddd"),borderRadius:16,cursor:"pointer",
+                    background:layoutMode?"#fffbf0":"#fff",color:layoutMode?"#c07800":"#777",fontWeight:layoutMode?700:400}}>
+                  {layoutMode?"✓ Mövqe rejimi":"⤢ Mövqe dəyiş"}
+                </button>
+                <div style={{flex:1}} />
+                <div style={{display:"flex",gap:3,alignItems:"center",background:"#f0f0f0",borderRadius:8,padding:"3px 6px"}}>
+                  <button onClick={function(e){e.stopPropagation();setHallZoom(function(z){return Math.max(0.4,+(z-0.15).toFixed(2));});}}
+                    style={{border:"none",background:"none",cursor:"pointer",fontSize:14,fontWeight:700,color:"#555",padding:"0 2px",lineHeight:1}}>−</button>
+                  <span style={{fontSize:10,fontWeight:600,color:"#666",minWidth:34,textAlign:"center"}}>{Math.round(hallZoom*100)}%</span>
+                  <button onClick={function(e){e.stopPropagation();setHallZoom(function(z){return Math.min(3,+(z+0.15).toFixed(2));});}}
+                    style={{border:"none",background:"none",cursor:"pointer",fontSize:14,fontWeight:700,color:"#555",padding:"0 2px",lineHeight:1}}>＋</button>
+                  <button onClick={function(e){e.stopPropagation();setHallZoom(1);}}
+                    style={{border:"none",background:"none",cursor:"pointer",fontSize:10,color:"#aaa",padding:"0 2px"}}>↺</button>
+                </div>
               </div>
-              <div ref={hallRef} onClick={handleHallClick}
-                style={{position:"relative",maxWidth:780,margin:"0 auto",aspectRatio:"1.5/1",
-                  border:addMode?"2px dashed #48bb78":"1px solid #d8d5ce",
-                  borderRadius:14,background:addMode?"#f0fff4":"#f7f5f1",overflow:"visible",minHeight:400,
-                  cursor:addMode?"crosshair":"default",transition:"border .2s,background .2s",
-                  boxShadow:addMode?"none":"inset 0 1px 4px rgba(0,0,0,.04)"}}>
-                {/* Section tinted backgrounds */}
-                <div style={{position:"absolute",left:"3%",right:"5%",top:"2%",height:"39%",background:"rgba(42,111,151,0.05)",borderRadius:8,zIndex:0,pointerEvents:"none"}} />
-                <div style={{position:"absolute",left:"3%",right:"5%",top:"44%",height:"54%",background:"rgba(194,82,139,0.05)",borderRadius:8,zIndex:0,pointerEvents:"none"}} />
-                {/* Hall title */}
-                <div style={{position:"absolute",top:7,left:"50%",transform:"translateX(-50%)",fontSize:10,letterSpacing:3,color:"#b8860b",fontWeight:700,zIndex:10,whiteSpace:"nowrap"}}>MAKET GALLERY HALL</div>
-                {/* Section labels - left aligned */}
-                <div style={{position:"absolute",left:8,top:"3%",fontSize:7.5,fontWeight:800,color:"#2a6f97",letterSpacing:1,zIndex:10,display:"flex",alignItems:"center",gap:4}}>
-                  <span style={{width:5,height:5,borderRadius:"50%",background:"#2a6f97",display:"inline-block"}} />
-                  OĞLAN EVİ · {tables.filter(function(t){return t.side==="oglan";}).length} masa
+
+              {/* Scrollable hall area */}
+              <div style={{flex:1,overflow:"auto",padding:8,boxSizing:"border-box"}}>
+                <div ref={hallRef} onClick={handleHallClick}
+                  style={{position:"relative",
+                    width:(hallZoom*100)+"%",minWidth:280,
+                    aspectRatio:"1.5/1",
+                    border:addMode?"2px dashed #48bb78":layoutMode?"2px dashed #f6ad55":"1px solid #d8d5ce",
+                    borderRadius:14,background:addMode?"#f0fff4":layoutMode?"#fffcf0":"#f7f5f1",
+                    overflow:"visible",minHeight:300,
+                    cursor:addMode?"crosshair":layoutMode?"default":"default",
+                    transition:"border .15s,background .15s",
+                    boxShadow:(addMode||layoutMode)?"none":"inset 0 1px 4px rgba(0,0,0,.04)"}}>
+                  {/* Section tinted backgrounds */}
+                  <div style={{position:"absolute",left:"3%",right:"5%",top:"2%",height:"39%",background:"rgba(42,111,151,0.05)",borderRadius:8,zIndex:0,pointerEvents:"none"}} />
+                  <div style={{position:"absolute",left:"3%",right:"5%",top:"44%",height:"54%",background:"rgba(194,82,139,0.05)",borderRadius:8,zIndex:0,pointerEvents:"none"}} />
+                  {/* Hall title */}
+                  <div style={{position:"absolute",top:7,left:"50%",transform:"translateX(-50%)",fontSize:10,letterSpacing:3,color:"#b8860b",fontWeight:700,zIndex:10,whiteSpace:"nowrap"}}>MAKET GALLERY HALL</div>
+                  {/* Section labels */}
+                  <div style={{position:"absolute",left:8,top:"3%",fontSize:7.5,fontWeight:800,color:"#2a6f97",letterSpacing:1,zIndex:10,display:"flex",alignItems:"center",gap:4}}>
+                    <span style={{width:5,height:5,borderRadius:"50%",background:"#2a6f97",display:"inline-block"}} />
+                    OĞLAN EVİ · {tables.filter(function(t){return t.side==="oglan";}).length} masa
+                  </div>
+                  <div style={{position:"absolute",left:8,top:"45%",fontSize:7.5,fontWeight:800,color:"#c2528b",letterSpacing:1,zIndex:10,display:"flex",alignItems:"center",gap:4}}>
+                    <span style={{width:5,height:5,borderRadius:"50%",background:"#c2528b",display:"inline-block"}} />
+                    QIZ EVİ · {tables.filter(function(t){return t.side==="qiz";}).length} masa
+                  </div>
+                  {/* GƏLIN BAY */}
+                  <div style={{position:"absolute",left:0,top:"38%",height:"7%",width:"5.5%",background:"linear-gradient(135deg,#d4eaf7,#b8d8ea)",borderRadius:"0 8px 8px 0",display:"flex",alignItems:"center",justifyContent:"center",zIndex:3,boxShadow:"2px 0 8px rgba(42,111,151,.12)"}}>
+                    <span style={{writingMode:"vertical-rl",transform:"rotate(180deg)",fontSize:7,fontWeight:800,color:"#4a7f98",letterSpacing:2}}>GƏLİN BAY</span>
+                  </div>
+                  {/* GİRİŞ — left wall below GƏLIN BAY */}
+                  <div style={{position:"absolute",left:0,top:"52%",height:"10%",width:"5%",background:"linear-gradient(135deg,#3aad6a,#2a8a50)",borderRadius:"0 8px 8px 0",display:"flex",alignItems:"center",justifyContent:"center",zIndex:3,boxShadow:"2px 0 10px rgba(58,173,106,.3)"}}>
+                    <span style={{writingMode:"vertical-rl",transform:"rotate(180deg)",fontSize:7,fontWeight:800,color:"#fff",letterSpacing:2}}>GİRİŞ ▲</span>
+                  </div>
+                  {/* Section divider */}
+                  <div style={{position:"absolute",left:"6%",right:"5%",top:"43%",height:1,background:"linear-gradient(90deg,transparent,#c8c4bc 15%,#c8c4bc 85%,transparent)",zIndex:2,pointerEvents:"none"}} />
+                  {/* Stage */}
+                  <div style={{position:"absolute",right:0,top:"22%",height:"50%",width:24,background:"linear-gradient(180deg,#2a6f97,#1a4f77)",borderRadius:"6px 0 0 6px",display:"flex",alignItems:"center",justifyContent:"center",zIndex:10,boxShadow:"-2px 0 8px rgba(26,79,119,.2)"}}>
+                    <span style={{writingMode:"vertical-rl",color:"#fff",fontSize:9,fontWeight:800,letterSpacing:4}}>SƏHNƏ</span>
+                  </div>
+                  {addMode&&<div style={{position:"absolute",top:"50%",left:"50%",transform:"translate(-50%,-50%)",fontSize:13,color:"#48bb78",fontWeight:700,opacity:0.4,pointerEvents:"none",zIndex:0,textAlign:"center"}}>
+                    Masanı yerləşdirmək üçün<br/>klik et</div>}
+                  {layoutMode&&<div style={{position:"absolute",top:"50%",left:"50%",transform:"translate(-50%,-50%)",fontSize:13,color:"#c07800",fontWeight:700,opacity:0.3,pointerEvents:"none",zIndex:0,textAlign:"center"}}>
+                    Masanı sürüşdür</div>}
+                  {tables.map(renderT)}
                 </div>
-                <div style={{position:"absolute",left:8,top:"45%",fontSize:7.5,fontWeight:800,color:"#c2528b",letterSpacing:1,zIndex:10,display:"flex",alignItems:"center",gap:4}}>
-                  <span style={{width:5,height:5,borderRadius:"50%",background:"#c2528b",display:"inline-block"}} />
-                  QIZ EVİ · {tables.filter(function(t){return t.side==="qiz";}).length} masa
+
+                {activeCats.length>0&&(
+                  <div style={{display:"flex",gap:8,justifyContent:"center",marginTop:10,flexWrap:"wrap"}}>
+                    {activeCats.map(function(c){
+                      return <span key={c} style={{fontSize:10,display:"flex",alignItems:"center",gap:4}}>
+                        <span style={{width:10,height:10,borderRadius:"50%",background:cCol(c)+"30",border:"2px solid "+cCol(c),display:"inline-block"}} />
+                        <span style={{color:"#666"}}>{c}</span></span>;
+                    })}
+                  </div>
+                )}
+                <div style={{display:"flex",gap:10,justifyContent:"center",marginTop:10,flexWrap:"wrap"}}>
+                  <Badge l="Masa" v={tables.filter(function(t){return t.cap>0;}).length} a="#555" />
+                  <Badge l="Qonaq" v={stats.total} a="#b8860b" />
+                  <Badge l="Oturub" v={stats.assigned} a="#48bb78" />
+                  <Badge l="Boş" v={stats.unassigned} a="#e53e3e" />
                 </div>
-                {/* GƏLIN BAY */}
-                <div style={{position:"absolute",left:0,top:"38%",height:"7%",width:"5.5%",background:"linear-gradient(135deg,#d4eaf7,#b8d8ea)",borderRadius:"0 8px 8px 0",display:"flex",alignItems:"center",justifyContent:"center",zIndex:3,boxShadow:"2px 0 8px rgba(42,111,151,.12)"}}>
-                  <span style={{writingMode:"vertical-rl",transform:"rotate(180deg)",fontSize:7,fontWeight:800,color:"#4a7f98",letterSpacing:2}}>GƏLİN BAY</span>
-                </div>
-                {/* Section divider */}
-                <div style={{position:"absolute",left:"6%",right:"5%",top:"43%",height:1,background:"linear-gradient(90deg,transparent,#c8c4bc 15%,#c8c4bc 85%,transparent)",zIndex:2,pointerEvents:"none"}} />
-                {/* Stage */}
-                <div style={{position:"absolute",right:0,top:"22%",height:"50%",width:24,background:"linear-gradient(180deg,#2a6f97,#1a4f77)",borderRadius:"6px 0 0 6px",display:"flex",alignItems:"center",justifyContent:"center",zIndex:10,boxShadow:"-2px 0 8px rgba(26,79,119,.2)"}}>
-                  <span style={{writingMode:"vertical-rl",color:"#fff",fontSize:9,fontWeight:800,letterSpacing:4}}>SƏHNƏ</span>
-                </div>
-                {/* GİRİŞ - bottom center, away from tables */}
-                <div style={{position:"absolute",left:"50%",transform:"translateX(-50%)",bottom:8,display:"flex",alignItems:"center",gap:5,background:"#3aad6a",color:"#fff",padding:"4px 16px 4px 12px",borderRadius:16,fontSize:9,fontWeight:800,zIndex:10,letterSpacing:1,boxShadow:"0 2px 10px rgba(58,173,106,.4)",whiteSpace:"nowrap"}}>
-                  <span>▲</span><span>GİRİŞ</span>
-                </div>
-                {addMode&&<div style={{position:"absolute",top:"50%",left:"50%",transform:"translate(-50%,-50%)",fontSize:13,color:"#48bb78",fontWeight:700,opacity:0.4,pointerEvents:"none",zIndex:0,textAlign:"center"}}>
-                  Masanı yerləşdirmək üçün<br/>klik et</div>}
-                {tables.map(renderT)}
-              </div>
-              {activeCats.length>0&&(
-                <div style={{display:"flex",gap:8,justifyContent:"center",marginTop:10,flexWrap:"wrap"}}>
-                  {activeCats.map(function(c){
-                    return <span key={c} style={{fontSize:10,display:"flex",alignItems:"center",gap:4}}>
-                      <span style={{width:10,height:10,borderRadius:"50%",background:cCol(c)+"30",border:"2px solid "+cCol(c),display:"inline-block"}} />
-                      <span style={{color:"#666"}}>{c}</span></span>;
-                  })}
-                </div>
-              )}
-              <div style={{display:"flex",gap:10,justifyContent:"center",marginTop:10,flexWrap:"wrap"}}>
-                <Badge l="Masa" v={tables.filter(function(t){return t.cap>0;}).length} a="#555" />
-                <Badge l="Qonaq" v={stats.total} a="#b8860b" />
-                <Badge l="Oturub" v={stats.assigned} a="#48bb78" />
-                <Badge l="Boş" v={stats.unassigned} a="#e53e3e" />
               </div>
             </div>
           )}
