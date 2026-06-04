@@ -720,7 +720,7 @@ export default function WeddingPlanner() {
           borderRadius:"50%",background:bg,border:"2.5px solid "+border,
           boxShadow:shadow,display:"flex",flexDirection:"column",
           alignItems:"center",justifyContent:"center",cursor:addMode?"default":"pointer",
-          transition:"box-shadow .2s",zIndex:sel?5:1,userSelect:"none"}}>
+          transition:"box-shadow .2s",zIndex:sel?5:1,userSelect:"none",overflow:"visible"}}>
         <div style={{fontSize:t.r>28?13:10.5,fontWeight:800,color:"#333",lineHeight:1}}>{t.label}</div>
         {t.cap>0&&<div style={{fontSize:t.r>28?10:8.5,color:full?"#d33":"#666",marginTop:2,fontWeight:700}}>{asg.length}/{t.cap}</div>}
         {pct>0&&pct<1&&(
@@ -728,6 +728,25 @@ export default function WeddingPlanner() {
             <div style={{width:(pct*100)+"%",height:"100%",background:border,borderRadius:2}} />
           </div>
         )}
+        {asg.map(function(g,i){
+          var angle = (i/asg.length)*2*Math.PI - Math.PI/2;
+          var dist = t.r+14;
+          var cx = Math.cos(angle)*dist;
+          var cy = Math.sin(angle)*dist;
+          var nm = g.name.split(" ")[0];
+          if(nm.length>9) nm=nm.substr(0,8)+"…";
+          return (
+            <div key={g.id} style={{
+              position:"absolute",left:"50%",top:"50%",
+              transform:"translate(calc(-50% + "+cx+"px), calc(-50% + "+cy+"px))",
+              fontSize:6.5,fontWeight:700,
+              color:g.side==="oglan"?"#1a5a8a":"#a03070",
+              whiteSpace:"nowrap",pointerEvents:"none",lineHeight:1,
+              textShadow:"0 0 3px #fff,0 0 3px #fff,0 0 3px #fff",
+              zIndex:10,
+            }}>{nm}</div>
+          );
+        })}
       </div>
     );
   }
