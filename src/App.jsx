@@ -1010,17 +1010,45 @@ export default function WeddingPlanner() {
             </div>
           )}
           {view==="list"&&(
-            <div style={{padding:20,maxWidth:700,margin:"0 auto"}}>
-              <h2 style={{fontFamily:"'Playfair Display',serif",fontSize:18,marginBottom:14}}>Bütün Qonaqlar</h2>
+            <div style={{padding:20,maxWidth:760,margin:"0 auto"}}>
+              <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:14}}>
+                <h2 style={{fontFamily:"'Playfair Display',serif",fontSize:18,margin:0}}>Bütün Qonaqlar</h2>
+                <span style={{fontSize:11,color:"#aaa",fontFamily:"system-ui"}}>{guests.length} qonaq</span>
+              </div>
               <div style={{background:"#fff",borderRadius:10,border:"1px solid #e0ddd5",overflow:"hidden"}}>
-                {guests.map(function(g,i){var t=tables.find(function(t){return t.id===g.tableId;});
-                  return <div key={g.id} style={{display:"flex",alignItems:"center",padding:"9px 14px",gap:8,borderBottom:"1px solid #f5f5f3",background:i%2?"#fafaf7":"#fff"}}>
-                    <div style={{width:6,height:6,borderRadius:"50%",background:g.side==="oglan"?"#2a6f97":"#c2528b"}} />
-                    <div style={{flex:2,fontSize:12.5}}>{g.name}</div>
-                    <span style={{fontSize:9,padding:"2px 8px",borderRadius:10,background:cCol(g.cat)+"15",color:cCol(g.cat),fontWeight:600}}>{g.cat}</span>
-                    <div style={{width:45,fontSize:10.5,color:"#aaa",textAlign:"right"}}>{g.side==="oglan"?"Oğlan":"Qız"}</div>
-                    <div style={{width:45,fontSize:11,fontWeight:700,color:t?"#2a6f97":"#ddd",textAlign:"right"}}>{t?t.label:"—"}</div>
-                  </div>;})}
+                {guests.map(function(g,i){
+                  var t=tables.find(function(t){return t.id===g.tableId;});
+                  if(editing===g.id) return (
+                    <div key={g.id} style={{display:"flex",alignItems:"center",padding:"7px 14px",gap:6,borderBottom:"1px solid #f5f5f3",background:"#f0f7ff",flexWrap:"wrap"}}>
+                      <div style={{width:6,height:6,borderRadius:"50%",background:g.side==="oglan"?"#2a6f97":"#c2528b",flexShrink:0}} />
+                      <input value={ef.name} onChange={function(e){setEf(Object.assign({},ef,{name:e.target.value}));}}
+                        style={{flex:2,padding:"5px 8px",border:"1px solid #93c5fd",borderRadius:5,fontSize:12,outline:"none",minWidth:100}} />
+                      <input value={ef.cat} onChange={function(e){setEf(Object.assign({},ef,{cat:e.target.value}));}}
+                        style={{flex:1,padding:"5px 8px",border:"1px solid #93c5fd",borderRadius:5,fontSize:12,outline:"none",minWidth:80}} />
+                      <select value={ef.side} onChange={function(e){setEf(Object.assign({},ef,{side:e.target.value}));}}
+                        style={{padding:"5px 6px",border:"1px solid #93c5fd",borderRadius:5,fontSize:11,outline:"none"}}>
+                        <option value="oglan">Oğlan</option><option value="qiz">Qız</option>
+                      </select>
+                      <button onClick={function(){setGuests(function(p){return p.map(function(x){return x.id===editing?Object.assign({},x,ef):x;});});setEditing(null);}}
+                        style={{padding:"5px 12px",background:"#2a6f97",color:"#fff",border:"none",borderRadius:5,cursor:"pointer",fontSize:11,fontWeight:700}}>✓</button>
+                      <button onClick={function(){setEditing(null);}}
+                        style={{padding:"5px 9px",background:"#eee",border:"none",borderRadius:5,cursor:"pointer",fontSize:11}}>✕</button>
+                    </div>
+                  );
+                  return (
+                    <div key={g.id} style={{display:"flex",alignItems:"center",padding:"8px 14px",gap:8,borderBottom:"1px solid #f5f5f3",background:i%2?"#fafaf7":"#fff"}}>
+                      <div style={{width:6,height:6,borderRadius:"50%",background:g.side==="oglan"?"#2a6f97":"#c2528b",flexShrink:0}} />
+                      <div style={{flex:2,fontSize:12.5,fontFamily:"system-ui"}}>{g.name}</div>
+                      <span style={{fontSize:9,padding:"2px 8px",borderRadius:10,background:cCol(g.cat)+"15",color:cCol(g.cat),fontWeight:600,flexShrink:0}}>{g.cat}</span>
+                      <div style={{width:45,fontSize:10.5,color:"#aaa",textAlign:"right",flexShrink:0}}>{g.side==="oglan"?"Oğlan":"Qız"}</div>
+                      <div style={{width:45,fontSize:11,fontWeight:700,color:t?"#2a6f97":"#ddd",textAlign:"right",flexShrink:0}}>{t?t.label:"—"}</div>
+                      <button onClick={function(){setEditing(g.id);setEf({name:g.name,side:g.side,cat:g.cat});}}
+                        style={{background:"none",border:"1px solid #e0e0e0",borderRadius:5,cursor:"pointer",fontSize:12,padding:"3px 7px",color:"#888",flexShrink:0}}>✎</button>
+                      <button onClick={function(){setGuests(function(p){return p.filter(function(x){return x.id!==g.id;});});}}
+                        style={{background:"none",border:"1px solid #fcc",borderRadius:5,cursor:"pointer",fontSize:12,padding:"3px 7px",color:"#e53e3e",flexShrink:0}}>✕</button>
+                    </div>
+                  );
+                })}
               </div>
             </div>
           )}
