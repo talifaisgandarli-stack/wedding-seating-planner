@@ -158,10 +158,14 @@ export default function WeddingPlanner() {
     if (Array.isArray(d.guests)) {
       var ids = d.guests.map(function(g){return g.id;});
       if (ids.length) _id = Math.max.apply(null, [_id].concat(ids));
-      setGuests(d.guests);
+      // Firebase omits null values — normalize undefined tableId back to null
+      var healed = d.guests.map(function(g){
+        return Object.assign({},g,{tableId: g.tableId != null ? g.tableId : null});
+      });
+      setGuests(healed);
       // If guests exist, skip CSV screen and go straight to hall view
       var savedStep = d.step != null ? d.step : 0;
-      setStep(d.guests.length > 0 ? Math.max(savedStep, 2) : savedStep);
+      setStep(healed.length > 0 ? Math.max(savedStep, 2) : savedStep);
     } else {
       if (d.step != null) setStep(d.step);
     }
@@ -337,7 +341,7 @@ export default function WeddingPlanner() {
   }, [guests]);
 
   var stats = useMemo(function() {
-    var asg = guests.filter(function(g){return g.tableId!==null;});
+    var asg = guests.filter(function(g){return g.tableId!=null;});
     return {
       total: guests.length,
       assigned: asg.length,
@@ -418,7 +422,7 @@ export default function WeddingPlanner() {
   var selTD = tables.find(function(t){return t.id===selTable;});
   var selG = guests.filter(function(g){return g.tableId===selTable;});
   var filtUn = guests.filter(function(g){
-    if(g.tableId!==null)return false;
+    if(g.tableId!=null)return false;
     if(fSide!=="all"&&g.side!==fSide)return false;
     if(fCat!=="all"&&g.cat!==fCat)return false;
     if(search&&g.name.toLowerCase().indexOf(search.toLowerCase())<0)return false;
@@ -681,7 +685,7 @@ export default function WeddingPlanner() {
   // STEP 2 — Hall view
   // ════════════════════════════════════════
   function renderT(t) {
-    var asg = guests.filter(function(g){return g.tableId===t.id;});
+    var asg = guests.filter(function(g){return g.tableId!=null && g.tableId===t.id;});
     var pct = t.cap>0?asg.length/t.cap:0;
     var full = asg.length>=t.cap&&t.cap>0;
     var empty = asg.length===0;
