@@ -155,6 +155,7 @@ export default function WeddingPlanner() {
   var draggingTRef = useRef(null);
   var [arrived, setArrived] = useState({});
   var [liveSearch, setLiveSearch] = useState("");
+  var [showLeftPanel, setShowLeftPanel] = useState(false);
 
   // ── Apply remote data (from Firebase or localStorage) ──
   function applyData(d) {
@@ -807,51 +808,50 @@ export default function WeddingPlanner() {
   return (
     <div style={{fontFamily:"system-ui,sans-serif",height:"100vh",display:"flex",flexDirection:"column",background:"#f4f2ed",overflow:"hidden"}}>
       {/* TOP BAR */}
-      <div style={{background:"#141414",color:"#fff",padding:"6px 14px",display:"flex",alignItems:"center",justifyContent:"space-between",flexShrink:0,flexWrap:"wrap",gap:6}}>
-        <div style={{display:"flex",alignItems:"center",gap:10}}>
-          <span style={{fontFamily:"'Playfair Display',serif",fontSize:14}}>Maket Gallery Hall</span>
-          {/* Wedding code chip */}
-          <div style={{display:"flex",alignItems:"center",gap:6,background:"#2a2a2a",borderRadius:6,padding:"3px 10px"}}>
-            <span style={{fontSize:9,color:"#666",letterSpacing:1}}>KOD</span>
+      <div style={{background:"#141414",color:"#fff",padding:"6px 10px",display:"flex",alignItems:"center",justifyContent:"space-between",flexShrink:0,gap:6}}>
+        <div style={{display:"flex",alignItems:"center",gap:8,overflow:"hidden"}}>
+          <span className="mob-hide" style={{fontFamily:"'Playfair Display',serif",fontSize:14,flexShrink:0}}>Maket Gallery Hall</span>
+          <div style={{display:"flex",alignItems:"center",gap:5,background:"#2a2a2a",borderRadius:6,padding:"4px 8px",flexShrink:0}}>
+            <span className="mob-hide" style={{fontSize:9,color:"#666",letterSpacing:1}}>KOD</span>
             <span style={{fontFamily:"monospace",fontSize:13,fontWeight:800,color:"#b8860b",letterSpacing:3}}>{weddingId}</span>
-            <button onClick={handleCopy} style={{background:"none",border:"none",cursor:"pointer",fontSize:11,color:copied?"#48bb78":"#555",padding:"0 2px"}}>
+            <button onClick={handleCopy} style={{background:"none",border:"none",cursor:"pointer",fontSize:13,color:copied?"#48bb78":"#555",padding:"0 2px",minHeight:0}}>
               {copied?"✓":"📋"}
             </button>
           </div>
           {fbDb && onlineCount && (
-            <span style={{fontSize:10,color:"#48bb78",display:"flex",alignItems:"center",gap:3}}>
+            <span style={{fontSize:10,color:"#48bb78",display:"flex",alignItems:"center",gap:3,flexShrink:0}}>
               <span style={{width:6,height:6,borderRadius:"50%",background:"#48bb78",display:"inline-block"}} />
-              {onlineCount} onlayn
+              <span className="mob-hide">{onlineCount} onlayn</span>
             </span>
           )}
-          <div style={{display:"flex",gap:2,background:"#2a2a2a",borderRadius:6,padding:2}}>
+          <div className="mob-hide" style={{display:"flex",gap:2,background:"#2a2a2a",borderRadius:6,padding:2}}>
             {[["hall","Zal"],["list","Siyahı"],["stats","Stat"],["live","Live"]].map(function(pair){
-              return <button key={pair[0]} onClick={function(){setView(pair[0]);}} style={{
-                padding:"4px 10px",fontSize:11,border:"none",borderRadius:5,cursor:"pointer",
+              return <button key={pair[0]} onClick={function(){setView(pair[0]);setShowLeftPanel(false);}} style={{
+                padding:"4px 10px",fontSize:11,border:"none",borderRadius:5,cursor:"pointer",minHeight:0,
                 background:view===pair[0]?"#b8860b":"transparent",color:view===pair[0]?"#fff":"#888",fontWeight:view===pair[0]?700:400
               }}>{pair[1]}</button>;
             })}
           </div>
         </div>
 
-        <div style={{display:"flex",gap:6,alignItems:"center",flexWrap:"wrap"}}>
-          <span style={{fontSize:11,color:"#888"}}>
+        <div style={{display:"flex",gap:5,alignItems:"center"}}>
+          <span className="mob-hide" style={{fontSize:11,color:"#888",whiteSpace:"nowrap"}}>
             <span style={{color:"#48bb78",fontWeight:700}}>{stats.assigned}</span>{" oturub · "}
             <span style={{color:"#f6ad55",fontWeight:700}}>{stats.unassigned}</span>{" boş"}
           </span>
-          <button onClick={autoAssign} style={s("#2a6f97","#fff",{padding:"4px 10px",fontSize:11})}>⚡ Böl</button>
+          <button onClick={autoAssign} style={s("#2a6f97","#fff",{padding:"4px 10px",fontSize:11})}>⚡<span className="mob-hide"> Böl</span></button>
           <button onClick={function(){setGuests(function(p){return p.map(function(g){return Object.assign({},g,{tableId:null});});});}} style={s("#333","#aaa",{padding:"4px 10px",fontSize:11})}>↺</button>
-          <button onClick={function(){setStep(0);}} style={s("#333","#aaa",{padding:"4px 10px",fontSize:11})}>📋 Siyahı əlavə et</button>
-          <button onClick={function(){setStep(1);}} style={s("#333","#aaa",{padding:"4px 10px",fontSize:11})}>👥 Qonaqlar</button>
-          {dupCount>0&&<button onClick={removeDuplicates} style={s("#5a1010","#f87",{padding:"4px 10px",fontSize:11,border:"1px solid #933"})}>✕ {dupCount} dublikat</button>}
+          <button className="mob-hide" onClick={function(){setStep(0);}} style={s("#333","#aaa",{padding:"4px 10px",fontSize:11})}>📋 Siyahı əlavə et</button>
+          <button className="mob-hide" onClick={function(){setStep(1);}} style={s("#333","#aaa",{padding:"4px 10px",fontSize:11})}>👥 Qonaqlar</button>
+          {dupCount>0&&<button className="mob-hide" onClick={removeDuplicates} style={s("#5a1010","#f87",{padding:"4px 10px",fontSize:11,border:"1px solid #933"})}>✕ {dupCount} dublikat</button>}
           {showResetConfirm ? (
             <span style={{display:"flex",gap:4,alignItems:"center"}}>
-              <span style={{fontSize:10,color:"#f6ad55"}}>Əminsən?</span>
-              <button onClick={handleLeave} style={s("#e53e3e","#fff",{padding:"4px 10px",fontSize:10})}>Bəli, çıx</button>
-              <button onClick={function(){setShowResetConfirm(false);}} style={s("#333","#aaa",{padding:"4px 8px",fontSize:10})}>Xeyr</button>
+              <span className="mob-hide" style={{fontSize:10,color:"#f6ad55"}}>Əminsən?</span>
+              <button onClick={handleLeave} style={s("#e53e3e","#fff",{padding:"4px 9px",fontSize:10})}>✕ çıx</button>
+              <button onClick={function(){setShowResetConfirm(false);}} style={s("#333","#aaa",{padding:"4px 8px",fontSize:10})}>—</button>
             </span>
           ) : (
-            <button onClick={function(){setShowResetConfirm(true);}} style={s("#1a1a1a","#555",{padding:"4px 10px",fontSize:10,border:"1px solid #333"})}>✕ Çıxış</button>
+            <button onClick={function(){setShowResetConfirm(true);}} style={s("#1a1a1a","#555",{padding:"4px 9px",fontSize:10,border:"1px solid #333"})}>✕</button>
           )}
         </div>
       </div>
@@ -875,9 +875,11 @@ export default function WeddingPlanner() {
         </div>
       )}
 
-      <div style={{flex:1,display:"flex",overflow:"hidden"}}>
+      <div style={{flex:1,display:"flex",overflow:"hidden",position:"relative"}}>
+        {/* MOBILE OVERLAY */}
+        {showLeftPanel&&<div className="mob-overlay" onClick={function(){setShowLeftPanel(false);}} />}
         {/* LEFT PANEL */}
-        <div style={{width:220,background:"#fff",borderRight:"1px solid #e0ddd5",display:"flex",flexDirection:"column",flexShrink:0}}>
+        <div className={"left-panel"+(showLeftPanel?" open":"")} style={{width:220,background:"#fff",borderRight:"1px solid #e0ddd5",display:"flex",flexDirection:"column",flexShrink:0}}>
           <div style={{padding:"10px 12px",borderBottom:"1px solid #eee"}}>
             <input placeholder="Axtar..." value={search} onChange={function(e){setSearch(e.target.value);}}
               style={{width:"100%",padding:"7px 10px",border:"1px solid #ddd",borderRadius:6,fontSize:11.5,outline:"none",boxSizing:"border-box"}} />
@@ -927,6 +929,10 @@ export default function WeddingPlanner() {
             <div style={{height:"100%",display:"flex",flexDirection:"column",overflow:"hidden"}}>
               {/* Hall toolbar */}
               <div style={{padding:"5px 10px",display:"flex",gap:5,alignItems:"center",borderBottom:"1px solid #eee",flexShrink:0,background:"#fafaf8",flexWrap:"wrap"}}>
+                <button className="mob-only" onClick={function(){setShowLeftPanel(!showLeftPanel);}}
+                  style={{padding:"4px 10px",fontSize:10.5,border:"1px solid #ddd",borderRadius:16,cursor:"pointer",background:"#f5f5f5",color:"#555",fontWeight:600}}>
+                  ☰ {filtUn.length}
+                </button>
                 <button onClick={function(){setAddMode(!addMode);setLayoutMode(false);setSelTable(null);}}
                   style={{padding:"4px 12px",fontSize:10.5,border:"1px solid "+(addMode?"#e53e3e":"#48bb78"),borderRadius:16,cursor:"pointer",
                     background:addMode?"#fff5f5":"#f0fff4",color:addMode?"#e53e3e":"#2a7a4a",fontWeight:700}}>
@@ -1060,7 +1066,7 @@ export default function WeddingPlanner() {
           {view==="stats"&&(
             <div style={{padding:20,maxWidth:600,margin:"0 auto"}}>
               <h2 style={{fontFamily:"'Playfair Display',serif",fontSize:18,marginBottom:16}}>Statistika</h2>
-              <div style={{display:"grid",gridTemplateColumns:"1fr 1fr 1fr",gap:10,marginBottom:20}}>
+              <div className="stats-grid" style={{display:"grid",gridTemplateColumns:"1fr 1fr 1fr",gap:10,marginBottom:20}}>
                 <Badge l="Qonaq" v={stats.total} a="#b8860b" />
                 <Badge l="Tutum" v={stats.cap} a="#555" />
                 <Badge l="Boş yer" v={Math.max(0,stats.cap-stats.total)} a={stats.cap>=stats.total?"#48bb78":"#e53e3e"} />
@@ -1125,7 +1131,7 @@ export default function WeddingPlanner() {
                   })()}
                 </div>
               ):(
-                <div style={{display:"grid",gridTemplateColumns:"repeat(auto-fill,minmax(230px,1fr))",gap:14}}>
+                <div className="live-grid" style={{display:"grid",gridTemplateColumns:"repeat(auto-fill,minmax(230px,1fr))",gap:14}}>
                   {tables.filter(function(t){return t.cap>0;}).map(function(t){
                     var tg=guests.filter(function(g){return g.tableId===t.id;});
                     var ac=tg.filter(function(g){return !!arrived[g.id];}).length;
@@ -1179,7 +1185,7 @@ export default function WeddingPlanner() {
 
         {/* RIGHT PANEL */}
         {selTable!==null&&selTD&&(
-          <div style={{width:255,background:"#fff",borderLeft:"1px solid #e0ddd5",display:"flex",flexDirection:"column",flexShrink:0}}>
+          <div className="right-panel" style={{width:255,background:"#fff",borderLeft:"1px solid #e0ddd5",display:"flex",flexDirection:"column",flexShrink:0}}>
             <div style={{padding:"14px 16px",borderBottom:"1px solid #eee"}}>
               <div style={{display:"flex",justifyContent:"space-between",alignItems:"center"}}>
                 <div>
@@ -1265,6 +1271,24 @@ export default function WeddingPlanner() {
             )}
           </div>
         )}
+      </div>
+
+      {/* MOBILE BOTTOM NAV */}
+      <div className="mob-bottom-nav" style={{display:"none"}}>
+        {[["hall","🏛","Zal"],["list","📋","Siyahı"],["stats","📊","Stat"],["live","🟢","Live"]].map(function(item){
+          var active=view===item[0];
+          return (
+            <button key={item[0]} onClick={function(){setView(item[0]);setShowLeftPanel(false);}} style={{
+              flex:1,padding:"10px 0 8px",background:"transparent",border:"none",cursor:"pointer",minHeight:0,
+              display:"flex",flexDirection:"column",alignItems:"center",gap:2,
+              color:active?"#b8860b":"#666",
+              borderTop:active?"2px solid #b8860b":"2px solid transparent"
+            }}>
+              <span style={{fontSize:20,lineHeight:1}}>{item[1]}</span>
+              <span style={{fontSize:9,fontWeight:active?700:400,letterSpacing:0.3}}>{item[2]}</span>
+            </button>
+          );
+        })}
       </div>
     </div>
   );

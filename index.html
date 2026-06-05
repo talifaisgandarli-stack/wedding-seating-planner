@@ -10,6 +10,59 @@
       * { margin: 0; padding: 0; box-sizing: border-box; }
       body { font-family: system-ui, -apple-system, sans-serif; background: #f4f2ed; }
       #root { min-height: 100vh; }
+
+      /* ── Mobile responsive ── */
+      .mob-hide { display: none; }
+      @media (min-width: 768px) {
+        .mob-hide { display: revert; }
+        .mob-only { display: none !important; }
+        .mob-bottom-nav { display: none !important; }
+        .mob-overlay { display: none !important; }
+      }
+      @media (max-width: 767px) {
+        /* Left panel: hidden drawer, slides in */
+        .left-panel {
+          position: absolute !important;
+          top: 0; left: 0; bottom: 0;
+          z-index: 50;
+          transform: translateX(-100%);
+          transition: transform .22s ease;
+          width: 240px !important;
+          box-shadow: 4px 0 24px rgba(0,0,0,.18) !important;
+        }
+        .left-panel.open { transform: translateX(0); }
+
+        /* Right panel: hidden on mobile */
+        .right-panel { display: none !important; }
+
+        /* Overlay backdrop */
+        .mob-overlay {
+          position: absolute; inset: 0;
+          background: rgba(0,0,0,.38);
+          z-index: 40;
+          cursor: pointer;
+        }
+
+        /* Bottom nav */
+        .mob-bottom-nav {
+          display: flex !important;
+          background: #141414;
+          border-top: 1px solid #2a2a2a;
+          flex-shrink: 0;
+        }
+
+        /* Live grid: 2 cols on medium mobile, 1 col on small */
+        .live-grid { grid-template-columns: repeat(2, 1fr) !important; gap: 10px !important; }
+        .stats-grid { grid-template-columns: repeat(3, 1fr) !important; }
+      }
+      @media (max-width: 480px) {
+        .live-grid { grid-template-columns: 1fr !important; }
+      }
+
+      /* Bigger tap targets for buttons everywhere on touch */
+      @media (hover: none) {
+        button { min-height: 36px; }
+      }
     </style>
   </head>
   <body>
