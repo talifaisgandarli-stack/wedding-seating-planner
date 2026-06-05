@@ -153,6 +153,8 @@ export default function WeddingPlanner() {
   var [hallZoom, setHallZoom] = useState(1);
   var [layoutMode, setLayoutMode] = useState(false);
   var draggingTRef = useRef(null);
+  var [arrived, setArrived] = useState({});
+  var [liveSearch, setLiveSearch] = useState("");
 
   // ── Apply remote data (from Firebase or localStorage) ──
   function applyData(d) {
@@ -176,6 +178,9 @@ export default function WeddingPlanner() {
       var tids = d.tables.map(function(t){return t.id;});
       if (tids.length) _id = Math.max.apply(null, [_id].concat(tids));
       setTables(d.tables);
+    }
+    if (d.arrived && typeof d.arrived === "object" && !Array.isArray(d.arrived)) {
+      setArrived(d.arrived);
     }
   }
 
@@ -236,7 +241,7 @@ export default function WeddingPlanner() {
     if (!weddingId || mode !== "app" || !weddingInitialized) return;
     if (fromRemote.current) { fromRemote.current = false; return; }
 
-    var data = { step:step, guests:guests, tables:tables };
+    var data = { step:step, guests:guests, tables:tables, arrived:arrived };
 
     if (fbDb) {
       clearTimeout(writeTimer.current);
@@ -253,7 +258,7 @@ export default function WeddingPlanner() {
       ls.weddingId = weddingId;
       lsSet(ls);
     }
-  }, [step, guests, tables, weddingId, mode, weddingInitialized]);
+  }, [step, guests, tables, arrived, weddingId, mode, weddingInitialized]);
 
   // ── Create new wedding ──
   async function handleCreate() {
@@ -820,7 +825,7 @@ export default function WeddingPlanner() {
             </span>
           )}
           <div style={{display:"flex",gap:2,background:"#2a2a2a",borderRadius:6,padding:2}}>
-            {[["hall","Zal"],["list","Siyahı"],["stats","Stat"]].map(function(pair){
+            {[["hall","Zal"],["list","Siyahı"],["stats","Stat"],["live","Live"]].map(function(pair){
               return <button key={pair[0]} onClick={function(){setView(pair[0]);}} style={{
                 padding:"4px 10px",fontSize:11,border:"none",borderRadius:5,cursor:"pointer",
                 background:view===pair[0]?"#b8860b":"transparent",color:view===pair[0]?"#fff":"#888",fontWeight:view===pair[0]?700:400
@@ -1072,6 +1077,102 @@ export default function WeddingPlanner() {
                     <div style={{fontSize:11,fontWeight:700,width:50,textAlign:"right"}}>{seated}/{cg.length}</div>
                   </div>;})}
               </div>
+            </div>
+          )}
+          {view==="live"&&(
+            <div style={{padding:20,maxWidth:960,margin:"0 auto"}}>
+              <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:16,gap:12,flexWrap:"wrap"}}>
+                <h2 style={{fontFamily:"'Playfair Display',serif",fontSize:18,margin:0}}>Canlı Qeydiyyat</h2>
+                <div style={{display:"flex",gap:8,alignItems:"center",flex:1,maxWidth:300}}>
+                  <input placeholder="Ad axtar..." value={liveSearch} onChange={function(e){setLiveSearch(e.target.value);}}
+                    style={{flex:1,padding:"7px 11px",border:"1px solid #ddd",borderRadius:7,fontSize:12,outline:"none"}} />
+                  {liveSearch&&<button onClick={function(){setLiveSearch("");}} style={{background:"none",border:"none",cursor:"pointer",color:"#aaa",fontSize:16,padding:"0 4px"}}>✕</button>}
+                </div>
+                <div style={{display:"flex",gap:8,flexShrink:0}}>
+                  <span style={{fontSize:12,background:"#f0fff4",border:"1px solid #9ae6b4",borderRadius:8,padding:"5px 12px",color:"#276749",fontWeight:700}}>
+                    ✓ {Object.keys(arrived).length} gəldi
+                  </span>
+                  <span style={{fontSize:12,background:"#fff5f5",border:"1px solid #feb2b2",borderRadius:8,padding:"5px 12px",color:"#c53030",fontWeight:700}}>
+                    {guests.length-Object.keys(arrived).length} gözlənilir
+                  </span>
+                </div>
+              </div>
+              {liveSearch.trim()?(
+                <div style={{background:"#fff",borderRadius:10,border:"1px solid #e0ddd5",overflow:"hidden",marginBottom:20}}>
+                  {(function(){
+                    var q=liveSearch.trim().toLowerCase();
+                    var res=guests.filter(function(g){return g.name.toLowerCase().includes(q);});
+                    if(!res.length) return <div style={{padding:20,textAlign:"center",color:"#bbb",fontSize:13}}>Tapılmadı</div>;
+                    return res.map(function(g){
+                      var t=tables.find(function(t){return t.id===g.tableId;});
+                      var isA=!!arrived[g.id];
+                      return (
+                        <div key={g.id} onClick={function(){setArrived(function(p){var n=Object.assign({},p);if(n[g.id])delete n[g.id];else n[g.id]=true;return n;})}}
+                          style={{display:"flex",alignItems:"center",padding:"9px 14px",gap:8,borderBottom:"1px solid #f5f5f3",cursor:"pointer",
+                            background:isA?"#f0fff4":"#fff"}}>
+                          <div style={{width:22,height:22,borderRadius:"50%",border:"2px solid "+(isA?"#48bb78":"#ddd"),
+                            background:isA?"#48bb78":"#fff",display:"flex",alignItems:"center",justifyContent:"center",
+                            flexShrink:0,fontSize:12,color:"#fff",fontWeight:800,transition:"all .15s"}}>
+                            {isA?"✓":""}
+                          </div>
+                          <div style={{width:6,height:6,borderRadius:"50%",background:g.side==="oglan"?"#2a6f97":"#c2528b",flexShrink:0}} />
+                          <div style={{flex:1,fontSize:13,fontFamily:"system-ui",fontWeight:isA?700:400,color:isA?"#276749":"#222"}}>{g.name}</div>
+                          <span style={{fontSize:9,padding:"2px 8px",borderRadius:10,background:cCol(g.cat)+"15",color:cCol(g.cat),fontWeight:600,flexShrink:0}}>{g.cat}</span>
+                          <div style={{fontSize:11,fontWeight:700,color:t?"#2a6f97":"#bbb",width:40,textAlign:"right",flexShrink:0}}>{t?t.label:"—"}</div>
+                        </div>
+                      );
+                    });
+                  })()}
+                </div>
+              ):(
+                <div style={{display:"grid",gridTemplateColumns:"repeat(auto-fill,minmax(230px,1fr))",gap:14}}>
+                  {tables.filter(function(t){return t.cap>0;}).map(function(t){
+                    var tg=guests.filter(function(g){return g.tableId===t.id;});
+                    var ac=tg.filter(function(g){return !!arrived[g.id];}).length;
+                    var allIn=ac===tg.length&&tg.length>0;
+                    var bord=t.side==="oglan"?"#8bb8c9":t.side==="qiz"?"#a888c0":"#d4a520";
+                    return (
+                      <div key={t.id} style={{background:"#fff",borderRadius:12,border:"1.5px solid "+(allIn?"#9ae6b4":bord+"88"),overflow:"hidden",
+                        boxShadow:"0 2px 8px rgba(0,0,0,.06)"}}>
+                        <div style={{padding:"10px 14px",borderBottom:"1px solid #f0f0ee",
+                          background:allIn?"#f0fff4":t.side==="oglan"?"#f0f6fb":t.side==="qiz"?"#f9f0fb":"#fffbf0",
+                          display:"flex",justifyContent:"space-between",alignItems:"center"}}>
+                          <div>
+                            <div style={{fontFamily:"'Playfair Display',serif",fontSize:15,fontWeight:800}}>{t.label}</div>
+                            <div style={{fontSize:9,color:"#999",marginTop:1}}>{t.side==="oglan"?"Oğlan":"Qız"} · {t.cap} nəfər</div>
+                          </div>
+                          <div style={{textAlign:"right"}}>
+                            <div style={{fontSize:20,fontWeight:800,color:allIn?"#48bb78":ac>0?"#f6ad55":"#ddd",lineHeight:1}}>{ac}</div>
+                            <div style={{fontSize:9,color:"#aaa"}}>/ {tg.length} gəldi</div>
+                          </div>
+                        </div>
+                        <div style={{padding:"4px 0"}}>
+                          {tg.length===0&&<div style={{padding:"10px 14px",fontSize:11,color:"#ccc",textAlign:"center"}}>Boş masa</div>}
+                          {tg.map(function(g){
+                            var isA=!!arrived[g.id];
+                            return (
+                              <div key={g.id} onClick={function(){setArrived(function(p){var n=Object.assign({},p);if(n[g.id])delete n[g.id];else n[g.id]=true;return n;})}}
+                                style={{display:"flex",alignItems:"center",padding:"6px 12px",gap:7,cursor:"pointer",
+                                  background:isA?"#f0fff4":"transparent",borderBottom:"1px solid #f8f8f8",transition:"background .12s"}}>
+                                <div style={{width:18,height:18,borderRadius:"50%",border:"1.5px solid "+(isA?"#48bb78":"#ddd"),
+                                  background:isA?"#48bb78":"#fff",display:"flex",alignItems:"center",justifyContent:"center",
+                                  flexShrink:0,fontSize:10,color:"#fff",fontWeight:800,transition:"all .15s"}}>
+                                  {isA?"✓":""}
+                                </div>
+                                <div style={{width:5,height:5,borderRadius:"50%",background:g.side==="oglan"?"#2a6f97":"#c2528b",flexShrink:0}} />
+                                <div style={{flex:1,fontSize:11.5,fontFamily:"system-ui",fontWeight:isA?700:400,
+                                  color:isA?"#276749":"#333"}}>{g.name}</div>
+                                <span style={{fontSize:8,padding:"1px 6px",borderRadius:8,background:cCol(g.cat)+"15",
+                                  color:cCol(g.cat),fontWeight:600,flexShrink:0}}>{g.cat}</span>
+                              </div>
+                            );
+                          })}
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              )}
             </div>
           )}
         </div>
