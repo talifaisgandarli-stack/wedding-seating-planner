@@ -79,9 +79,9 @@ function cCol(c) {
 // ─── BADGE ───
 function Badge(props) {
   return (
-    <div style={{background:props.a+"10",border:"1px solid "+props.a+"25",borderRadius:10,padding:"10px 14px",textAlign:"center",minWidth:72}}>
-      <div style={{fontSize:22,fontWeight:800,color:props.a,fontFamily:"'Playfair Display',serif"}}>{props.v}</div>
-      <div style={{fontSize:9,color:"#8a8a8a",marginTop:1,fontWeight:600,letterSpacing:0.4,textTransform:"uppercase"}}>{props.l}</div>
+    <div style={{background:props.a+"12",border:"1px solid "+props.a+"28",borderRadius:12,padding:"12px 16px",textAlign:"center",minWidth:80,boxShadow:"0 1px 4px "+props.a+"10"}}>
+      <div style={{fontSize:26,fontWeight:800,color:props.a,fontFamily:"'Playfair Display',serif",lineHeight:1}}>{props.v}</div>
+      <div style={{fontSize:9.5,color:"#8a8a8a",marginTop:4,fontWeight:700,letterSpacing:0.6,textTransform:"uppercase"}}>{props.l}</div>
     </div>
   );
 }
@@ -518,50 +518,54 @@ export default function WeddingPlanner() {
   // HOME SCREEN
   // ════════════════════════════════════════
   if (mode === "home") return (
-    <div style={{fontFamily:"'Playfair Display',Georgia,serif",minHeight:"100vh",background:"#f4f2ed",display:"flex",alignItems:"center",justifyContent:"center",padding:20}}>
-      <div style={{width:"100%",maxWidth:460}}>
+    <div style={{fontFamily:"system-ui,sans-serif",minHeight:"100vh",background:"linear-gradient(160deg,#0d0d0d 0%,#1a1510 100%)",display:"flex",alignItems:"center",justifyContent:"center",padding:20}}>
+      <div style={{width:"100%",maxWidth:440}}>
         {/* Header */}
-        <div style={{textAlign:"center",marginBottom:36}}>
-          <div style={{fontSize:10,letterSpacing:5,color:"#b8860b",fontWeight:700,fontFamily:"system-ui",marginBottom:8}}>MAKET GALLERY HALL · BAKI</div>
-          <h1 style={{fontSize:34,fontWeight:400,color:"#1a1a1a",margin:"0 0 12px"}}>Oturma Planı</h1>
-          <div style={{width:50,height:1,background:"#b8860b",margin:"0 auto"}} />
+        <div style={{textAlign:"center",marginBottom:40}}>
+          <div style={{display:"inline-flex",alignItems:"center",gap:8,marginBottom:16}}>
+            <div style={{width:32,height:1,background:"#b8860b"}} />
+            <div style={{fontSize:10,letterSpacing:5,color:"#b8860b",fontWeight:700}}>MAKET GALLERY HALL · BAKI</div>
+            <div style={{width:32,height:1,background:"#b8860b"}} />
+          </div>
+          <h1 style={{fontFamily:"'Playfair Display',Georgia,serif",fontSize:36,fontWeight:400,color:"#fff",margin:"0 0 6px",letterSpacing:-0.5}}>Oturma Planı</h1>
+          <p style={{fontSize:12,color:"#6a6560",letterSpacing:0.5}}>Toy salonu oturma idarəetməsi</p>
         </div>
 
         {/* Firebase status banner */}
         {!FB_READY && (
-          <div style={{background:"#fff8e1",border:"1px solid #ffe082",borderRadius:10,padding:"12px 16px",marginBottom:20,fontFamily:"system-ui"}}>
-            <div style={{fontSize:12,fontWeight:700,color:"#f57c00",marginBottom:4}}>⚠ Firebase konfiqurasiya edilməyib</div>
-            <div style={{fontSize:11,color:"#795548",lineHeight:1.5}}>
-              Real-vaxt sinxronizasiya üçün <b>src/firebaseConfig.js</b> faylını doldurun.<br/>
-              İndi yalnız <b>offline rejim</b> işləyir (yalnız bu cihazda saxlanır).
+          <div style={{background:"rgba(255,248,225,.08)",border:"1px solid rgba(255,224,130,.2)",borderRadius:12,padding:"12px 16px",marginBottom:20}}>
+            <div style={{fontSize:12,fontWeight:700,color:"#f6ad55",marginBottom:4}}>⚠ Offline rejim</div>
+            <div style={{fontSize:11,color:"#8a8070",lineHeight:1.6}}>
+              Real-vaxt sinxronizasiya üçün Firebase konfiqurasiya edin.<br/>
+              İndi yalnız bu cihazda saxlanır.
             </div>
           </div>
         )}
 
         {/* Create card */}
-        <div style={{background:"#fff",borderRadius:14,border:"1px solid #e8e4db",padding:28,marginBottom:16,boxShadow:"0 2px 12px rgba(0,0,0,.04)"}}>
-          <div style={{fontSize:12,color:"#888",fontFamily:"system-ui",marginBottom:12}}>Yeni toy planı yarat</div>
+        <div style={{background:"rgba(255,255,255,.04)",borderRadius:16,border:"1px solid rgba(255,255,255,.08)",padding:28,marginBottom:12,backdropFilter:"blur(8px)"}}>
+          <div style={{fontSize:11,color:"#6a6560",letterSpacing:0.5,marginBottom:14,textTransform:"uppercase"}}>Yeni toy planı yarat</div>
           <button
             onClick={handleCreate}
             disabled={loading}
-            style={{width:"100%",padding:"15px 0",background:"#1a1a1a",color:"#fff",border:"none",borderRadius:10,
-              fontSize:14,fontWeight:700,cursor:"pointer",fontFamily:"system-ui",letterSpacing:1.5,
-              opacity:loading?0.6:1}}
+            style={{width:"100%",padding:"16px 0",background:"#b8860b",color:"#fff",border:"none",borderRadius:12,
+              fontSize:14,fontWeight:700,cursor:"pointer",letterSpacing:1.5,
+              opacity:loading?0.6:1,boxShadow:"0 4px 20px rgba(184,134,11,.3)"}}
           >
-            {loading ? "Yaradılır..." : "🆕 Yeni Toy Yarat"}
+            {loading ? "Yaradılır..." : "Yeni Toy Yarat →"}
           </button>
         </div>
 
         {/* Divider */}
-        <div style={{display:"flex",alignItems:"center",gap:12,marginBottom:16,fontFamily:"system-ui",fontSize:11,color:"#bbb"}}>
-          <div style={{flex:1,height:1,background:"#e0ddd5"}} />
+        <div style={{display:"flex",alignItems:"center",gap:12,marginBottom:12,fontSize:11,color:"#3a3530"}}>
+          <div style={{flex:1,height:1,background:"rgba(255,255,255,.06)"}} />
           <span>ya da</span>
-          <div style={{flex:1,height:1,background:"#e0ddd5"}} />
+          <div style={{flex:1,height:1,background:"rgba(255,255,255,.06)"}} />
         </div>
 
         {/* Join card */}
-        <div style={{background:"#fff",borderRadius:14,border:"1px solid #e8e4db",padding:28,boxShadow:"0 2px 12px rgba(0,0,0,.04)"}}>
-          <div style={{fontSize:12,color:"#888",fontFamily:"system-ui",marginBottom:12}}>Mövcud toya qoşul</div>
+        <div style={{background:"rgba(255,255,255,.04)",borderRadius:16,border:"1px solid rgba(255,255,255,.08)",padding:28,backdropFilter:"blur(8px)"}}>
+          <div style={{fontSize:11,color:"#6a6560",letterSpacing:0.5,marginBottom:14,textTransform:"uppercase"}}>Mövcud toya qoşul</div>
           <div style={{display:"flex",gap:8}}>
             <input
               value={joinCode}
@@ -569,28 +573,33 @@ export default function WeddingPlanner() {
               onKeyDown={function(e){if(e.key==="Enter")handleJoin();}}
               placeholder="TOY KODU"
               maxLength={6}
-              style={{flex:1,padding:"13px 14px",border:"2px solid "+(joinError?"#e53e3e":"#ddd"),borderRadius:10,
-                fontSize:18,fontWeight:800,letterSpacing:6,textAlign:"center",outline:"none",fontFamily:"system-ui",
-                textTransform:"uppercase",color:"#1a1a1a"}}
+              style={{flex:1,padding:"14px",background:"rgba(255,255,255,.07)",border:"1.5px solid "+(joinError?"#e53e3e":"rgba(255,255,255,.12)"),borderRadius:12,
+                fontSize:20,fontWeight:800,letterSpacing:8,textAlign:"center",outline:"none",
+                textTransform:"uppercase",color:"#fff"}}
             />
             <button
               onClick={handleJoin}
               disabled={loading||!joinCode.trim()}
-              style={{padding:"13px 20px",background:"#2a6f97",color:"#fff",border:"none",borderRadius:10,
-                fontSize:13,fontWeight:700,cursor:"pointer",fontFamily:"system-ui",opacity:(loading||!joinCode.trim())?0.5:1}}
+              style={{padding:"14px 20px",background:"#2a6f97",color:"#fff",border:"none",borderRadius:12,
+                fontSize:13,fontWeight:700,cursor:"pointer",opacity:(loading||!joinCode.trim())?0.4:1,
+                boxShadow:"0 4px 16px rgba(42,111,151,.3)"}}
             >
               {loading ? "..." : "Qoşul →"}
             </button>
           </div>
           {joinError && (
-            <div style={{color:"#e53e3e",fontSize:11.5,marginTop:10,padding:"8px 12px",background:"#fff5f5",
-              borderRadius:6,border:"1px solid #fdd",fontFamily:"system-ui"}}>⚠ {joinError}</div>
+            <div style={{color:"#fc8181",fontSize:12,marginTop:12,padding:"10px 14px",background:"rgba(229,62,62,.12)",
+              borderRadius:8,border:"1px solid rgba(229,62,62,.2)"}}>⚠ {joinError}</div>
           )}
           {!FB_READY && (
-            <div style={{color:"#aaa",fontSize:10.5,marginTop:10,fontFamily:"system-ui"}}>
+            <div style={{color:"#4a4540",fontSize:11,marginTop:10}}>
               Qoşulmaq üçün Firebase tələb olunur
             </div>
           )}
+        </div>
+
+        <div style={{textAlign:"center",marginTop:24,fontSize:10,color:"#3a3530",letterSpacing:0.5}}>
+          Maket Gallery Hall · Bakı
         </div>
       </div>
     </div>
@@ -600,43 +609,45 @@ export default function WeddingPlanner() {
   // STEP 0 — CSV Input
   // ════════════════════════════════════════
   if (step === 0) return (
-    <div style={{fontFamily:"'Playfair Display',Georgia,serif",maxWidth:640,margin:"0 auto",padding:28}}>
+    <div style={{fontFamily:"system-ui,sans-serif",maxWidth:640,margin:"0 auto",padding:"20px 16px"}}>
       {/* Wedding code bar */}
       <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",
-        background:"#1a1a1a",borderRadius:10,padding:"10px 16px",marginBottom:20}}>
+        background:"#141414",borderRadius:12,padding:"10px 16px",marginBottom:24,boxShadow:"0 2px 12px rgba(0,0,0,.15)"}}>
         <div style={{display:"flex",alignItems:"center",gap:10}}>
-          <span style={{fontFamily:"system-ui",fontSize:10,color:"#666",letterSpacing:1}}>TOY KODU</span>
-          <span style={{fontFamily:"monospace",fontSize:18,fontWeight:800,color:"#b8860b",letterSpacing:4}}>{weddingId}</span>
+          <span style={{fontSize:9,color:"#555",letterSpacing:1.5,textTransform:"uppercase"}}>Toy Kodu</span>
+          <span style={{fontFamily:"monospace",fontSize:17,fontWeight:800,color:"#b8860b",letterSpacing:4}}>{weddingId}</span>
         </div>
-        <div style={{display:"flex",gap:8,alignItems:"center"}}>
-          {fbDb && onlineCount && <span style={{fontSize:10,color:"#48bb78",fontFamily:"system-ui"}}>● {onlineCount} onlayn</span>}
-          <button onClick={handleCopy} style={s(copied?"#48bb78":"#333",copied?"#fff":"#aaa",{padding:"5px 12px",fontSize:10})}>
-            {copied?"✓ Kopyalandı":"📋 Kodu kopyala"}
+        <div style={{display:"flex",gap:6,alignItems:"center"}}>
+          {fbDb && onlineCount && <span style={{fontSize:10,color:"#48bb78",display:"flex",alignItems:"center",gap:3}}><span style={{width:5,height:5,borderRadius:"50%",background:"#48bb78",display:"inline-block"}} />{onlineCount} onlayn</span>}
+          <button onClick={handleCopy} style={{background:copied?"#48bb78":"rgba(255,255,255,.06)",color:copied?"#fff":"#888",border:"none",borderRadius:8,padding:"5px 12px",fontSize:10.5,cursor:"pointer",fontWeight:600}}>
+            {copied?"✓ Kopyalandı":"📋 Kopyala"}
           </button>
-          <button onClick={handleLeave} style={s("#333","#666",{padding:"5px 10px",fontSize:10})}>✕ Çıx</button>
+          <button onClick={handleLeave} style={{background:"rgba(255,255,255,.04)",color:"#555",border:"none",borderRadius:8,padding:"5px 10px",fontSize:10.5,cursor:"pointer"}}>✕ Çıx</button>
         </div>
       </div>
 
       <div style={{textAlign:"center",marginBottom:28}}>
-        <div style={{fontSize:10,letterSpacing:5,color:"#b8860b",fontWeight:700,fontFamily:"system-ui"}}>MAKET GALLERY HALL · BAKI</div>
-        <h1 style={{fontSize:30,fontWeight:400,color:"#1a1a1a",margin:"8px 0 0"}}>Oturma Planı</h1>
-        <div style={{width:50,height:1,background:"#b8860b",margin:"14px auto"}} />
-        <p style={{color:"#888",fontSize:13,fontFamily:"system-ui"}}>Qonaq siyahınızı CSV formatında daxil edin</p>
+        <div style={{fontSize:10,letterSpacing:4,color:"#b8860b",fontWeight:700,marginBottom:10}}>MAKET GALLERY HALL · BAKI</div>
+        <h1 style={{fontFamily:"'Playfair Display',Georgia,serif",fontSize:28,fontWeight:400,color:"#1a1a1a"}}>Oturma Planı</h1>
+        <div style={{width:40,height:2,background:"#b8860b",margin:"12px auto",borderRadius:1}} />
+        <p style={{color:"#999",fontSize:13}}>Qonaq siyahınızı CSV formatında daxil edin</p>
       </div>
 
-      <div style={{background:"#fafaf7",border:"1px solid #e8e4db",borderRadius:12,padding:22}}>
-        <div style={{fontSize:11,color:"#aaa",marginBottom:6,fontFamily:"system-ui"}}>Format: <b>Ad Soyad, Tərəf (oğlan/qız), Kateqoriya</b></div>
+      <div style={{background:"#fff",border:"1px solid #e8e4db",borderRadius:14,padding:24,boxShadow:"0 2px 12px rgba(0,0,0,.04)"}}>
+        <div style={{fontSize:11,color:"#aaa",marginBottom:10,padding:"8px 12px",background:"#fafaf7",borderRadius:8,border:"1px solid #f0ede5"}}>
+          Format: <b style={{color:"#666"}}>Ad Soyad, Tərəf (oğlan/qız), Kateqoriya</b>
+        </div>
         <textarea
           value={csv}
           onChange={function(e){setCsv(e.target.value);setCsvError("");}}
-          rows={14}
+          rows={13}
           placeholder={"Ad Soyad, Tərəf, Kateqoriya\nƏli Həsənov, oğlan, Ailə\nLeyla Həsənova, qız, Ailə\n..."}
-          style={{width:"100%",border:"1px solid #ddd",borderRadius:8,padding:14,fontSize:12.5,
-            fontFamily:"monospace",resize:"vertical",outline:"none",background:"#fff",boxSizing:"border-box"}}
+          style={{width:"100%",border:"1.5px solid #e8e4db",borderRadius:10,padding:14,fontSize:12.5,
+            fontFamily:"monospace",resize:"vertical",background:"#fafaf7",boxSizing:"border-box",lineHeight:1.6}}
         />
         {csvError && (
-          <div style={{color:"#e53e3e",fontSize:11.5,marginTop:8,padding:"8px 12px",background:"#fff5f5",
-            borderRadius:6,border:"1px solid #fdd",fontFamily:"system-ui"}}>⚠ {csvError}</div>
+          <div style={{color:"#e53e3e",fontSize:12,marginTop:10,padding:"10px 14px",background:"#fff5f5",
+            borderRadius:8,border:"1px solid #fdd"}}>⚠ {csvError}</div>
         )}
         <button
           onClick={function(){
@@ -646,14 +657,14 @@ export default function WeddingPlanner() {
             if(!p.length){setCsvError("Format düzgün deyil. Nümunəyə baxın.");return;}
             setGuests(function(prev){return prev.concat(p);}); setStep(1); setCsvError("");
           }}
-          style={Object.assign({},s("#1a1a1a","#fff"),{width:"100%",marginTop:14,padding:"13px 0",letterSpacing:1.5})}
+          style={{width:"100%",marginTop:14,padding:"14px 0",background:"#1a1a1a",color:"#fff",border:"none",borderRadius:10,fontSize:13,fontWeight:700,cursor:"pointer",letterSpacing:1.5}}
         >
           SİYAHINI YÜKLƏ →
         </button>
         {guests.length > 0 && (
           <button
             onClick={function(){setStep(guests.some(function(g){return g.tableId!==null;})?2:1);}}
-            style={Object.assign({},s("#f0f0f0","#444"),{width:"100%",marginTop:8,border:"1px solid #ddd"})}
+            style={{width:"100%",marginTop:8,padding:"12px 0",background:"#f5f3ee",color:"#555",border:"1px solid #e8e4db",borderRadius:10,fontSize:13,fontWeight:600,cursor:"pointer"}}
           >
             Əvvəlki plana davam et ({guests.length} qonaq) →
           </button>
@@ -666,37 +677,37 @@ export default function WeddingPlanner() {
   // STEP 1 — Guest list
   // ════════════════════════════════════════
   if (step === 1) return (
-    <div style={{fontFamily:"'Playfair Display',Georgia,serif",maxWidth:700,margin:"0 auto",padding:24}}>
+    <div style={{fontFamily:"system-ui,sans-serif",maxWidth:700,margin:"0 auto",padding:"20px 16px"}}>
       {/* Code bar */}
       <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",
-        background:"#1a1a1a",borderRadius:10,padding:"8px 16px",marginBottom:20}}>
+        background:"#141414",borderRadius:12,padding:"10px 16px",marginBottom:24,boxShadow:"0 2px 12px rgba(0,0,0,.15)"}}>
         <div style={{display:"flex",alignItems:"center",gap:10}}>
-          <span style={{fontFamily:"system-ui",fontSize:10,color:"#666",letterSpacing:1}}>TOY KODU</span>
+          <span style={{fontSize:9,color:"#555",letterSpacing:1.5,textTransform:"uppercase"}}>Toy Kodu</span>
           <span style={{fontFamily:"monospace",fontSize:16,fontWeight:800,color:"#b8860b",letterSpacing:4}}>{weddingId}</span>
         </div>
         <div style={{display:"flex",gap:6,alignItems:"center"}}>
-          {fbDb && onlineCount && <span style={{fontSize:10,color:"#48bb78",fontFamily:"system-ui"}}>● {onlineCount}</span>}
-          <button onClick={handleCopy} style={s(copied?"#48bb78":"#333",copied?"#fff":"#aaa",{padding:"4px 10px",fontSize:10})}>
+          {fbDb && onlineCount && <span style={{fontSize:10,color:"#48bb78",display:"flex",alignItems:"center",gap:3}}><span style={{width:5,height:5,borderRadius:"50%",background:"#48bb78",display:"inline-block"}} />{onlineCount}</span>}
+          <button onClick={handleCopy} style={{background:copied?"#48bb78":"rgba(255,255,255,.06)",color:copied?"#fff":"#888",border:"none",borderRadius:8,padding:"5px 10px",fontSize:11,cursor:"pointer",fontWeight:600}}>
             {copied?"✓":"📋"}
           </button>
         </div>
       </div>
 
-      <div style={{textAlign:"center",marginBottom:20}}>
-        <h1 style={{fontSize:24,fontWeight:400}}>Siyahını Təsdiqləyin</h1>
-        <div style={{width:50,height:1,background:"#b8860b",margin:"10px auto 8px"}} />
-        <p style={{color:"#888",fontSize:12,fontFamily:"system-ui"}}>{guests.length} qonaq · düzəliş edin, sonra təsdiqləyin</p>
+      <div style={{textAlign:"center",marginBottom:24}}>
+        <h1 style={{fontFamily:"'Playfair Display',Georgia,serif",fontSize:26,fontWeight:400,color:"#1a1a1a"}}>Siyahını Təsdiqləyin</h1>
+        <div style={{width:40,height:2,background:"#b8860b",margin:"10px auto 8px",borderRadius:1}} />
+        <p style={{color:"#999",fontSize:12}}>{guests.length} qonaq · düzəliş edin, sonra təsdiqləyin</p>
       </div>
 
-      <div style={{display:"flex",gap:8,marginBottom:14,justifyContent:"center",flexWrap:"wrap"}}>
+      <div style={{display:"flex",gap:10,marginBottom:16,justifyContent:"center",flexWrap:"wrap"}}>
         <Badge l="Oğlan" v={guests.filter(function(g){return g.side==="oglan";}).length} a="#2a6f97" />
         <Badge l="Qız" v={guests.filter(function(g){return g.side==="qiz";}).length} a="#c2528b" />
         <Badge l="Cəmi" v={guests.length} a="#b8860b" />
       </div>
 
-      <div style={{display:"flex",gap:6,flexWrap:"wrap",marginBottom:14,justifyContent:"center"}}>
+      <div style={{display:"flex",gap:6,flexWrap:"wrap",marginBottom:16,justifyContent:"center"}}>
         {cats.map(function(c){var n=guests.filter(function(g){return g.cat===c;}).length;
-          return <span key={c} style={{fontSize:11,padding:"4px 10px",borderRadius:20,background:cCol(c)+"18",color:cCol(c),fontWeight:600,fontFamily:"system-ui"}}>{c}: {n}</span>;})}
+          return <span key={c} style={{fontSize:11,padding:"5px 12px",borderRadius:999,background:cCol(c)+"15",color:cCol(c),fontWeight:700,border:"1px solid "+cCol(c)+"25"}}>{c} · {n}</span>;})}
       </div>
 
       {showAdd && (
@@ -714,41 +725,42 @@ export default function WeddingPlanner() {
         </div>
       )}
 
-      <div style={{background:"#fff",border:"1px solid #e5e2da",borderRadius:10,overflow:"hidden"}}>
-        <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",padding:"10px 14px",borderBottom:"1px solid #eee"}}>
-          <span style={{fontSize:11,fontWeight:700,color:"#999",fontFamily:"system-ui"}}>QONAQ SİYAHISI</span>
+      <div style={{background:"#fff",border:"1px solid #e8e4da",borderRadius:12,overflow:"hidden",boxShadow:"0 2px 12px rgba(0,0,0,.04)"}}>
+        <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",padding:"12px 16px",borderBottom:"1px solid #f0ede5",background:"#fafaf7"}}>
+          <span style={{fontSize:11,fontWeight:700,color:"#aaa",letterSpacing:0.8}}>QONAQ SİYAHISI</span>
           <div style={{display:"flex",gap:6,alignItems:"center"}}>
-            {dupCount>0&&<button onClick={removeDuplicates} style={{fontSize:10,background:"#fff5f5",border:"1px solid #fcc",borderRadius:6,padding:"3px 10px",cursor:"pointer",color:"#e53e3e",fontWeight:600}}>✕ {dupCount} dublikat</button>}
-            <button onClick={function(){setShowAdd(true);}} style={{fontSize:11,background:"none",border:"1px solid #ddd",borderRadius:6,padding:"3px 10px",cursor:"pointer",color:"#555"}}>+ Əlavə et</button>
+            {dupCount>0&&<button onClick={removeDuplicates} style={{fontSize:10.5,background:"#fff5f5",border:"1px solid #fcc",borderRadius:999,padding:"5px 12px",cursor:"pointer",color:"#e53e3e",fontWeight:700}}>✕ {dupCount} dublikat</button>}
+            <button onClick={function(){setShowAdd(true);}} style={{fontSize:11,background:"#f0f7ff",border:"1px solid #d0e3f0",borderRadius:999,padding:"5px 12px",cursor:"pointer",color:"#2a6f97",fontWeight:600}}>+ Əlavə et</button>
           </div>
         </div>
-        <div style={{maxHeight:380,overflowY:"auto"}}>
+        <div style={{maxHeight:400,overflowY:"auto"}}>
           {guests.map(function(g,i){
             return (
-              <div key={g.id} style={{display:"flex",alignItems:"center",padding:"9px 14px",borderBottom:"1px solid #f5f5f3",gap:8,background:i%2?"#fafaf7":"#fff"}}>
+              <div key={g.id} style={{display:"flex",alignItems:"center",padding:"10px 16px",borderBottom:"1px solid #f5f5f3",gap:8,background:i%2?"#fafaf8":"#fff"}}>
                 {editing===g.id ? (
                   <>
                     <input value={ef.name} onChange={function(e){setEf(Object.assign({},ef,{name:e.target.value}));}}
-                      style={{flex:2,padding:"5px 8px",border:"1px solid #ccc",borderRadius:4,fontSize:12,outline:"none"}} />
-                    <select value={ef.side} onChange={function(e){setEf(Object.assign({},ef,{side:e.target.value}));}}>
+                      style={{flex:2,padding:"6px 10px",border:"1.5px solid #e0e0e0",borderRadius:7,fontSize:12}} />
+                    <select value={ef.side} onChange={function(e){setEf(Object.assign({},ef,{side:e.target.value}));}}
+                      style={{padding:"6px 8px",border:"1.5px solid #e0e0e0",borderRadius:7,fontSize:12}}>
                       <option value="oglan">Oğlan</option><option value="qiz">Qız</option>
                     </select>
                     <input value={ef.cat} onChange={function(e){setEf(Object.assign({},ef,{cat:e.target.value}));}}
-                      style={{flex:1,padding:"5px 8px",border:"1px solid #ccc",borderRadius:4,fontSize:12,outline:"none"}} />
+                      style={{flex:1,padding:"6px 10px",border:"1.5px solid #e0e0e0",borderRadius:7,fontSize:12}} />
                     <button onClick={function(){setGuests(function(p){return p.map(function(x){return x.id===editing?Object.assign({},x,ef):x;});});setEditing(null);}}
-                      style={{background:"#2a6f97",color:"#fff",border:"none",borderRadius:4,padding:"5px 10px",cursor:"pointer",fontSize:11}}>✓</button>
-                    <button onClick={function(){setEditing(null);}} style={{background:"#eee",border:"none",borderRadius:4,padding:"5px 8px",cursor:"pointer",fontSize:11}}>✕</button>
+                      style={{background:"#2a6f97",color:"#fff",border:"none",borderRadius:7,padding:"6px 12px",cursor:"pointer",fontSize:12,fontWeight:700}}>✓</button>
+                    <button onClick={function(){setEditing(null);}} style={{background:"#f0f0f0",border:"none",borderRadius:7,padding:"6px 10px",cursor:"pointer",fontSize:12}}>✕</button>
                   </>
                 ) : (
                   <>
-                    <div style={{width:7,height:7,borderRadius:"50%",background:g.side==="oglan"?"#2a6f97":"#c2528b",flexShrink:0}} />
-                    <div style={{flex:2,fontSize:12.5,fontFamily:"system-ui"}}>{g.name}</div>
-                    <span style={{fontSize:10,padding:"2px 8px",borderRadius:10,background:cCol(g.cat)+"15",color:cCol(g.cat),fontWeight:600,fontFamily:"system-ui"}}>{g.cat}</span>
-                    <div style={{width:50,fontSize:10,color:"#aaa",fontFamily:"system-ui",textAlign:"right"}}>{g.side==="oglan"?"Oğlan":"Qız"}</div>
+                    <div style={{width:8,height:8,borderRadius:"50%",background:g.side==="oglan"?"#2a6f97":"#c2528b",flexShrink:0}} />
+                    <div style={{flex:2,fontSize:13,fontWeight:500}}>{g.name}</div>
+                    <span style={{fontSize:10,padding:"3px 9px",borderRadius:999,background:cCol(g.cat)+"15",color:cCol(g.cat),fontWeight:700,border:"1px solid "+cCol(g.cat)+"20"}}>{g.cat}</span>
+                    <div style={{width:48,fontSize:10,color:"#bbb",textAlign:"right"}}>{g.side==="oglan"?"Oğlan":"Qız"}</div>
                     <button onClick={function(){setEditing(g.id);setEf({name:g.name,side:g.side,cat:g.cat});}}
-                      style={{background:"none",border:"none",cursor:"pointer",fontSize:13,padding:"1px 5px",color:"#888"}}>✎</button>
+                      style={{background:"none",border:"1px solid #e8e8e8",borderRadius:6,cursor:"pointer",fontSize:12,padding:"3px 8px",color:"#999"}}>✎</button>
                     <button onClick={function(){setGuests(function(p){return p.filter(function(x){return x.id!==g.id;});});}}
-                      style={{background:"none",border:"none",cursor:"pointer",fontSize:13,padding:"1px 5px",color:"#e53e3e"}}>✕</button>
+                      style={{background:"none",border:"1px solid #fdd",borderRadius:6,cursor:"pointer",fontSize:12,padding:"3px 8px",color:"#e53e3e"}}>✕</button>
                   </>
                 )}
               </div>
@@ -758,8 +770,8 @@ export default function WeddingPlanner() {
       </div>
 
       <div style={{display:"flex",gap:10,marginTop:16}}>
-        <button onClick={function(){setStep(0);}} style={Object.assign({},s("#fff","#555"),{flex:1,border:"1px solid #ddd"})}>← Geri</button>
-        <button onClick={function(){setStep(2);}} style={Object.assign({},s("#1a1a1a","#fff"),{flex:2,letterSpacing:1})}>TƏSDİQLƏ →</button>
+        <button onClick={function(){setStep(0);}} style={{flex:1,padding:"13px",background:"#fff",color:"#555",border:"1.5px solid #e8e4da",borderRadius:10,fontSize:13,fontWeight:600,cursor:"pointer"}}>← Geri</button>
+        <button onClick={function(){setStep(2);}} style={{flex:2,padding:"13px",background:"#1a1a1a",color:"#fff",border:"none",borderRadius:10,fontSize:13,fontWeight:700,cursor:"pointer",letterSpacing:1}}>TƏSDİQLƏ →</button>
       </div>
     </div>
   );
@@ -848,51 +860,52 @@ export default function WeddingPlanner() {
   return (
     <div style={{fontFamily:"system-ui,sans-serif",height:"100vh",display:"flex",flexDirection:"column",background:"#f4f2ed",overflow:"hidden"}}>
       {/* TOP BAR */}
-      <div style={{background:"#141414",color:"#fff",padding:"6px 10px",display:"flex",alignItems:"center",justifyContent:"space-between",flexShrink:0,gap:6}}>
-        <div style={{display:"flex",alignItems:"center",gap:8,overflow:"hidden"}}>
-          <span className="mob-hide" style={{fontFamily:"'Playfair Display',serif",fontSize:14,flexShrink:0}}>Maket Gallery Hall</span>
-          <div style={{display:"flex",alignItems:"center",gap:5,background:"#2a2a2a",borderRadius:6,padding:"4px 8px",flexShrink:0}}>
-            <span className="mob-hide" style={{fontSize:9,color:"#666",letterSpacing:1}}>KOD</span>
+      <div style={{background:"#0d0d0d",color:"#fff",padding:"8px 12px",display:"flex",alignItems:"center",justifyContent:"space-between",flexShrink:0,gap:8,borderBottom:"1px solid #1e1e1e"}}>
+        <div style={{display:"flex",alignItems:"center",gap:8,overflow:"hidden",flex:1}}>
+          <span className="mob-hide" style={{fontFamily:"'Playfair Display',serif",fontSize:14,color:"#d4a030",flexShrink:0,letterSpacing:0.5}}>Maket Hall</span>
+          <div style={{display:"flex",alignItems:"center",gap:4,background:"#1e1e1e",borderRadius:8,padding:"5px 10px",flexShrink:0,border:"1px solid #2a2a2a"}}>
+            <span className="mob-hide" style={{fontSize:9,color:"#4a4a4a",letterSpacing:1.5,textTransform:"uppercase"}}>Kod</span>
             <span style={{fontFamily:"monospace",fontSize:13,fontWeight:800,color:"#b8860b",letterSpacing:3}}>{weddingId}</span>
-            <button onClick={handleCopy} style={{background:"none",border:"none",cursor:"pointer",fontSize:13,color:copied?"#48bb78":"#555",padding:"0 2px",minHeight:0}}>
-              {copied?"✓":"📋"}
+            <button onClick={handleCopy} style={{background:"none",border:"none",cursor:"pointer",fontSize:12,color:copied?"#48bb78":"#4a4a4a",padding:"0 2px",minHeight:0,lineHeight:1}}>
+              {copied?"✓":"⎘"}
             </button>
           </div>
           {fbDb && onlineCount && (
             <span style={{fontSize:10,color:"#48bb78",display:"flex",alignItems:"center",gap:3,flexShrink:0}}>
-              <span style={{width:6,height:6,borderRadius:"50%",background:"#48bb78",display:"inline-block"}} />
-              <span className="mob-hide">{onlineCount} onlayn</span>
+              <span style={{width:5,height:5,borderRadius:"50%",background:"#48bb78",display:"inline-block",boxShadow:"0 0 4px #48bb78"}} />
+              <span className="mob-hide" style={{fontWeight:600}}>{onlineCount} onlayn</span>
             </span>
           )}
-          <div className="mob-hide" style={{display:"flex",gap:2,background:"#2a2a2a",borderRadius:6,padding:2}}>
-            {[["hall","Zal"],["list","Siyahı"],["stats","Stat"],["live","Live"]].map(function(pair){
+          <div className="mob-hide" style={{display:"flex",gap:1,background:"#1e1e1e",borderRadius:8,padding:"3px",border:"1px solid #2a2a2a"}}>
+            {[["hall","🏛 Zal"],["list","📋 Siyahı"],["stats","📊 Stat"],["live","🟢 Live"]].map(function(pair){
               return <button key={pair[0]} onClick={function(){setView(pair[0]);setShowLeftPanel(false);}} style={{
-                padding:"4px 10px",fontSize:11,border:"none",borderRadius:5,cursor:"pointer",minHeight:0,
-                background:view===pair[0]?"#b8860b":"transparent",color:view===pair[0]?"#fff":"#888",fontWeight:view===pair[0]?700:400
+                padding:"5px 12px",fontSize:11,border:"none",borderRadius:6,cursor:"pointer",minHeight:0,
+                background:view===pair[0]?"#b8860b":"transparent",color:view===pair[0]?"#fff":"#666",
+                fontWeight:view===pair[0]?700:400,letterSpacing:0.2
               }}>{pair[1]}</button>;
             })}
           </div>
         </div>
 
-        <div style={{display:"flex",gap:5,alignItems:"center"}}>
-          <span className="mob-hide" style={{fontSize:11,color:"#888",whiteSpace:"nowrap"}}>
-            <span style={{color:"#48bb78",fontWeight:700}}>{stats.assigned}</span>{" oturub · "}
+        <div style={{display:"flex",gap:4,alignItems:"center",flexShrink:0}}>
+          <span className="mob-hide" style={{fontSize:11,color:"#555",whiteSpace:"nowrap",marginRight:4}}>
+            <span style={{color:"#48bb78",fontWeight:700}}>{stats.assigned}</span>{" · "}
             <span style={{color:"#f6ad55",fontWeight:700}}>{stats.unassigned}</span>{" boş"}
           </span>
-          <button onClick={autoAssign} style={s("#2a6f97","#fff",{padding:"4px 10px",fontSize:11})}>⚡<span className="mob-hide"> Böl</span></button>
-          <button onClick={function(){pushHistory();setGuests(function(p){return p.map(function(g){return Object.assign({},g,{tableId:null});});});}} style={s("#333","#aaa",{padding:"4px 10px",fontSize:11})} title="Hamısını sıfırla">↺</button>
-          {canUndo&&<button onClick={undo} style={s("#2a2a2a","#f6ad55",{padding:"4px 10px",fontSize:11,border:"1px solid #555"})} title="Geri al (Ctrl+Z)">↶<span className="mob-hide"> Geri al</span></button>}
-          <button className="mob-hide" onClick={function(){setStep(0);}} style={s("#333","#aaa",{padding:"4px 10px",fontSize:11})}>📋 Siyahı əlavə et</button>
-          <button className="mob-hide" onClick={function(){setStep(1);}} style={s("#333","#aaa",{padding:"4px 10px",fontSize:11})}>👥 Qonaqlar</button>
-          {dupCount>0&&<button className="mob-hide" onClick={removeDuplicates} style={s("#5a1010","#f87",{padding:"4px 10px",fontSize:11,border:"1px solid #933"})}>✕ {dupCount} dublikat</button>}
+          <button onClick={autoAssign} style={{background:"#2a6f97",color:"#fff",border:"none",borderRadius:8,padding:"6px 12px",fontSize:11.5,fontWeight:700,cursor:"pointer"}}>⚡<span className="mob-hide"> Böl</span></button>
+          <button onClick={function(){pushHistory();setGuests(function(p){return p.map(function(g){return Object.assign({},g,{tableId:null});});});}} style={{background:"#1e1e1e",color:"#777",border:"1px solid #2a2a2a",borderRadius:8,padding:"6px 10px",fontSize:12,cursor:"pointer"}} title="Hamısını sıfırla">↺</button>
+          {canUndo&&<button onClick={undo} style={{background:"#1e1e1e",color:"#f6ad55",border:"1px solid #3a3000",borderRadius:8,padding:"6px 10px",fontSize:12,cursor:"pointer",fontWeight:700}} title="Geri al (Ctrl+Z)">↶<span className="mob-hide" style={{fontSize:11}}> Geri al</span></button>}
+          <button className="mob-hide" onClick={function(){setStep(0);}} style={{background:"#1e1e1e",color:"#666",border:"1px solid #2a2a2a",borderRadius:8,padding:"6px 10px",fontSize:11,cursor:"pointer"}}>📋</button>
+          <button className="mob-hide" onClick={function(){setStep(1);}} style={{background:"#1e1e1e",color:"#666",border:"1px solid #2a2a2a",borderRadius:8,padding:"6px 10px",fontSize:11,cursor:"pointer"}}>👥</button>
+          {dupCount>0&&<button className="mob-hide" onClick={removeDuplicates} style={{background:"#2a0808",color:"#f87171",border:"1px solid #4a1818",borderRadius:8,padding:"6px 10px",fontSize:11,cursor:"pointer",fontWeight:700}}>✕ {dupCount}</button>}
           {showResetConfirm ? (
             <span style={{display:"flex",gap:4,alignItems:"center"}}>
               <span className="mob-hide" style={{fontSize:10,color:"#f6ad55"}}>Əminsən?</span>
-              <button onClick={handleLeave} style={s("#e53e3e","#fff",{padding:"4px 9px",fontSize:10})}>✕ çıx</button>
-              <button onClick={function(){setShowResetConfirm(false);}} style={s("#333","#aaa",{padding:"4px 8px",fontSize:10})}>—</button>
+              <button onClick={handleLeave} style={{background:"#e53e3e",color:"#fff",border:"none",borderRadius:8,padding:"6px 10px",fontSize:11,cursor:"pointer",fontWeight:700}}>✕ çıx</button>
+              <button onClick={function(){setShowResetConfirm(false);}} style={{background:"#1e1e1e",color:"#666",border:"1px solid #2a2a2a",borderRadius:8,padding:"6px 8px",fontSize:11,cursor:"pointer"}}>—</button>
             </span>
           ) : (
-            <button onClick={function(){setShowResetConfirm(true);}} style={s("#1a1a1a","#555",{padding:"4px 9px",fontSize:10,border:"1px solid #333"})}>✕</button>
+            <button onClick={function(){setShowResetConfirm(true);}} style={{background:"#1e1e1e",color:"#444",border:"1px solid #2a2a2a",borderRadius:8,padding:"6px 9px",fontSize:11,cursor:"pointer"}}>✕</button>
           )}
         </div>
       </div>
@@ -920,47 +933,48 @@ export default function WeddingPlanner() {
         {/* MOBILE OVERLAY */}
         {showLeftPanel&&<div className="mob-overlay" onClick={function(){setShowLeftPanel(false);}} />}
         {/* LEFT PANEL */}
-        <div className={"left-panel"+(showLeftPanel?" open":"")} style={{width:220,background:"#fff",borderRight:"1px solid #e0ddd5",display:"flex",flexDirection:"column",flexShrink:0}}>
-          <div style={{padding:"10px 12px",borderBottom:"1px solid #eee"}}>
-            <input placeholder="Axtar..." value={search} onChange={function(e){setSearch(e.target.value);}}
-              style={{width:"100%",padding:"7px 10px",border:"1px solid #ddd",borderRadius:6,fontSize:11.5,outline:"none",boxSizing:"border-box"}} />
-            <div style={{display:"flex",gap:3,marginTop:6}}>
+        <div className={"left-panel"+(showLeftPanel?" open":"")} style={{width:230,background:"#fff",borderRight:"1px solid #ece8e0",display:"flex",flexDirection:"column",flexShrink:0}}>
+          <div style={{padding:"12px 12px 8px",borderBottom:"1px solid #f0ede5"}}>
+            <input placeholder="Axtar qonaq..." value={search} onChange={function(e){setSearch(e.target.value);}}
+              style={{width:"100%",padding:"8px 12px",border:"1.5px solid #e8e4da",borderRadius:8,fontSize:12,boxSizing:"border-box",background:"#fafaf7"}} />
+            <div style={{display:"flex",gap:4,marginTop:8}}>
               {[["all","Hamısı"],["oglan","Oğlan"],["qiz","Qız"]].map(function(p){
                 var active=fSide===p[0];
                 return <button key={p[0]} onClick={function(){setFSide(active&&p[0]!=="all"?"all":p[0]);}} style={{
-                  flex:1,padding:"4px 0",fontSize:10,border:"1px solid "+(active?"#1a1a1a":"#e0e0e0"),borderRadius:4,cursor:"pointer",
-                  background:active?"#1a1a1a":"#fff",color:active?"#fff":"#555",fontWeight:active?700:400}}>{p[1]}</button>;
+                  flex:1,padding:"5px 0",fontSize:10.5,border:"1.5px solid "+(active?"#1a1a1a":"#e8e4da"),borderRadius:8,cursor:"pointer",
+                  background:active?"#1a1a1a":"#fff",color:active?"#fff":"#666",fontWeight:active?700:500}}>{p[1]}</button>;
               })}
             </div>
             {cats.length>0&&(
-              <div style={{display:"flex",gap:3,marginTop:5,flexWrap:"wrap",paddingBottom:2}}>
-                <button onClick={function(){setFCat("all");}} style={{padding:"3px 8px",fontSize:9,border:"1px solid "+(fCat==="all"?"#1a1a1a":"#ddd"),borderRadius:10,cursor:"pointer",flexShrink:0,
-                  background:fCat==="all"?"#1a1a1a":"#fff",color:fCat==="all"?"#fff":"#666"}}>Hamısı</button>
+              <div style={{display:"flex",gap:3,marginTop:6,flexWrap:"wrap"}}>
+                <button onClick={function(){setFCat("all");}} style={{padding:"3px 9px",fontSize:9.5,border:"1.5px solid "+(fCat==="all"?"#1a1a1a":"#e8e4da"),borderRadius:999,cursor:"pointer",flexShrink:0,
+                  background:fCat==="all"?"#1a1a1a":"#fff",color:fCat==="all"?"#fff":"#777",fontWeight:600}}>Hamısı</button>
                 {cats.map(function(c){
                   var active=fCat===c;
-                  return <button key={c} onClick={function(){setFCat(active?"all":c);}} style={{padding:"3px 8px",fontSize:9,border:"1px solid "+(active?cCol(c):"#ddd"),borderRadius:10,cursor:"pointer",flexShrink:0,
-                    background:active?cCol(c):"#fff",color:active?"#fff":cCol(c),fontWeight:600}}>{c}</button>;
+                  return <button key={c} onClick={function(){setFCat(active?"all":c);}} style={{padding:"3px 9px",fontSize:9.5,border:"1.5px solid "+(active?cCol(c):"#e8e4da"),borderRadius:999,cursor:"pointer",flexShrink:0,
+                    background:active?cCol(c)+"20":"#fff",color:active?cCol(c):"#888",fontWeight:700}}>{c}</button>;
                 })}
               </div>
             )}
           </div>
-          <div style={{padding:"5px 12px",fontSize:10,color:"#aaa",borderBottom:"1px solid #f5f5f5",fontWeight:600}}>
-            Yerləşdirilməmiş: {filtUn.length}
+          <div style={{padding:"6px 14px",fontSize:10.5,color:"#b0a898",borderBottom:"1px solid #f5f2ea",fontWeight:600,letterSpacing:0.4}}>
+            Boş: {filtUn.length} qonaq
           </div>
           <div style={{flex:1,overflowY:"auto"}}>
             {filtUn.map(function(g){
               return (
                 <div key={g.id} draggable onDragStart={function(){setDragId(g.id);}} onDragEnd={function(){setDragId(null);setDropT(null);}}
-                  style={{display:"flex",alignItems:"center",gap:6,padding:"7px 12px",cursor:"grab",
-                    borderBottom:"1px solid #f8f8f6",background:dragId===g.id?"#f0f7ff":"transparent"}}>
-                  <div style={{width:5,height:5,borderRadius:"50%",background:g.side==="oglan"?"#2a6f97":"#c2528b",flexShrink:0}} />
-                  <div style={{flex:1,fontSize:11.5,whiteSpace:"nowrap",overflow:"hidden",textOverflow:"ellipsis"}}>{g.name}</div>
-                  <span style={{fontSize:8.5,padding:"1px 6px",borderRadius:8,background:cCol(g.cat)+"15",color:cCol(g.cat),fontWeight:600,flexShrink:0}}>{g.cat}</span>
+                  style={{display:"flex",alignItems:"center",gap:7,padding:"9px 14px",cursor:"grab",
+                    borderBottom:"1px solid #f8f6f2",background:dragId===g.id?"#f0f7ff":"transparent",
+                    transition:"background .1s"}}>
+                  <div style={{width:6,height:6,borderRadius:"50%",background:g.side==="oglan"?"#2a6f97":"#c2528b",flexShrink:0}} />
+                  <div style={{flex:1,fontSize:12,fontWeight:500,whiteSpace:"nowrap",overflow:"hidden",textOverflow:"ellipsis"}}>{g.name}</div>
+                  <span style={{fontSize:9,padding:"2px 7px",borderRadius:999,background:cCol(g.cat)+"15",color:cCol(g.cat),fontWeight:700,flexShrink:0,border:"1px solid "+cCol(g.cat)+"20"}}>{g.cat}</span>
                 </div>
               );
             })}
-            {filtUn.length===0&&<div style={{padding:20,textAlign:"center",color:"#ccc",fontSize:11}}>
-              {stats.unassigned===0?"Hamısı yerləşib! 🎉":"Nəticə yoxdur"}</div>}
+            {filtUn.length===0&&<div style={{padding:24,textAlign:"center",color:"#ccc",fontSize:12}}>
+              {stats.unassigned===0?"🎉 Hamısı yerləşib!":"Nəticə yoxdur"}</div>}
           </div>
         </div>
 
@@ -969,30 +983,30 @@ export default function WeddingPlanner() {
           {view==="hall"&&(
             <div style={{height:"100%",display:"flex",flexDirection:"column",overflow:"hidden"}}>
               {/* Hall toolbar */}
-              <div style={{padding:"5px 10px",display:"flex",gap:5,alignItems:"center",borderBottom:"1px solid #eee",flexShrink:0,background:"#fafaf8",flexWrap:"wrap"}}>
+              <div style={{padding:"7px 10px",display:"flex",gap:6,alignItems:"center",borderBottom:"1px solid #ece8e0",flexShrink:0,background:"#fafaf7",flexWrap:"wrap"}}>
                 <button className="mob-only" onClick={function(){setShowLeftPanel(!showLeftPanel);}}
-                  style={{padding:"4px 10px",fontSize:10.5,border:"1px solid #ddd",borderRadius:16,cursor:"pointer",background:"#f5f5f5",color:"#555",fontWeight:600}}>
-                  ☰ {filtUn.length}
+                  style={{padding:"6px 12px",fontSize:11,border:"1.5px solid #e0ddd5",borderRadius:999,cursor:"pointer",background:"#fff",color:"#555",fontWeight:700}}>
+                  ☰ {filtUn.length} boş
                 </button>
                 <button onClick={function(){setAddMode(!addMode);setLayoutMode(false);setSelTable(null);}}
-                  style={{padding:"4px 12px",fontSize:10.5,border:"1px solid "+(addMode?"#e53e3e":"#48bb78"),borderRadius:16,cursor:"pointer",
+                  style={{padding:"6px 14px",fontSize:11,border:"1.5px solid "+(addMode?"#e53e3e":"#b8e0c8"),borderRadius:999,cursor:"pointer",
                     background:addMode?"#fff5f5":"#f0fff4",color:addMode?"#e53e3e":"#2a7a4a",fontWeight:700}}>
                   {addMode?"✕ Ləğv et":"＋ Masa əlavə et"}
                 </button>
                 <button onClick={function(){setLayoutMode(!layoutMode);setAddMode(false);setSelTable(null);}}
-                  style={{padding:"4px 12px",fontSize:10.5,border:"1px solid "+(layoutMode?"#f6ad55":"#ddd"),borderRadius:16,cursor:"pointer",
-                    background:layoutMode?"#fffbf0":"#fff",color:layoutMode?"#c07800":"#777",fontWeight:layoutMode?700:400}}>
+                  style={{padding:"6px 14px",fontSize:11,border:"1.5px solid "+(layoutMode?"#f6ad55":"#e8e4da"),borderRadius:999,cursor:"pointer",
+                    background:layoutMode?"#fffbf0":"#fff",color:layoutMode?"#c07800":"#888",fontWeight:layoutMode?700:500}}>
                   {layoutMode?"✓ Mövqe rejimi":"⤢ Mövqe dəyiş"}
                 </button>
                 <div style={{flex:1}} />
-                <div style={{display:"flex",gap:3,alignItems:"center",background:"#f0f0f0",borderRadius:8,padding:"3px 6px"}}>
+                <div style={{display:"flex",gap:0,alignItems:"center",background:"#f0ede5",borderRadius:10,padding:"3px 4px",border:"1px solid #e8e4da"}}>
                   <button onClick={function(e){e.stopPropagation();setHallZoom(function(z){return Math.max(0.4,+(z-0.15).toFixed(2));});}}
-                    style={{border:"none",background:"none",cursor:"pointer",fontSize:14,fontWeight:700,color:"#555",padding:"0 2px",lineHeight:1}}>−</button>
-                  <span style={{fontSize:10,fontWeight:600,color:"#666",minWidth:34,textAlign:"center"}}>{Math.round(hallZoom*100)}%</span>
+                    style={{border:"none",background:"none",cursor:"pointer",fontSize:16,fontWeight:700,color:"#666",padding:"2px 7px",lineHeight:1,borderRadius:7}}>−</button>
+                  <span style={{fontSize:10.5,fontWeight:700,color:"#666",minWidth:38,textAlign:"center"}}>{Math.round(hallZoom*100)}%</span>
                   <button onClick={function(e){e.stopPropagation();setHallZoom(function(z){return Math.min(3,+(z+0.15).toFixed(2));});}}
-                    style={{border:"none",background:"none",cursor:"pointer",fontSize:14,fontWeight:700,color:"#555",padding:"0 2px",lineHeight:1}}>＋</button>
+                    style={{border:"none",background:"none",cursor:"pointer",fontSize:16,fontWeight:700,color:"#666",padding:"2px 7px",lineHeight:1,borderRadius:7}}>＋</button>
                   <button onClick={function(e){e.stopPropagation();setHallZoom(1);}}
-                    style={{border:"none",background:"none",cursor:"pointer",fontSize:10,color:"#aaa",padding:"0 2px"}}>↺</button>
+                    style={{border:"none",background:"none",cursor:"pointer",fontSize:11,color:"#bbb",padding:"2px 6px",borderLeft:"1px solid #e0ddd5"}}>↺</button>
                 </div>
               </div>
 
@@ -1062,42 +1076,42 @@ export default function WeddingPlanner() {
             </div>
           )}
           {view==="list"&&(
-            <div style={{padding:20,maxWidth:760,margin:"0 auto"}}>
-              <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:14}}>
-                <h2 style={{fontFamily:"'Playfair Display',serif",fontSize:18,margin:0}}>Bütün Qonaqlar</h2>
-                <span style={{fontSize:11,color:"#aaa",fontFamily:"system-ui"}}>{guests.length} qonaq</span>
+            <div style={{padding:"20px 16px",maxWidth:760,margin:"0 auto"}}>
+              <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:16}}>
+                <h2 style={{fontFamily:"'Playfair Display',serif",fontSize:20,margin:0,color:"#1a1a1a"}}>Bütün Qonaqlar</h2>
+                <span style={{fontSize:11,color:"#aaa",background:"#f5f2ea",borderRadius:999,padding:"4px 12px",fontWeight:600}}>{guests.length} qonaq</span>
               </div>
-              <div style={{background:"#fff",borderRadius:10,border:"1px solid #e0ddd5",overflow:"hidden"}}>
+              <div style={{background:"#fff",borderRadius:12,border:"1px solid #e8e4da",overflow:"hidden",boxShadow:"0 2px 8px rgba(0,0,0,.04)"}}>
                 {guests.map(function(g,i){
                   var t=tables.find(function(t){return t.id===g.tableId;});
                   if(editing===g.id) return (
-                    <div key={g.id} style={{display:"flex",alignItems:"center",padding:"7px 14px",gap:6,borderBottom:"1px solid #f5f5f3",background:"#f0f7ff",flexWrap:"wrap"}}>
-                      <div style={{width:6,height:6,borderRadius:"50%",background:g.side==="oglan"?"#2a6f97":"#c2528b",flexShrink:0}} />
+                    <div key={g.id} style={{display:"flex",alignItems:"center",padding:"9px 16px",gap:7,borderBottom:"1px solid #f5f5f3",background:"#f0f7ff",flexWrap:"wrap"}}>
+                      <div style={{width:7,height:7,borderRadius:"50%",background:g.side==="oglan"?"#2a6f97":"#c2528b",flexShrink:0}} />
                       <input value={ef.name} onChange={function(e){setEf(Object.assign({},ef,{name:e.target.value}));}}
-                        style={{flex:2,padding:"5px 8px",border:"1px solid #93c5fd",borderRadius:5,fontSize:12,outline:"none",minWidth:100}} />
+                        style={{flex:2,padding:"6px 10px",border:"1.5px solid #93c5fd",borderRadius:7,fontSize:12,minWidth:100}} />
                       <input value={ef.cat} onChange={function(e){setEf(Object.assign({},ef,{cat:e.target.value}));}}
-                        style={{flex:1,padding:"5px 8px",border:"1px solid #93c5fd",borderRadius:5,fontSize:12,outline:"none",minWidth:80}} />
+                        style={{flex:1,padding:"6px 10px",border:"1.5px solid #93c5fd",borderRadius:7,fontSize:12,minWidth:80}} />
                       <select value={ef.side} onChange={function(e){setEf(Object.assign({},ef,{side:e.target.value}));}}
-                        style={{padding:"5px 6px",border:"1px solid #93c5fd",borderRadius:5,fontSize:11,outline:"none"}}>
+                        style={{padding:"6px 8px",border:"1.5px solid #93c5fd",borderRadius:7,fontSize:11}}>
                         <option value="oglan">Oğlan</option><option value="qiz">Qız</option>
                       </select>
                       <button onClick={function(){setGuests(function(p){return p.map(function(x){return x.id===editing?Object.assign({},x,ef):x;});});setEditing(null);}}
-                        style={{padding:"5px 12px",background:"#2a6f97",color:"#fff",border:"none",borderRadius:5,cursor:"pointer",fontSize:11,fontWeight:700}}>✓</button>
+                        style={{padding:"6px 14px",background:"#2a6f97",color:"#fff",border:"none",borderRadius:7,cursor:"pointer",fontSize:12,fontWeight:700}}>✓</button>
                       <button onClick={function(){setEditing(null);}}
-                        style={{padding:"5px 9px",background:"#eee",border:"none",borderRadius:5,cursor:"pointer",fontSize:11}}>✕</button>
+                        style={{padding:"6px 10px",background:"#f0f0f0",border:"none",borderRadius:7,cursor:"pointer",fontSize:12}}>✕</button>
                     </div>
                   );
                   return (
-                    <div key={g.id} style={{display:"flex",alignItems:"center",padding:"8px 14px",gap:8,borderBottom:"1px solid #f5f5f3",background:i%2?"#fafaf7":"#fff"}}>
-                      <div style={{width:6,height:6,borderRadius:"50%",background:g.side==="oglan"?"#2a6f97":"#c2528b",flexShrink:0}} />
-                      <div style={{flex:2,fontSize:12.5,fontFamily:"system-ui"}}>{g.name}</div>
-                      <span style={{fontSize:9,padding:"2px 8px",borderRadius:10,background:cCol(g.cat)+"15",color:cCol(g.cat),fontWeight:600,flexShrink:0}}>{g.cat}</span>
-                      <div style={{width:45,fontSize:10.5,color:"#aaa",textAlign:"right",flexShrink:0}}>{g.side==="oglan"?"Oğlan":"Qız"}</div>
-                      <div style={{width:45,fontSize:11,fontWeight:700,color:t?"#2a6f97":"#ddd",textAlign:"right",flexShrink:0}}>{t?t.label:"—"}</div>
+                    <div key={g.id} style={{display:"flex",alignItems:"center",padding:"10px 16px",gap:8,borderBottom:"1px solid #f5f2ea",background:i%2?"#fafaf7":"#fff"}}>
+                      <div style={{width:7,height:7,borderRadius:"50%",background:g.side==="oglan"?"#2a6f97":"#c2528b",flexShrink:0}} />
+                      <div style={{flex:2,fontSize:13,fontWeight:500}}>{g.name}</div>
+                      <span style={{fontSize:9.5,padding:"3px 9px",borderRadius:999,background:cCol(g.cat)+"15",color:cCol(g.cat),fontWeight:700,flexShrink:0,border:"1px solid "+cCol(g.cat)+"20"}}>{g.cat}</span>
+                      <div style={{width:45,fontSize:10.5,color:"#ccc",textAlign:"right",flexShrink:0}}>{g.side==="oglan"?"Oğlan":"Qız"}</div>
+                      <div style={{width:45,fontSize:12,fontWeight:700,color:t?"#2a6f97":"#e0ddd5",textAlign:"right",flexShrink:0}}>{t?t.label:"—"}</div>
                       <button onClick={function(){setEditing(g.id);setEf({name:g.name,side:g.side,cat:g.cat});}}
-                        style={{background:"none",border:"1px solid #e0e0e0",borderRadius:5,cursor:"pointer",fontSize:12,padding:"3px 7px",color:"#888",flexShrink:0}}>✎</button>
+                        style={{background:"none",border:"1.5px solid #e8e8e8",borderRadius:7,cursor:"pointer",fontSize:12,padding:"4px 8px",color:"#999",flexShrink:0}}>✎</button>
                       <button onClick={function(){setGuests(function(p){return p.filter(function(x){return x.id!==g.id;});});}}
-                        style={{background:"none",border:"1px solid #fcc",borderRadius:5,cursor:"pointer",fontSize:12,padding:"3px 7px",color:"#e53e3e",flexShrink:0}}>✕</button>
+                        style={{background:"none",border:"1.5px solid #fdd",borderRadius:7,cursor:"pointer",fontSize:12,padding:"4px 8px",color:"#e53e3e",flexShrink:0}}>✕</button>
                     </div>
                   );
                 })}
@@ -1105,42 +1119,54 @@ export default function WeddingPlanner() {
             </div>
           )}
           {view==="stats"&&(
-            <div style={{padding:20,maxWidth:600,margin:"0 auto"}}>
-              <h2 style={{fontFamily:"'Playfair Display',serif",fontSize:18,marginBottom:16}}>Statistika</h2>
-              <div className="stats-grid" style={{display:"grid",gridTemplateColumns:"1fr 1fr 1fr",gap:10,marginBottom:20}}>
+            <div style={{padding:"20px 16px",maxWidth:600,margin:"0 auto"}}>
+              <h2 style={{fontFamily:"'Playfair Display',serif",fontSize:20,marginBottom:16,color:"#1a1a1a"}}>Statistika</h2>
+              <div className="stats-grid" style={{display:"grid",gridTemplateColumns:"1fr 1fr 1fr",gap:12,marginBottom:24}}>
                 <Badge l="Qonaq" v={stats.total} a="#b8860b" />
                 <Badge l="Tutum" v={stats.cap} a="#555" />
                 <Badge l="Boş yer" v={Math.max(0,stats.cap-stats.total)} a={stats.cap>=stats.total?"#48bb78":"#e53e3e"} />
               </div>
-              <h3 style={{fontSize:13,fontWeight:700,marginBottom:8}}>Kateqoriya üzrə</h3>
-              <div style={{background:"#fff",borderRadius:10,border:"1px solid #e0ddd5",overflow:"hidden",marginBottom:20}}>
-                {cats.map(function(c){var cg=guests.filter(function(g){return g.cat===c;});var seated=cg.filter(function(g){return g.tableId!==null;}).length;
-                  return <div key={c} style={{display:"flex",alignItems:"center",padding:"10px 14px",borderBottom:"1px solid #f5f5f3",gap:10}}>
+              <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:12,marginBottom:24}}>
+                <div style={{background:"#fff",borderRadius:12,border:"1px solid #e8e4da",padding:"14px 16px",boxShadow:"0 1px 6px rgba(0,0,0,.04)"}}>
+                  <div style={{fontSize:11,color:"#aaa",fontWeight:600,letterSpacing:0.5,marginBottom:6}}>OĞLAN TƏRƏFİ</div>
+                  <div style={{fontSize:22,fontWeight:800,color:"#2a6f97",fontFamily:"'Playfair Display',serif"}}>{guests.filter(function(g){return g.side==="oglan";}).length}</div>
+                  <div style={{fontSize:10.5,color:"#aaa",marginTop:2}}>{guests.filter(function(g){return g.side==="oglan"&&g.tableId!==null;}).length} oturub</div>
+                </div>
+                <div style={{background:"#fff",borderRadius:12,border:"1px solid #e8e4da",padding:"14px 16px",boxShadow:"0 1px 6px rgba(0,0,0,.04)"}}>
+                  <div style={{fontSize:11,color:"#aaa",fontWeight:600,letterSpacing:0.5,marginBottom:6}}>QIZ TƏRƏFİ</div>
+                  <div style={{fontSize:22,fontWeight:800,color:"#c2528b",fontFamily:"'Playfair Display',serif"}}>{guests.filter(function(g){return g.side==="qiz";}).length}</div>
+                  <div style={{fontSize:10.5,color:"#aaa",marginTop:2}}>{guests.filter(function(g){return g.side==="qiz"&&g.tableId!==null;}).length} oturub</div>
+                </div>
+              </div>
+              <h3 style={{fontSize:12,fontWeight:700,marginBottom:10,color:"#999",letterSpacing:0.8,textTransform:"uppercase"}}>Kateqoriya üzrə</h3>
+              <div style={{background:"#fff",borderRadius:12,border:"1px solid #e8e4da",overflow:"hidden",boxShadow:"0 2px 8px rgba(0,0,0,.04)"}}>
+                {cats.map(function(c){var cg=guests.filter(function(g){return g.cat===c;});var seated=cg.filter(function(g){return g.tableId!==null;}).length;var pct=cg.length>0?(seated/cg.length)*100:0;
+                  return <div key={c} style={{display:"flex",alignItems:"center",padding:"12px 16px",borderBottom:"1px solid #f5f2ea",gap:12}}>
                     <span style={{width:10,height:10,borderRadius:"50%",background:cCol(c),flexShrink:0}} />
-                    <div style={{flex:1,fontSize:12.5,fontWeight:600}}>{c}</div>
-                    <div style={{width:100,height:7,background:"#eee",borderRadius:4,overflow:"hidden"}}>
-                      <div style={{width:(cg.length>0?(seated/cg.length)*100:0)+"%",height:"100%",background:cCol(c),borderRadius:4}} />
+                    <div style={{flex:1,fontSize:13,fontWeight:600}}>{c}</div>
+                    <div style={{width:110,height:6,background:"#f0ede5",borderRadius:999,overflow:"hidden"}}>
+                      <div style={{width:pct+"%",height:"100%",background:cCol(c),borderRadius:999,transition:"width .4s"}} />
                     </div>
-                    <div style={{fontSize:11,fontWeight:700,width:50,textAlign:"right"}}>{seated}/{cg.length}</div>
+                    <div style={{fontSize:11.5,fontWeight:700,width:52,textAlign:"right",color:seated===cg.length?"#48bb78":"#555"}}>{seated}/{cg.length}</div>
                   </div>;})}
               </div>
             </div>
           )}
           {view==="live"&&(
-            <div style={{padding:20,maxWidth:960,margin:"0 auto"}}>
+            <div style={{padding:"20px 16px",maxWidth:960,margin:"0 auto"}}>
               <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:16,gap:12,flexWrap:"wrap"}}>
-                <h2 style={{fontFamily:"'Playfair Display',serif",fontSize:18,margin:0}}>Canlı Qeydiyyat</h2>
+                <h2 style={{fontFamily:"'Playfair Display',serif",fontSize:20,margin:0,color:"#1a1a1a"}}>Canlı Qeydiyyat</h2>
                 <div style={{display:"flex",gap:8,alignItems:"center",flex:1,maxWidth:300}}>
                   <input placeholder="Ad axtar..." value={liveSearch} onChange={function(e){setLiveSearch(e.target.value);}}
-                    style={{flex:1,padding:"7px 11px",border:"1px solid #ddd",borderRadius:7,fontSize:12,outline:"none"}} />
-                  {liveSearch&&<button onClick={function(){setLiveSearch("");}} style={{background:"none",border:"none",cursor:"pointer",color:"#aaa",fontSize:16,padding:"0 4px"}}>✕</button>}
+                    style={{flex:1,padding:"8px 12px",border:"1.5px solid #e8e4da",borderRadius:9,fontSize:12,background:"#fafaf7"}} />
+                  {liveSearch&&<button onClick={function(){setLiveSearch("");}} style={{background:"#f0f0ee",border:"none",borderRadius:7,cursor:"pointer",color:"#aaa",fontSize:14,padding:"5px 8px"}}>✕</button>}
                 </div>
                 <div style={{display:"flex",gap:8,flexShrink:0}}>
-                  <span style={{fontSize:12,background:"#f0fff4",border:"1px solid #9ae6b4",borderRadius:8,padding:"5px 12px",color:"#276749",fontWeight:700}}>
+                  <span style={{fontSize:12,background:"#f0fff4",border:"1.5px solid #9ae6b4",borderRadius:999,padding:"6px 14px",color:"#276749",fontWeight:700}}>
                     ✓ {Object.keys(arrived).length} gəldi
                   </span>
-                  <span style={{fontSize:12,background:"#fff5f5",border:"1px solid #feb2b2",borderRadius:8,padding:"5px 12px",color:"#c53030",fontWeight:700}}>
-                    {guests.length-Object.keys(arrived).length} gözlənilir
+                  <span style={{fontSize:12,background:"#fff5f5",border:"1.5px solid #feb2b2",borderRadius:999,padding:"6px 14px",color:"#c53030",fontWeight:700}}>
+                    ⌛ {guests.length-Object.keys(arrived).length} gözlənilir
                   </span>
                 </div>
               </div>
@@ -1226,84 +1252,86 @@ export default function WeddingPlanner() {
 
         {/* RIGHT PANEL */}
         {selTable!==null&&selTD&&(
-          <div className="right-panel" style={{width:255,background:"#fff",borderLeft:"1px solid #e0ddd5",display:"flex",flexDirection:"column",flexShrink:0}}>
-            <div style={{padding:"14px 16px",borderBottom:"1px solid #eee"}}>
-              <div style={{display:"flex",justifyContent:"space-between",alignItems:"center"}}>
+          <div className="right-panel" style={{width:260,background:"#fff",borderLeft:"1px solid #ece8e0",display:"flex",flexDirection:"column",flexShrink:0}}>
+            <div style={{padding:"14px 16px",borderBottom:"1px solid #f0ede5",background:"#fafaf7"}}>
+              <div style={{display:"flex",justifyContent:"space-between",alignItems:"flex-start",marginBottom:10}}>
                 <div>
                   {editTableId===selTable?(
                     <input value={etf.label} onChange={function(e){setEtf(Object.assign({},etf,{label:e.target.value}));}}
-                      style={{fontFamily:"'Playfair Display',serif",fontSize:18,fontWeight:800,border:"1px solid #ddd",borderRadius:4,padding:"2px 6px",width:90,outline:"none"}} />
+                      style={{fontFamily:"'Playfair Display',serif",fontSize:18,fontWeight:800,border:"1.5px solid #ddd",borderRadius:8,padding:"4px 8px",width:90}} />
                   ):(
-                    <div style={{fontFamily:"'Playfair Display',serif",fontSize:20,fontWeight:800}}>{selTD.label}</div>
+                    <div style={{fontFamily:"'Playfair Display',serif",fontSize:22,fontWeight:800,color:"#1a1a1a"}}>{selTD.label}</div>
                   )}
-                  <div style={{fontSize:10,color:"#999",marginTop:1}}>{selTD.side==="oglan"?"Oğlan tərəfi":selTD.side==="qiz"?"Qız tərəfi":"Xüsusi"}</div>
+                  <div style={{fontSize:10.5,color:"#aaa",marginTop:2,fontWeight:600}}>{selTD.side==="oglan"?"🔵 Oğlan tərəfi":selTD.side==="qiz"?"🩷 Qız tərəfi":"⭐ Xüsusi"}</div>
                 </div>
-                <button onClick={function(){setSelTable(null);setEditTableId(null);setConfirmDel(null);}} style={{background:"none",border:"none",fontSize:16,cursor:"pointer",color:"#bbb"}}>✕</button>
+                <button onClick={function(){setSelTable(null);setEditTableId(null);setConfirmDel(null);}} style={{background:"#f0f0ee",border:"none",borderRadius:8,fontSize:13,cursor:"pointer",color:"#aaa",width:28,height:28,display:"flex",alignItems:"center",justifyContent:"center"}}>✕</button>
               </div>
-              <div style={{display:"flex",gap:6,marginTop:10}}>
+              <div style={{display:"flex",gap:6}}>
                 {editTableId===selTable?(
                   <>
-                    <select value={etf.cap} onChange={function(e){setEtf(Object.assign({},etf,{cap:parseInt(e.target.value)}));}}>
+                    <select value={etf.cap} onChange={function(e){setEtf(Object.assign({},etf,{cap:parseInt(e.target.value)}));}}
+                      style={{flex:1,padding:"6px 8px",border:"1.5px solid #e0ddd5",borderRadius:7,fontSize:11}}>
                       {[8,10,12,14,18,20].map(function(n){return <option key={n} value={n}>{n} nəfər</option>;})}
                     </select>
-                    <select value={etf.side} onChange={function(e){setEtf(Object.assign({},etf,{side:e.target.value}));}}>
+                    <select value={etf.side} onChange={function(e){setEtf(Object.assign({},etf,{side:e.target.value}));}}
+                      style={{flex:1,padding:"6px 8px",border:"1.5px solid #e0ddd5",borderRadius:7,fontSize:11}}>
                       <option value="oglan">Oğlan</option><option value="qiz">Qız</option><option value="special">Xüsusi</option>
                     </select>
                     <button onClick={function(){setTables(function(p){return p.map(function(t){return t.id===editTableId?Object.assign({},t,{label:etf.label,cap:etf.cap,side:etf.side}):t;});});setEditTableId(null);}}
-                      style={{padding:"4px 10px",fontSize:10,background:"#2a6f97",color:"#fff",border:"none",borderRadius:4,cursor:"pointer",fontWeight:700}}>✓</button>
-                    <button onClick={function(){setEditTableId(null);}} style={{padding:"4px 8px",fontSize:10,background:"#eee",border:"none",borderRadius:4,cursor:"pointer"}}>✕</button>
+                      style={{padding:"6px 11px",fontSize:12,background:"#2a6f97",color:"#fff",border:"none",borderRadius:7,cursor:"pointer",fontWeight:700}}>✓</button>
+                    <button onClick={function(){setEditTableId(null);}} style={{padding:"6px 9px",fontSize:12,background:"#f0f0f0",border:"none",borderRadius:7,cursor:"pointer"}}>✕</button>
                   </>
                 ):confirmDel===selTable?(
                   <div style={{display:"flex",gap:6,alignItems:"center",flex:1}}>
-                    <span style={{fontSize:10,color:"#e53e3e",fontWeight:600}}>Silmək?</span>
-                    <button onClick={function(){deleteTable(selTD.id);}} style={{padding:"4px 10px",fontSize:10,background:"#e53e3e",color:"#fff",border:"none",borderRadius:4,cursor:"pointer",fontWeight:700}}>Bəli</button>
-                    <button onClick={function(){setConfirmDel(null);}} style={{padding:"4px 8px",fontSize:10,background:"#eee",border:"none",borderRadius:4,cursor:"pointer"}}>Xeyr</button>
+                    <span style={{fontSize:11,color:"#e53e3e",fontWeight:700}}>Silmək?</span>
+                    <button onClick={function(){deleteTable(selTD.id);}} style={{padding:"6px 12px",fontSize:11,background:"#e53e3e",color:"#fff",border:"none",borderRadius:7,cursor:"pointer",fontWeight:700}}>Bəli</button>
+                    <button onClick={function(){setConfirmDel(null);}} style={{padding:"6px 10px",fontSize:11,background:"#f0f0f0",border:"none",borderRadius:7,cursor:"pointer"}}>Xeyr</button>
                   </div>
                 ):(
                   <>
                     <button onClick={function(){setEditTableId(selTable);setEtf({label:selTD.label,cap:selTD.cap,side:selTD.side});}}
-                      style={{flex:1,padding:"6px 0",fontSize:10,background:"#f0f7ff",color:"#2a6f97",border:"1px solid #d0e3f0",borderRadius:5,cursor:"pointer",fontWeight:600}}>✎ Düzəlt</button>
+                      style={{flex:1,padding:"7px 0",fontSize:11,background:"#f0f7ff",color:"#2a6f97",border:"1.5px solid #d0e3f0",borderRadius:8,cursor:"pointer",fontWeight:700}}>✎ Düzəlt</button>
                     <button onClick={function(){setConfirmDel(selTable);}}
-                      style={{flex:1,padding:"6px 0",fontSize:10,background:"#fff5f5",color:"#e53e3e",border:"1px solid #fdd",borderRadius:5,cursor:"pointer",fontWeight:600}}>🗑 Sil</button>
+                      style={{flex:1,padding:"7px 0",fontSize:11,background:"#fff5f5",color:"#e53e3e",border:"1.5px solid #fdd",borderRadius:8,cursor:"pointer",fontWeight:700}}>🗑 Sil</button>
                   </>
                 )}
               </div>
             </div>
             {selTD.cap>0&&(
               <>
-                <div style={{padding:"12px 16px",borderBottom:"1px solid #f5f5f5"}}>
-                  <div style={{display:"flex",justifyContent:"space-between",marginBottom:5}}>
-                    <span style={{fontSize:11,color:"#999"}}>Tutumluluq</span>
-                    <span style={{fontSize:12,fontWeight:800}}>{selG.length} / {selTD.cap}</span>
+                <div style={{padding:"12px 16px",borderBottom:"1px solid #f0ede5"}}>
+                  <div style={{display:"flex",justifyContent:"space-between",marginBottom:6}}>
+                    <span style={{fontSize:11,color:"#aaa",fontWeight:600}}>Tutum</span>
+                    <span style={{fontSize:13,fontWeight:800,color:selG.length>=selTD.cap?"#e53e3e":"#1a1a1a"}}>{selG.length} / {selTD.cap}</span>
                   </div>
-                  <div style={{height:6,background:"#eee",borderRadius:3,overflow:"hidden"}}>
+                  <div style={{height:6,background:"#f0ede5",borderRadius:999,overflow:"hidden"}}>
                     <div style={{width:(selG.length/selTD.cap*100)+"%",height:"100%",
-                      background:selG.length>=selTD.cap?"#e53e3e":"#48bb78",borderRadius:3,transition:"width .3s"}} />
+                      background:selG.length>=selTD.cap?"#e53e3e":selG.length>0?"#48bb78":"#e0ddd5",borderRadius:999,transition:"width .3s"}} />
                   </div>
-                  <div style={{display:"flex",justifyContent:"space-between",marginTop:6,fontSize:10}}>
-                    <span style={{color:"#48bb78"}}>✓ {selG.length} oturub</span>
-                    <span style={{color:"#f6ad55"}}>{selTD.cap-selG.length} boş</span>
+                  <div style={{display:"flex",justifyContent:"space-between",marginTop:6,fontSize:10.5}}>
+                    <span style={{color:"#48bb78",fontWeight:600}}>✓ {selG.length} oturub</span>
+                    <span style={{color:"#f6ad55",fontWeight:600}}>{selTD.cap-selG.length} boş</span>
                   </div>
                 </div>
                 {selG.length>0&&(
-                  <div style={{padding:"8px 16px",borderBottom:"1px solid #f5f5f5",display:"flex",gap:4,flexWrap:"wrap"}}>
+                  <div style={{padding:"8px 16px",borderBottom:"1px solid #f0ede5",display:"flex",gap:4,flexWrap:"wrap"}}>
                     {Object.entries(selCatBreak).map(function(entry){
-                      return <span key={entry[0]} style={{fontSize:9,padding:"2px 7px",borderRadius:8,background:cCol(entry[0])+"15",color:cCol(entry[0]),fontWeight:600}}>{entry[0]}: {entry[1]}</span>;
+                      return <span key={entry[0]} style={{fontSize:9.5,padding:"3px 8px",borderRadius:999,background:cCol(entry[0])+"15",color:cCol(entry[0]),fontWeight:700,border:"1px solid "+cCol(entry[0])+"20"}}>{entry[0]}: {entry[1]}</span>;
                     })}
                   </div>
                 )}
-                <div style={{padding:"6px 16px",fontSize:10,color:"#bbb",fontWeight:700,borderBottom:"1px solid #f5f5f5",letterSpacing:0.5}}>QONAQLAR</div>
+                <div style={{padding:"7px 16px",fontSize:10,color:"#c0bdb5",fontWeight:700,borderBottom:"1px solid #f0ede5",letterSpacing:0.8}}>QONAQLAR</div>
                 <div style={{flex:1,overflowY:"auto"}}>
                   {selG.length===0?(
-                    <div style={{padding:20,textAlign:"center",color:"#ccc",fontSize:11}}>Boş masa — soldan sürüşdür</div>
+                    <div style={{padding:24,textAlign:"center",color:"#ccc",fontSize:12}}>Boş masa<br/><span style={{fontSize:10}}>Soldan qonaq sürüşdür</span></div>
                   ):selG.map(function(g){
                     return (
-                      <div key={g.id} style={{display:"flex",alignItems:"center",padding:"8px 16px",gap:6,borderBottom:"1px solid #f8f8f6"}}>
-                        <div style={{width:5,height:5,borderRadius:"50%",background:g.side==="oglan"?"#2a6f97":"#c2528b"}} />
-                        <div style={{flex:1,fontSize:11.5}}>{g.name}</div>
-                        <span style={{fontSize:8,padding:"1px 6px",borderRadius:8,background:cCol(g.cat)+"15",color:cCol(g.cat),fontWeight:600}}>{g.cat}</span>
+                      <div key={g.id} style={{display:"flex",alignItems:"center",padding:"9px 16px",gap:7,borderBottom:"1px solid #f8f5f0"}}>
+                        <div style={{width:6,height:6,borderRadius:"50%",background:g.side==="oglan"?"#2a6f97":"#c2528b"}} />
+                        <div style={{flex:1,fontSize:12,fontWeight:500}}>{g.name}</div>
+                        <span style={{fontSize:9,padding:"2px 7px",borderRadius:999,background:cCol(g.cat)+"15",color:cCol(g.cat),fontWeight:700}}>{g.cat}</span>
                         <button onClick={function(){setGuests(function(p){return p.map(function(x){return x.id===g.id?Object.assign({},x,{tableId:null}):x;});});}}
-                          style={{background:"none",border:"none",color:"#e53e3e",cursor:"pointer",fontSize:12,padding:"0 3px"}}>✕</button>
+                          style={{background:"#fff5f5",border:"none",color:"#e53e3e",cursor:"pointer",fontSize:11,padding:"3px 7px",borderRadius:6}}>✕</button>
                       </div>
                     );
                   })}
@@ -1320,13 +1348,14 @@ export default function WeddingPlanner() {
           var active=view===item[0];
           return (
             <button key={item[0]} onClick={function(){setView(item[0]);setShowLeftPanel(false);}} style={{
-              flex:1,padding:"10px 0 8px",background:"transparent",border:"none",cursor:"pointer",minHeight:0,
-              display:"flex",flexDirection:"column",alignItems:"center",gap:2,
-              color:active?"#b8860b":"#666",
-              borderTop:active?"2px solid #b8860b":"2px solid transparent"
+              flex:1,padding:"10px 0 6px",background:"transparent",border:"none",cursor:"pointer",minHeight:0,
+              display:"flex",flexDirection:"column",alignItems:"center",gap:3,
+              color:active?"#b8860b":"#555",
+              borderTop:active?"2px solid #b8860b":"2px solid transparent",
+              transition:"color .15s,border-top .15s"
             }}>
-              <span style={{fontSize:20,lineHeight:1}}>{item[1]}</span>
-              <span style={{fontSize:9,fontWeight:active?700:400,letterSpacing:0.3}}>{item[2]}</span>
+              <span style={{fontSize:22,lineHeight:1}}>{item[1]}</span>
+              <span style={{fontSize:9.5,fontWeight:active?700:500,letterSpacing:0.3}}>{item[2]}</span>
             </button>
           );
         })}

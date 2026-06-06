@@ -7,9 +7,52 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700;800&display=swap" rel="stylesheet">
     <style>
+      :root {
+        --gold: #b8860b;
+        --gold-light: #d4a030;
+        --dark: #141414;
+        --dark2: #1e1e1e;
+        --dark3: #2a2a2a;
+        --bg: #f4f2ed;
+        --surface: #fff;
+        --border: #e8e4da;
+        --text: #1a1a1a;
+        --muted: #8a8a8a;
+        --blue: #2a6f97;
+        --pink: #c2528b;
+        --green: #48bb78;
+        --red: #e53e3e;
+        --amber: #f6ad55;
+        --radius: 10px;
+        --radius-pill: 999px;
+        --shadow-sm: 0 1px 4px rgba(0,0,0,.06);
+        --shadow: 0 2px 12px rgba(0,0,0,.08);
+        --shadow-md: 0 4px 20px rgba(0,0,0,.12);
+      }
+
       * { margin: 0; padding: 0; box-sizing: border-box; }
-      body { font-family: system-ui, -apple-system, sans-serif; background: #f4f2ed; }
+      body { font-family: system-ui, -apple-system, sans-serif; background: var(--bg); }
       #root { min-height: 100vh; }
+
+      /* Slim scrollbar */
+      ::-webkit-scrollbar { width: 4px; height: 4px; }
+      ::-webkit-scrollbar-track { background: transparent; }
+      ::-webkit-scrollbar-thumb { background: rgba(0,0,0,.12); border-radius: 99px; }
+      ::-webkit-scrollbar-thumb:hover { background: rgba(0,0,0,.2); }
+
+      /* Input & select */
+      input, textarea, select { font-family: system-ui, -apple-system, sans-serif; }
+      input:focus, textarea:focus {
+        outline: none !important;
+        border-color: var(--gold) !important;
+        box-shadow: 0 0 0 3px rgba(184,134,11,.12) !important;
+      }
+      select:focus { outline: 2px solid var(--gold); outline-offset: 0; }
+
+      /* Button interactions */
+      button { transition: opacity .15s, transform .1s ease, background .15s, color .15s; }
+      button:not(:disabled):hover { opacity: 0.88; }
+      button:not(:disabled):active { transform: scale(0.96); }
 
       /* ── Mobile responsive ── */
       .mob-hide { display: none; }
@@ -20,48 +63,39 @@
         .mob-overlay { display: none !important; }
       }
       @media (max-width: 767px) {
-        /* Left panel: hidden drawer, slides in */
         .left-panel {
           position: absolute !important;
           top: 0; left: 0; bottom: 0;
           z-index: 50;
           transform: translateX(-100%);
-          transition: transform .22s ease;
-          width: 240px !important;
-          box-shadow: 4px 0 24px rgba(0,0,0,.18) !important;
+          transition: transform .22s cubic-bezier(.4,0,.2,1);
+          width: 260px !important;
+          box-shadow: 6px 0 32px rgba(0,0,0,.22) !important;
         }
         .left-panel.open { transform: translateX(0); }
-
-        /* Right panel: hidden on mobile */
         .right-panel { display: none !important; }
-
-        /* Overlay backdrop */
         .mob-overlay {
           position: absolute; inset: 0;
-          background: rgba(0,0,0,.38);
+          background: rgba(0,0,0,.42);
           z-index: 40;
           cursor: pointer;
+          backdrop-filter: blur(1px);
         }
-
-        /* Bottom nav */
         .mob-bottom-nav {
           display: flex !important;
-          background: #141414;
-          border-top: 1px solid #2a2a2a;
+          background: var(--dark);
+          border-top: 1px solid var(--dark3);
           flex-shrink: 0;
+          padding-bottom: env(safe-area-inset-bottom, 0px);
         }
-
-        /* Live grid: 2 cols on medium mobile, 1 col on small */
         .live-grid { grid-template-columns: repeat(2, 1fr) !important; gap: 10px !important; }
         .stats-grid { grid-template-columns: repeat(3, 1fr) !important; }
       }
       @media (max-width: 480px) {
         .live-grid { grid-template-columns: 1fr !important; }
       }
-
-      /* Bigger tap targets for buttons everywhere on touch */
       @media (hover: none) {
-        button { min-height: 36px; }
+        button { min-height: 40px; }
       }
     </style>
   </head>
