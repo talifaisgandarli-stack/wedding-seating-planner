@@ -149,6 +149,7 @@ export default function WeddingPlanner() {
   var [etf, setEtf] = useState({label:"",cap:12,side:"oglan"});
   var [confirmDel, setConfirmDel] = useState(null);
   var [showResetConfirm, setShowResetConfirm] = useState(false);
+  var [showResetAssignConfirm, setShowResetAssignConfirm] = useState(false);
   var [weddingInitialized, setWeddingInitialized] = useState(false);
   var [hallZoom, setHallZoom] = useState(1);
   var [layoutMode, setLayoutMode] = useState(false);
@@ -893,7 +894,15 @@ export default function WeddingPlanner() {
             <span style={{color:"#f6ad55",fontWeight:700}}>{stats.unassigned}</span>{" boş"}
           </span>
           <button onClick={autoAssign} style={{background:"#2a6f97",color:"#fff",border:"none",borderRadius:8,padding:"6px 12px",fontSize:11.5,fontWeight:700,cursor:"pointer"}}>⚡<span className="mob-hide"> Böl</span></button>
-          <button onClick={function(){pushHistory();setGuests(function(p){return p.map(function(g){return Object.assign({},g,{tableId:null});});});}} style={{background:"#1e1e1e",color:"#777",border:"1px solid #2a2a2a",borderRadius:8,padding:"6px 10px",fontSize:12,cursor:"pointer"}} title="Hamısını sıfırla">↺</button>
+          {showResetAssignConfirm ? (
+            <span style={{display:"flex",gap:4,alignItems:"center"}}>
+              <span style={{fontSize:10,color:"#f6ad55",whiteSpace:"nowrap"}}>Hamısını sıfırla?</span>
+              <button onClick={function(){pushHistory();setGuests(function(p){return p.map(function(g){return Object.assign({},g,{tableId:null});});});setShowResetAssignConfirm(false);}} style={{background:"#e53e3e",color:"#fff",border:"none",borderRadius:8,padding:"5px 10px",fontSize:11,cursor:"pointer",fontWeight:700}}>Bəli</button>
+              <button onClick={function(){setShowResetAssignConfirm(false);}} style={{background:"#1e1e1e",color:"#666",border:"1px solid #2a2a2a",borderRadius:8,padding:"5px 8px",fontSize:11,cursor:"pointer"}}>Xeyr</button>
+            </span>
+          ) : (
+            <button onClick={function(){setShowResetAssignConfirm(true);}} style={{background:"#1e1e1e",color:"#777",border:"1px solid #2a2a2a",borderRadius:8,padding:"6px 10px",fontSize:12,cursor:"pointer"}} title="Hamısını sıfırla">↺</button>
+          )}
           {canUndo&&<button onClick={undo} style={{background:"#1e1e1e",color:"#f6ad55",border:"1px solid #3a3000",borderRadius:8,padding:"6px 10px",fontSize:12,cursor:"pointer",fontWeight:700}} title="Geri al (Ctrl+Z)">↶<span className="mob-hide" style={{fontSize:11}}> Geri al</span></button>}
           <button className="mob-hide" onClick={function(){setStep(0);}} style={{background:"#1e1e1e",color:"#666",border:"1px solid #2a2a2a",borderRadius:8,padding:"6px 10px",fontSize:11,cursor:"pointer"}}>📋</button>
           <button className="mob-hide" onClick={function(){setStep(1);}} style={{background:"#1e1e1e",color:"#666",border:"1px solid #2a2a2a",borderRadius:8,padding:"6px 10px",fontSize:11,cursor:"pointer"}}>👥</button>
