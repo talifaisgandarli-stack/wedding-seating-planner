@@ -104,9 +104,20 @@ function genCode() {
 
 var SESSION_ID = Math.random().toString(36).substr(2,9);
 var LS_KEY = "wsp_v2";
+var BK_KEY = "wsp_backup";
 
 function lsGet() { try { return JSON.parse(localStorage.getItem(LS_KEY)||"{}"); } catch(e){ return {}; } }
 function lsSet(d) { try { localStorage.setItem(LS_KEY, JSON.stringify(d)); } catch(e){} }
+function bkSave(id, guests, tables, arrived) {
+  try {
+    var bk = JSON.parse(localStorage.getItem(BK_KEY)||"{}");
+    bk[id] = { guests:guests, tables:tables, arrived:arrived, at:Date.now() };
+    localStorage.setItem(BK_KEY, JSON.stringify(bk));
+  } catch(e){}
+}
+function bkGet(id) {
+  try { var bk = JSON.parse(localStorage.getItem(BK_KEY)||"{}"); return bk[id]||null; } catch(e){ return null; }
+}
 
 // ─── MAIN APP ───
 export default function WeddingPlanner() {
@@ -150,6 +161,7 @@ export default function WeddingPlanner() {
   var [confirmDel, setConfirmDel] = useState(null);
   var [showResetConfirm, setShowResetConfirm] = useState(false);
   var [showResetAssignConfirm, setShowResetAssignConfirm] = useState(false);
+  var [showRestoreConfirm, setShowRestoreConfirm] = useState(false);
   var [weddingInitialized, setWeddingInitialized] = useState(false);
   var [hallZoom, setHallZoom] = useState(1);
   var [layoutMode, setLayoutMode] = useState(false);
@@ -281,6 +293,12 @@ export default function WeddingPlanner() {
     if (fromRemote.current) { fromRemote.current = false; return; }
 
     var data = { step:step, guests:guests, tables:tables, arrived:arrived };
+
+    // Save local backup whenever there are assigned guests (protect good state)
+    var assignedCount = guests.filter(function(g){return g.tableId!=null;}).length;
+    if (assignedCount > 0) {
+      bkSave(weddingId, guests, tables, arrived);
+    }
 
     if (fbDb) {
       clearTimeout(writeTimer.current);
@@ -904,6 +922,22 @@ export default function WeddingPlanner() {
             <button onClick={function(){setShowResetAssignConfirm(true);}} style={{background:"#1e1e1e",color:"#777",border:"1px solid #2a2a2a",borderRadius:8,padding:"6px 10px",fontSize:12,cursor:"pointer"}} title="Hamısını sıfırla">↺</button>
           )}
           {canUndo&&<button onClick={undo} style={{background:"#1e1e1e",color:"#f6ad55",border:"1px solid #3a3000",borderRadius:8,padding:"6px 10px",fontSize:12,cursor:"pointer",fontWeight:700}} title="Geri al (Ctrl+Z)">↶<span className="mob-hide" style={{fontSize:11}}> Geri al</span></button>}
+          {(function(){
+            var bk = bkGet(weddingId);
+            if (!bk) return null;
+            var bkAssigned = bk.guests ? bk.guests.filter(function(g){return g.tableId!=null;}).length : 0;
+            if (bkAssigned <= stats.assigned) return null;
+            var d = new Date(bk.at);
+            var label = d.getHours()+":"+(d.getMinutes()<10?"0":"")+d.getMinutes();
+            if (showRestoreConfirm) return (
+              <span style={{display:"flex",gap:4,alignItems:"center"}}>
+                <span style={{fontSize:10,color:"#48bb78",whiteSpace:"nowrap"}} className="mob-hide">{label} — {bkAssigned} oturub</span>
+                <button onClick={function(){pushHistory();setGuests(bk.guests);setTables(bk.tables);setArrived(bk.arrived||{});setShowRestoreConfirm(false);}} style={{background:"#276749",color:"#fff",border:"none",borderRadius:8,padding:"5px 10px",fontSize:11,cursor:"pointer",fontWeight:700}}>✓ Bərpa et</button>
+                <button onClick={function(){setShowRestoreConfirm(false);}} style={{background:"#1e1e1e",color:"#666",border:"1px solid #2a2a2a",borderRadius:8,padding:"5px 8px",fontSize:11,cursor:"pointer"}}>—</button>
+              </span>
+            );
+            return <button onClick={function(){setShowRestoreConfirm(true);}} style={{background:"#1e1e1e",color:"#48bb78",border:"1px solid #1a3a2a",borderRadius:8,padding:"6px 10px",fontSize:11,cursor:"pointer",fontWeight:700}} title={"Backup: "+label+" ("+bkAssigned+" oturub)"}>⟳<span className="mob-hide"> Bərpa</span></button>;
+          })()}
           <button className="mob-hide" onClick={function(){setStep(0);}} style={{background:"#1e1e1e",color:"#666",border:"1px solid #2a2a2a",borderRadius:8,padding:"6px 10px",fontSize:11,cursor:"pointer"}}>📋</button>
           <button className="mob-hide" onClick={function(){setStep(1);}} style={{background:"#1e1e1e",color:"#666",border:"1px solid #2a2a2a",borderRadius:8,padding:"6px 10px",fontSize:11,cursor:"pointer"}}>👥</button>
           {dupCount>0&&<button className="mob-hide" onClick={removeDuplicates} style={{background:"#2a0808",color:"#f87171",border:"1px solid #4a1818",borderRadius:8,padding:"6px 10px",fontSize:11,cursor:"pointer",fontWeight:700}}>✕ {dupCount}</button>}
