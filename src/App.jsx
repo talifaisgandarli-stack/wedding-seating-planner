@@ -157,6 +157,43 @@ export default function WeddingPlanner() {
   var [liveSearch, setLiveSearch] = useState("");
   var [showLeftPanel, setShowLeftPanel] = useState(false);
 
+  // ── Undo history ──
+  var historyRef = useRef([]);
+  var [canUndo, setCanUndo] = useState(false);
+  var gSnap = useRef([]);
+  var tSnap = useRef(INIT_TABLES);
+  var aSnap = useRef({});
+  useEffect(function(){ gSnap.current = guests; }, [guests]);
+  useEffect(function(){ tSnap.current = tables; }, [tables]);
+  useEffect(function(){ aSnap.current = arrived; }, [arrived]);
+
+  function pushHistory() {
+    historyRef.current = historyRef.current.slice(-29).concat([{
+      guests: gSnap.current, tables: tSnap.current, arrived: aSnap.current
+    }]);
+    setCanUndo(true);
+  }
+  function undo() {
+    var h = historyRef.current;
+    if (!h.length) return;
+    var snap = h[h.length-1];
+    historyRef.current = h.slice(0,-1);
+    setCanUndo(h.length > 1);
+    setGuests(snap.guests);
+    setTables(snap.tables);
+    setArrived(snap.arrived || {});
+  }
+  useEffect(function() {
+    function onKey(e) {
+      if ((e.ctrlKey||e.metaKey) && e.key==="z" && !e.shiftKey) {
+        e.preventDefault();
+        undo();
+      }
+    }
+    window.addEventListener("keydown", onKey);
+    return function(){ window.removeEventListener("keydown", onKey); };
+  }, []);
+
   // ── Apply remote data (from Firebase or localStorage) ──
   function applyData(d) {
     if (!d) return;
@@ -356,6 +393,7 @@ export default function WeddingPlanner() {
   }, [guests]);
 
   function removeDuplicates() {
+    pushHistory();
     setGuests(function(prev){
       var seen = new Set();
       return prev.filter(function(g){var k=g.name.trim().toLowerCase();if(seen.has(k))return false;seen.add(k);return true;});
@@ -373,6 +411,7 @@ export default function WeddingPlanner() {
   }, [guests, tables]);
 
   var autoAssign = useCallback(function() {
+    pushHistory();
     setGuests(function(prev) {
       var next = prev.map(function(g){return Object.assign({},g,{tableId:null});});
       function doSide(side) {
@@ -454,6 +493,7 @@ export default function WeddingPlanner() {
   }
 
   var deleteTable = useCallback(function(tid) {
+    pushHistory();
     setGuests(function(prev){return prev.map(function(g){return g.tableId===tid?Object.assign({},g,{tableId:null}):g;});});
     setTables(function(prev){return prev.filter(function(t){return t.id!==tid;});});
     setSelTable(null); setConfirmDel(null);
@@ -840,7 +880,8 @@ export default function WeddingPlanner() {
             <span style={{color:"#f6ad55",fontWeight:700}}>{stats.unassigned}</span>{" boş"}
           </span>
           <button onClick={autoAssign} style={s("#2a6f97","#fff",{padding:"4px 10px",fontSize:11})}>⚡<span className="mob-hide"> Böl</span></button>
-          <button onClick={function(){setGuests(function(p){return p.map(function(g){return Object.assign({},g,{tableId:null});});});}} style={s("#333","#aaa",{padding:"4px 10px",fontSize:11})}>↺</button>
+          <button onClick={function(){pushHistory();setGuests(function(p){return p.map(function(g){return Object.assign({},g,{tableId:null});});});}} style={s("#333","#aaa",{padding:"4px 10px",fontSize:11})} title="Hamısını sıfırla">↺</button>
+          {canUndo&&<button onClick={undo} style={s("#2a2a2a","#f6ad55",{padding:"4px 10px",fontSize:11,border:"1px solid #555"})} title="Geri al (Ctrl+Z)">↶<span className="mob-hide"> Geri al</span></button>}
           <button className="mob-hide" onClick={function(){setStep(0);}} style={s("#333","#aaa",{padding:"4px 10px",fontSize:11})}>📋 Siyahı əlavə et</button>
           <button className="mob-hide" onClick={function(){setStep(1);}} style={s("#333","#aaa",{padding:"4px 10px",fontSize:11})}>👥 Qonaqlar</button>
           {dupCount>0&&<button className="mob-hide" onClick={removeDuplicates} style={s("#5a1010","#f87",{padding:"4px 10px",fontSize:11,border:"1px solid #933"})}>✕ {dupCount} dublikat</button>}
