@@ -1170,15 +1170,17 @@ export default function WeddingPlanner() {
                 <Badge l="Boş yer" v={Math.max(0,stats.cap-stats.total)} a={stats.cap>=stats.total?"#48bb78":"#e53e3e"} />
               </div>
               <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:12,marginBottom:24}}>
-                <div style={{background:"#fff",borderRadius:12,border:"1px solid #e8e4da",padding:"14px 16px",boxShadow:"0 1px 6px rgba(0,0,0,.04)"}}>
-                  <div style={{fontSize:11,color:"#aaa",fontWeight:600,letterSpacing:0.5,marginBottom:6}}>OĞLAN TƏRƏFİ</div>
-                  <div style={{fontSize:22,fontWeight:800,color:"#2a6f97",fontFamily:"'Playfair Display',serif"}}>{guests.filter(function(g){return g.side==="oglan";}).length}</div>
-                  <div style={{fontSize:10.5,color:"#aaa",marginTop:2}}>{guests.filter(function(g){return g.side==="oglan"&&g.tableId!==null;}).length} oturub</div>
+                <div style={{background:"linear-gradient(135deg,#eaf3f9,#fff)",borderRadius:12,border:"1px solid #d0e3f0",padding:"16px 18px",boxShadow:"0 1px 6px rgba(42,111,151,.08)"}}>
+                  <div style={{fontSize:10,color:"#2a6f97",fontWeight:700,letterSpacing:1,marginBottom:4,textTransform:"uppercase"}}>Oğlan tərəfi</div>
+                  <div style={{fontFamily:"'Playfair Display',serif",fontSize:26,fontWeight:800,color:"#2a6f97",lineHeight:1}}>Nicat</div>
+                  <div style={{fontSize:28,fontWeight:800,color:"#1a4f77",marginTop:6,fontFamily:"'Playfair Display',serif"}}>{guests.filter(function(g){return g.side==="oglan";}).length}</div>
+                  <div style={{fontSize:10.5,color:"#6a9fbf",marginTop:4}}>{guests.filter(function(g){return g.side==="oglan"&&g.tableId!==null;}).length} oturub · {guests.filter(function(g){return g.side==="oglan"&&g.tableId===null;}).length} boş</div>
                 </div>
-                <div style={{background:"#fff",borderRadius:12,border:"1px solid #e8e4da",padding:"14px 16px",boxShadow:"0 1px 6px rgba(0,0,0,.04)"}}>
-                  <div style={{fontSize:11,color:"#aaa",fontWeight:600,letterSpacing:0.5,marginBottom:6}}>QIZ TƏRƏFİ</div>
-                  <div style={{fontSize:22,fontWeight:800,color:"#c2528b",fontFamily:"'Playfair Display',serif"}}>{guests.filter(function(g){return g.side==="qiz";}).length}</div>
-                  <div style={{fontSize:10.5,color:"#aaa",marginTop:2}}>{guests.filter(function(g){return g.side==="qiz"&&g.tableId!==null;}).length} oturub</div>
+                <div style={{background:"linear-gradient(135deg,#fdf0f6,#fff)",borderRadius:12,border:"1px solid #e8c8db",padding:"16px 18px",boxShadow:"0 1px 6px rgba(194,82,139,.08)"}}>
+                  <div style={{fontSize:10,color:"#c2528b",fontWeight:700,letterSpacing:1,marginBottom:4,textTransform:"uppercase"}}>Qız tərəfi</div>
+                  <div style={{fontFamily:"'Playfair Display',serif",fontSize:26,fontWeight:800,color:"#c2528b",lineHeight:1}}>Talifa</div>
+                  <div style={{fontSize:28,fontWeight:800,color:"#8a2060",marginTop:6,fontFamily:"'Playfair Display',serif"}}>{guests.filter(function(g){return g.side==="qiz";}).length}</div>
+                  <div style={{fontSize:10.5,color:"#bf6a9f",marginTop:4}}>{guests.filter(function(g){return g.side==="qiz"&&g.tableId!==null;}).length} oturub · {guests.filter(function(g){return g.side==="qiz"&&g.tableId===null;}).length} boş</div>
                 </div>
               </div>
               <h3 style={{fontSize:12,fontWeight:700,marginBottom:10,color:"#999",letterSpacing:0.8,textTransform:"uppercase"}}>Kateqoriya üzrə</h3>
