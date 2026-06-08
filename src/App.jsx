@@ -923,7 +923,7 @@ export default function WeddingPlanner() {
   }
 
 
-    var cColFn=cCol;
+  function printTables(){
     var rows="";
     tables.filter(function(t){return t.cap>0;}).forEach(function(t){
       var tg=guests.filter(function(g){return g.tableId===t.id;});
