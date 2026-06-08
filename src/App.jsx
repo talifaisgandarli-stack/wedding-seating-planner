@@ -876,6 +876,51 @@ export default function WeddingPlanner() {
   var selCatBreak={};
   selG.forEach(function(g){selCatBreak[g.cat]=(selCatBreak[g.cat]||0)+1;});
 
+  function printTables(){
+    var cColFn=cCol;
+    var rows="";
+    tables.filter(function(t){return t.cap>0;}).forEach(function(t){
+      var tg=guests.filter(function(g){return g.tableId===t.id;});
+      var sc=t.side==="oglan"?"#2a6f97":t.side==="qiz"?"#c2528b":"#b8860b";
+      var sl=t.side==="oglan"?"Oğlan":t.side==="qiz"?"Qız":"Xüsusi";
+      var gRows="";
+      if(tg.length===0){
+        gRows='<div style="padding:8px 12px;font-size:10px;color:#bbb;text-align:center">Boş masa</div>';
+      } else {
+        tg.forEach(function(g){
+          var dc=g.side==="oglan"?"#2a6f97":"#c2528b";
+          gRows+='<div style="display:flex;align-items:center;padding:4px 10px;gap:6px;border-bottom:1px solid #f0f0ee;font-size:10.5px;color:#222">'
+            +'<span style="width:5px;height:5px;border-radius:50%;background:'+dc+';flex-shrink:0"></span>'
+            +g.name
+            +'<span style="margin-left:auto;font-size:8.5px;color:#999;white-space:nowrap">'+g.cat+'</span>'
+            +'</div>';
+        });
+      }
+      rows+='<div style="border:1px solid #ddd;border-radius:8px;overflow:hidden;break-inside:avoid;margin-bottom:4px">'
+        +'<div style="background:#f7f7f5;padding:7px 12px;border-bottom:1px solid #e0e0dc;border-top:3px solid '+sc+';display:flex;justify-content:space-between;align-items:center">'
+        +'<div><div style="font-size:14px;font-weight:800;font-family:Georgia,serif">'+t.label+'</div>'
+        +'<div style="font-size:8.5px;color:#999;margin-top:1px">'+sl+' · '+t.cap+' nəfər</div></div>'
+        +'<div style="font-size:12px;font-weight:700;color:#555">'+tg.length+'/'+t.cap+'</div>'
+        +'</div>'+gRows+'</div>';
+    });
+    var html='<!DOCTYPE html><html><head><meta charset="UTF-8"><title>Oturma Planı — Maket Gallery Hall</title>'
+      +'<style>*{box-sizing:border-box;margin:0;padding:0}body{font-family:system-ui,sans-serif;background:#fff;padding:20px;color:#1a1a1a}'
+      +'h1{font-family:Georgia,serif;font-size:20px;margin-bottom:4px}p{font-size:10px;color:#888;margin-bottom:16px}'
+      +'.grid{display:grid;grid-template-columns:repeat(4,1fr);gap:10px}'
+      +'@media print{body{padding:12px}.grid{grid-template-columns:repeat(4,1fr)}}'
+      +'@page{size:A4 landscape;margin:12mm}'
+      +'</style></head><body>'
+      +'<h1>Oturma Planı — Maket Gallery Hall</h1>'
+      +'<p>'+new Date().toLocaleDateString("az-AZ",{day:"2-digit",month:"long",year:"numeric"})+'</p>'
+      +'<div class="grid">'+rows+'</div>'
+      +'</body></html>';
+    var w=window.open("","_blank");
+    w.document.write(html);
+    w.document.close();
+    w.focus();
+    setTimeout(function(){w.print();},500);
+  }
+
   return (
     <div style={{fontFamily:"system-ui,sans-serif",height:"100vh",display:"flex",flexDirection:"column",background:"#f4f2ed",overflow:"hidden"}}>
       {/* TOP BAR */}
@@ -1224,13 +1269,17 @@ export default function WeddingPlanner() {
                     style={{flex:1,padding:"8px 12px",border:"1.5px solid #e8e4da",borderRadius:9,fontSize:12,background:"#fafaf7"}} />
                   {liveSearch&&<button onClick={function(){setLiveSearch("");}} style={{background:"#f0f0ee",border:"none",borderRadius:7,cursor:"pointer",color:"#aaa",fontSize:14,padding:"5px 8px"}}>✕</button>}
                 </div>
-                <div style={{display:"flex",gap:8,flexShrink:0}}>
+                <div style={{display:"flex",gap:8,flexShrink:0,alignItems:"center"}}>
                   <span style={{fontSize:12,background:"#f0fff4",border:"1.5px solid #9ae6b4",borderRadius:999,padding:"6px 14px",color:"#276749",fontWeight:700}}>
                     ✓ {Object.keys(arrived).length} gəldi
                   </span>
                   <span style={{fontSize:12,background:"#fff5f5",border:"1.5px solid #feb2b2",borderRadius:999,padding:"6px 14px",color:"#c53030",fontWeight:700}}>
                     ⌛ {guests.length-Object.keys(arrived).length} gözlənilir
                   </span>
+                  <button onClick={printTables}
+                    style={{fontSize:12,background:"#1a1a1a",border:"none",borderRadius:999,padding:"7px 14px",color:"#fff",fontWeight:700,cursor:"pointer",display:"flex",alignItems:"center",gap:5,flexShrink:0}}>
+                    ⬇ PDF
+                  </button>
                 </div>
               </div>
               {liveSearch.trim()?(
