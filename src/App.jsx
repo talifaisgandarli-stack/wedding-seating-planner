@@ -1132,6 +1132,10 @@ export default function WeddingPlanner() {
                     background:layoutMode?"#fffbf0":"#fff",color:layoutMode?"#c07800":"#888",fontWeight:layoutMode?700:500}}>
                   {layoutMode?"✓ Mövqe rejimi":"⤢ Mövqe dəyiş"}
                 </button>
+                <button onClick={printHall}
+                  style={{padding:"6px 14px",fontSize:11,border:"1.5px solid #555",borderRadius:999,cursor:"pointer",background:"#1a1a1a",color:"#fff",fontWeight:700}}>
+                  PDF
+                </button>
                 <div style={{flex:1}} />
                 <div style={{display:"flex",gap:0,alignItems:"center",background:"#f0ede5",borderRadius:10,padding:"3px 4px",border:"1px solid #e8e4da"}}>
                   <button onClick={function(e){e.stopPropagation();setHallZoom(function(z){return Math.max(0.4,+(z-0.15).toFixed(2));});}}
@@ -1142,10 +1146,6 @@ export default function WeddingPlanner() {
                   <button onClick={function(e){e.stopPropagation();setHallZoom(1);}}
                     style={{border:"none",background:"none",cursor:"pointer",fontSize:11,color:"#bbb",padding:"2px 6px",borderLeft:"1px solid #e0ddd5"}}>↺</button>
                 </div>
-                <button onClick={printHall}
-                  style={{padding:"6px 14px",fontSize:11,border:"none",borderRadius:999,cursor:"pointer",background:"#1a1a1a",color:"#fff",fontWeight:700,flexShrink:0}}>
-                  ⬇ PDF
-                </button>
               </div>
 
               {/* Scrollable hall area */}
