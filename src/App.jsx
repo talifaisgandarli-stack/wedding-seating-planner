@@ -1175,6 +1175,19 @@ export default function WeddingPlanner() {
                   <div style={{fontFamily:"'Playfair Display',serif",fontSize:26,fontWeight:800,color:"#2a6f97",lineHeight:1}}>Nicat</div>
                   <div style={{fontSize:28,fontWeight:800,color:"#1a4f77",marginTop:6,fontFamily:"'Playfair Display',serif"}}>{guests.filter(function(g){return g.side==="oglan";}).length}</div>
                   <div style={{fontSize:10.5,color:"#6a9fbf",marginTop:4}}>{guests.filter(function(g){return g.side==="oglan"&&g.tableId!==null;}).length} oturub · {guests.filter(function(g){return g.side==="oglan"&&g.tableId===null;}).length} boş</div>
+                  {(function(){
+                    var isf=guests.filter(function(g){return g.cat.toLowerCase().replace("ə","e").replace("İ","i").indexOf("isfendiyar")>=0;});
+                    if(!isf.length)return null;
+                    return(
+                      <div style={{marginTop:10,paddingTop:10,borderTop:"1px solid #d0e3f0"}}>
+                        <div style={{fontSize:9.5,color:"#4a7f98",fontWeight:700,letterSpacing:0.5,marginBottom:4,textTransform:"uppercase"}}>İsfəndiyar müəllim</div>
+                        <div style={{display:"flex",alignItems:"baseline",gap:8}}>
+                          <span style={{fontSize:22,fontWeight:800,color:"#1a4f77",fontFamily:"'Playfair Display',serif"}}>{isf.length}</span>
+                          <span style={{fontSize:10.5,color:"#6a9fbf"}}>{isf.filter(function(g){return g.tableId!==null;}).length} oturub · {isf.filter(function(g){return g.tableId===null;}).length} boş</span>
+                        </div>
+                      </div>
+                    );
+                  })()}
                 </div>
                 <div style={{background:"linear-gradient(135deg,#fdf0f6,#fff)",borderRadius:12,border:"1px solid #e8c8db",padding:"16px 18px",boxShadow:"0 1px 6px rgba(194,82,139,.08)"}}>
                   <div style={{fontSize:10,color:"#c2528b",fontWeight:700,letterSpacing:1,marginBottom:4,textTransform:"uppercase"}}>Qız tərəfi</div>
