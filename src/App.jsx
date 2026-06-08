@@ -876,7 +876,53 @@ export default function WeddingPlanner() {
   var selCatBreak={};
   selG.forEach(function(g){selCatBreak[g.cat]=(selCatBreak[g.cat]||0)+1;});
 
-  function printTables(){
+  function printHall(){
+    var tRows="";
+    tables.filter(function(t){return t.cap>0;}).forEach(function(t){
+      var tg=guests.filter(function(g){return g.tableId===t.id;});
+      var sc=t.side==="oglan"?"#2a6f97":t.side==="qiz"?"#c2528b":"#b8860b";
+      tRows+='<div style="position:absolute;left:'+t.x+'%;top:'+t.y+'%;transform:translate(-50%,-50%);'
+        +'width:54px;height:54px;border-radius:50%;background:#fff;border:2.5px solid '+sc+';'
+        +'display:flex;flex-direction:column;align-items:center;justify-content:center;'
+        +'box-shadow:0 1px 4px rgba(0,0,0,.10)">'
+        +'<div style="font-size:9px;font-weight:800;color:'+sc+';font-family:Georgia,serif;line-height:1.2;text-align:center;padding:0 3px;word-break:break-word">'+t.label+'</div>'
+        +'<div style="font-size:7px;color:#aaa;font-weight:600;margin-top:1px">'+tg.length+'/'+t.cap+'</div>'
+        +'</div>';
+    });
+    var html='<!DOCTYPE html><html><head><meta charset="UTF-8"><title>Oturma Planı — Maket Gallery Hall</title>'
+      +'<style>*{box-sizing:border-box;margin:0;padding:0}body{font-family:system-ui,sans-serif;background:#fff;padding:14px}'
+      +'.hall{position:relative;width:100%;aspect-ratio:1.5/1;border:1px solid #ccc;border-radius:12px;background:#f7f5f1;overflow:hidden}'
+      +'@page{size:A4 landscape;margin:8mm}'
+      +'@media print{body{padding:6px}}'
+      +'</style></head><body>'
+      +'<div style="display:flex;justify-content:space-between;align-items:baseline;margin-bottom:10px">'
+      +'<h1 style="font-family:Georgia,serif;font-size:17px;color:#1a1a1a">Maket Gallery Hall — Oturma Planı</h1>'
+      +'<span style="font-size:10px;color:#888">'+new Date().toLocaleDateString("az-AZ",{day:"2-digit",month:"long",year:"numeric"})+'</span>'
+      +'</div>'
+      +'<div class="hall">'
+      +'<div style="position:absolute;left:3%;right:5%;top:2%;height:39%;background:rgba(42,111,151,0.05);border-radius:8px"></div>'
+      +'<div style="position:absolute;left:3%;right:5%;top:44%;height:54%;background:rgba(194,82,139,0.05);border-radius:8px"></div>'
+      +'<div style="position:absolute;top:6px;left:50%;transform:translateX(-50%);font-size:7.5px;letter-spacing:2.5px;color:#b8860b;font-weight:800;white-space:nowrap">MAKET GALLERY HALL</div>'
+      +'<div style="position:absolute;left:8px;top:3%;font-size:6.5px;font-weight:800;color:#2a6f97;letter-spacing:0.8px">● OĞLAN EVİ</div>'
+      +'<div style="position:absolute;left:8px;top:45%;font-size:6.5px;font-weight:800;color:#c2528b;letter-spacing:0.8px">● QIZ EVİ</div>'
+      +'<div style="position:absolute;left:0;top:38%;height:7%;width:5.5%;background:linear-gradient(135deg,#d4eaf7,#b8d8ea);border-radius:0 8px 8px 0;display:flex;align-items:center;justify-content:center">'
+      +'<span style="writing-mode:vertical-rl;transform:rotate(180deg);font-size:5.5px;font-weight:800;color:#4a7f98;letter-spacing:1.5px">GƏLİN BAY</span></div>'
+      +'<div style="position:absolute;left:0;top:52%;height:10%;width:5%;background:linear-gradient(135deg,#3aad6a,#2a8a50);border-radius:0 8px 8px 0;display:flex;align-items:center;justify-content:center">'
+      +'<span style="writing-mode:vertical-rl;transform:rotate(180deg);font-size:5.5px;font-weight:800;color:#fff;letter-spacing:1.5px">GİRİŞ ▲</span></div>'
+      +'<div style="position:absolute;left:6%;right:5%;top:43%;height:1px;background:linear-gradient(90deg,transparent,#c8c4bc 15%,#c8c4bc 85%,transparent)"></div>'
+      +'<div style="position:absolute;right:0;top:22%;height:50%;width:18px;background:linear-gradient(180deg,#2a6f97,#1a4f77);border-radius:6px 0 0 6px;display:flex;align-items:center;justify-content:center">'
+      +'<span style="writing-mode:vertical-rl;color:#fff;font-size:6px;font-weight:800;letter-spacing:3px">SƏHNƏ</span></div>'
+      +tRows
+      +'</div>'
+      +'</body></html>';
+    var w=window.open("","_blank");
+    w.document.write(html);
+    w.document.close();
+    w.focus();
+    setTimeout(function(){w.print();},500);
+  }
+
+
     var cColFn=cCol;
     var rows="";
     tables.filter(function(t){return t.cap>0;}).forEach(function(t){
@@ -1096,6 +1142,10 @@ export default function WeddingPlanner() {
                   <button onClick={function(e){e.stopPropagation();setHallZoom(1);}}
                     style={{border:"none",background:"none",cursor:"pointer",fontSize:11,color:"#bbb",padding:"2px 6px",borderLeft:"1px solid #e0ddd5"}}>↺</button>
                 </div>
+                <button onClick={printHall}
+                  style={{padding:"6px 14px",fontSize:11,border:"none",borderRadius:999,cursor:"pointer",background:"#1a1a1a",color:"#fff",fontWeight:700,flexShrink:0}}>
+                  ⬇ PDF
+                </button>
               </div>
 
               {/* Scrollable hall area */}
