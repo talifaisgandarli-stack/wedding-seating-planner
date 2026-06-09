@@ -155,15 +155,17 @@ export default function WeddingPlanner() {
   var [showAdd, setShowAdd] = useState(false);
   var [nf, setNf] = useState({name:"",side:"oglan",cat:""});
   var [addMode, setAddMode] = useState(false);
-  var [newTable, setNewTable] = useState({label:"",cap:12,side:"oglan",size:"normal"});
+  var [newTable, setNewTable] = useState({label:"",cap:12,side:"oglan",size:"normal",shape:"round"});
   var [editTableId, setEditTableId] = useState(null);
-  var [etf, setEtf] = useState({label:"",cap:12,side:"oglan"});
+  var [etf, setEtf] = useState({label:"",cap:12,side:"oglan",shape:"round"});
+  var [addGuestSearch, setAddGuestSearch] = useState("");
   var [confirmDel, setConfirmDel] = useState(null);
   var [showResetConfirm, setShowResetConfirm] = useState(false);
   var [showResetAssignConfirm, setShowResetAssignConfirm] = useState(false);
   var [showRestoreConfirm, setShowRestoreConfirm] = useState(false);
   var [weddingInitialized, setWeddingInitialized] = useState(false);
   var [hallZoom, setHallZoom] = useState(1);
+  var [hallMarkers, setHallMarkers] = useState({gbY:38,giY:52});
   var [layoutMode, setLayoutMode] = useState(false);
   var draggingTRef = useRef(null);
   var [arrived, setArrived] = useState({});
@@ -832,7 +834,7 @@ export default function WeddingPlanner() {
         onDrop={function(e){if(!layoutMode){e.preventDefault();handleDrop(t.id);}}}
         style={{position:"absolute",left:t.x+"%",top:t.y+"%",
           width:t.r*2,height:t.r*2,marginLeft:-t.r,marginTop:-t.r,
-          borderRadius:"50%",background:bg,border:"2.5px solid "+border,
+          borderRadius:(t.shape||"round")==="square"?10:"50%",background:bg,border:"2.5px solid "+border,
           boxShadow:layoutMode?"0 0 0 2px #f6ad55,0 2px 8px rgba(0,0,0,.15)":shadow,
           display:"flex",flexDirection:"column",
           alignItems:"center",justifyContent:"center",
@@ -1175,11 +1177,13 @@ export default function WeddingPlanner() {
                     QIZ EVİ · {tables.filter(function(t){return t.side==="qiz";}).length} masa
                   </div>
                   {/* GƏLIN BAY */}
-                  <div style={{position:"absolute",left:0,top:"38%",height:"7%",width:"5.5%",background:"linear-gradient(135deg,#d4eaf7,#b8d8ea)",borderRadius:"0 8px 8px 0",display:"flex",alignItems:"center",justifyContent:"center",zIndex:3,boxShadow:"2px 0 8px rgba(42,111,151,.12)"}}>
+                  <div onMouseDown={function(e){if(!layoutMode)return;e.stopPropagation();e.preventDefault();var rect=hallRef.current.getBoundingClientRect();var startY=e.clientY;var startTop=hallMarkers.gbY;function onMove(ev){var dy=(ev.clientY-startY)/rect.height*100;setHallMarkers(function(m){return Object.assign({},m,{gbY:Math.max(2,Math.min(88,startTop+dy))});});}function onUp(){document.removeEventListener("mousemove",onMove);document.removeEventListener("mouseup",onUp);}document.addEventListener("mousemove",onMove);document.addEventListener("mouseup",onUp);}}
+                    style={{position:"absolute",left:0,top:hallMarkers.gbY+"%",height:"7%",width:"5.5%",background:"linear-gradient(135deg,#d4eaf7,#b8d8ea)",borderRadius:"0 8px 8px 0",display:"flex",alignItems:"center",justifyContent:"center",zIndex:3,boxShadow:"2px 0 8px rgba(42,111,151,.12)",cursor:layoutMode?"ns-resize":"default"}}>
                     <span style={{writingMode:"vertical-rl",transform:"rotate(180deg)",fontSize:7,fontWeight:800,color:"#4a7f98",letterSpacing:2}}>GƏLİN BAY</span>
                   </div>
                   {/* GİRİŞ — left wall below GƏLIN BAY */}
-                  <div style={{position:"absolute",left:0,top:"52%",height:"10%",width:"5%",background:"linear-gradient(135deg,#3aad6a,#2a8a50)",borderRadius:"0 8px 8px 0",display:"flex",alignItems:"center",justifyContent:"center",zIndex:3,boxShadow:"2px 0 10px rgba(58,173,106,.3)"}}>
+                  <div onMouseDown={function(e){if(!layoutMode)return;e.stopPropagation();e.preventDefault();var rect=hallRef.current.getBoundingClientRect();var startY=e.clientY;var startTop=hallMarkers.giY;function onMove(ev){var dy=(ev.clientY-startY)/rect.height*100;setHallMarkers(function(m){return Object.assign({},m,{giY:Math.max(2,Math.min(88,startTop+dy))});});}function onUp(){document.removeEventListener("mousemove",onMove);document.removeEventListener("mouseup",onUp);}document.addEventListener("mousemove",onMove);document.addEventListener("mouseup",onUp);}}
+                    style={{position:"absolute",left:0,top:hallMarkers.giY+"%",height:"10%",width:"5%",background:"linear-gradient(135deg,#3aad6a,#2a8a50)",borderRadius:"0 8px 8px 0",display:"flex",alignItems:"center",justifyContent:"center",zIndex:3,boxShadow:"2px 0 10px rgba(58,173,106,.3)",cursor:layoutMode?"ns-resize":"default"}}>
                     <span style={{writingMode:"vertical-rl",transform:"rotate(180deg)",fontSize:7,fontWeight:800,color:"#fff",letterSpacing:2}}>GİRİŞ ▲</span>
                   </div>
                   {/* Section divider */}
@@ -1431,15 +1435,17 @@ export default function WeddingPlanner() {
               <div style={{display:"flex",gap:6}}>
                 {editTableId===selTable?(
                   <>
-                    <select value={etf.cap} onChange={function(e){setEtf(Object.assign({},etf,{cap:parseInt(e.target.value)}));}}
-                      style={{flex:1,padding:"6px 8px",border:"1.5px solid #e0ddd5",borderRadius:7,fontSize:11}}>
-                      {[8,10,12,14,18,20].map(function(n){return <option key={n} value={n}>{n} nəfər</option>;})}
-                    </select>
+                    <input type="number" min="1" max="99" value={etf.cap} onChange={function(e){setEtf(Object.assign({},etf,{cap:Math.max(1,parseInt(e.target.value)||1)}));}}
+                      style={{width:56,padding:"6px 8px",border:"1.5px solid #e0ddd5",borderRadius:7,fontSize:11}} />
                     <select value={etf.side} onChange={function(e){setEtf(Object.assign({},etf,{side:e.target.value}));}}
                       style={{flex:1,padding:"6px 8px",border:"1.5px solid #e0ddd5",borderRadius:7,fontSize:11}}>
                       <option value="oglan">Oğlan</option><option value="qiz">Qız</option><option value="special">Xüsusi</option>
                     </select>
-                    <button onClick={function(){setTables(function(p){return p.map(function(t){return t.id===editTableId?Object.assign({},t,{label:etf.label,cap:etf.cap,side:etf.side}):t;});});setEditTableId(null);}}
+                    <button onClick={function(){setEtf(Object.assign({},etf,{shape:etf.shape==="square"?"round":"square"}));}}
+                      style={{padding:"6px 9px",fontSize:14,background:etf.shape==="square"?"#f0f7ff":"#f5f5f5",border:"1.5px solid #e0ddd5",borderRadius:7,cursor:"pointer"}} title={etf.shape==="square"?"Yumru et":"Kvadrat et"}>
+                      {etf.shape==="square"?"□":"○"}
+                    </button>
+                    <button onClick={function(){setTables(function(p){return p.map(function(t){return t.id===editTableId?Object.assign({},t,{label:etf.label,cap:etf.cap,side:etf.side,shape:etf.shape}):t;});});setEditTableId(null);}}
                       style={{padding:"6px 11px",fontSize:12,background:"#2a6f97",color:"#fff",border:"none",borderRadius:7,cursor:"pointer",fontWeight:700}}>✓</button>
                     <button onClick={function(){setEditTableId(null);}} style={{padding:"6px 9px",fontSize:12,background:"#f0f0f0",border:"none",borderRadius:7,cursor:"pointer"}}>✕</button>
                   </>
@@ -1451,7 +1457,7 @@ export default function WeddingPlanner() {
                   </div>
                 ):(
                   <>
-                    <button onClick={function(){setEditTableId(selTable);setEtf({label:selTD.label,cap:selTD.cap,side:selTD.side});}}
+                    <button onClick={function(){setEditTableId(selTable);setEtf({label:selTD.label,cap:selTD.cap,side:selTD.side,shape:selTD.shape||"round"});}}
                       style={{flex:1,padding:"7px 0",fontSize:11,background:"#f0f7ff",color:"#2a6f97",border:"1.5px solid #d0e3f0",borderRadius:8,cursor:"pointer",fontWeight:700}}>✎ Düzəlt</button>
                     <button onClick={function(){setConfirmDel(selTable);}}
                       style={{flex:1,padding:"7px 0",fontSize:11,background:"#fff5f5",color:"#e53e3e",border:"1.5px solid #fdd",borderRadius:8,cursor:"pointer",fontWeight:700}}>🗑 Sil</button>
@@ -1484,6 +1490,35 @@ export default function WeddingPlanner() {
                 )}
                 <div style={{padding:"7px 16px",fontSize:10,color:"#c0bdb5",fontWeight:700,borderBottom:"1px solid #f0ede5",letterSpacing:0.8}}>QONAQLAR</div>
                 <div style={{flex:1,overflowY:"auto"}}>
+                  {(function(){
+                    var unassigned=guests.filter(function(g){return g.tableId===null;});
+                    var q=addGuestSearch.trim().toLowerCase();
+                    var filtered=q?unassigned.filter(function(g){return g.name.toLowerCase().indexOf(q)>=0;}):unassigned;
+                    return(
+                      <div style={{padding:"8px 16px",borderBottom:"1px solid #f0ede5"}}>
+                        <input placeholder="Qonaq axtar və əlavə et..." value={addGuestSearch}
+                          onChange={function(e){setAddGuestSearch(e.target.value);}}
+                          style={{width:"100%",padding:"6px 10px",border:"1.5px solid #e0ddd5",borderRadius:7,fontSize:11,background:"#fafaf7"}} />
+                        {addGuestSearch.trim()&&(
+                          <div style={{maxHeight:160,overflowY:"auto",marginTop:6,borderRadius:7,border:"1px solid #e8e4da",background:"#fff"}}>
+                            {filtered.length===0&&<div style={{padding:"8px 12px",fontSize:11,color:"#bbb",textAlign:"center"}}>Tapılmadı</div>}
+                            {filtered.slice(0,15).map(function(g){
+                              return(
+                                <div key={g.id} onClick={function(){pushHistory();setGuests(function(p){return p.map(function(x){return x.id===g.id?Object.assign({},x,{tableId:selTable}):x;});});setAddGuestSearch("");}}
+                                  style={{display:"flex",alignItems:"center",padding:"6px 12px",gap:7,cursor:"pointer",borderBottom:"1px solid #f5f5f3",transition:"background .1s"}}
+                                  onMouseEnter={function(e){e.currentTarget.style.background="#f0f7ff";}}
+                                  onMouseLeave={function(e){e.currentTarget.style.background="transparent";}}>
+                                  <div style={{width:5,height:5,borderRadius:"50%",background:g.side==="oglan"?"#2a6f97":"#c2528b",flexShrink:0}} />
+                                  <div style={{flex:1,fontSize:11,fontWeight:500}}>{g.name}</div>
+                                  <span style={{fontSize:8.5,padding:"2px 6px",borderRadius:6,background:cCol(g.cat)+"15",color:cCol(g.cat),fontWeight:600}}>{g.cat}</span>
+                                </div>
+                              );
+                            })}
+                          </div>
+                        )}
+                      </div>
+                    );
+                  })()}
                   {selG.length===0?(
                     <div style={{padding:24,textAlign:"center",color:"#ccc",fontSize:12}}>Boş masa<br/><span style={{fontSize:10}}>Soldan qonaq sürüşdür</span></div>
                   ):selG.map(function(g){
