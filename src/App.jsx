@@ -1489,36 +1489,35 @@ export default function WeddingPlanner() {
                   </div>
                 )}
                 <div style={{padding:"7px 16px",fontSize:10,color:"#c0bdb5",fontWeight:700,borderBottom:"1px solid #f0ede5",letterSpacing:0.8}}>QONAQLAR</div>
+                {(function(){
+                  var unassigned=guests.filter(function(g){return g.tableId===null;});
+                  var q=addGuestSearch.trim().toLowerCase();
+                  var filtered=q?unassigned.filter(function(g){return g.name.toLowerCase().indexOf(q)>=0;}):[];
+                  return(
+                    <div style={{padding:"8px 16px",borderBottom:"1px solid #f0ede5",position:"relative"}}>
+                      <input placeholder="＋ Qonaq əlavə et..." value={addGuestSearch}
+                        onChange={function(e){setAddGuestSearch(e.target.value);}}
+                        style={{width:"100%",padding:"6px 10px",border:"1.5px solid #e0ddd5",borderRadius:7,fontSize:11,background:"#fafaf7"}} />
+                      {addGuestSearch.trim()&&(
+                        <div style={{position:"absolute",left:8,right:8,top:"100%",zIndex:50,borderRadius:7,border:"1px solid #e8e4da",background:"#fff",boxShadow:"0 4px 16px rgba(0,0,0,.12)",maxHeight:200,overflowY:"auto"}}>
+                          {filtered.length===0&&<div style={{padding:"10px 12px",fontSize:11,color:"#bbb",textAlign:"center"}}>Tapılmadı</div>}
+                          {filtered.slice(0,20).map(function(g){
+                            return(
+                              <div key={g.id}
+                                onMouseDown={function(e){e.preventDefault();pushHistory();setGuests(function(p){return p.map(function(x){return x.id===g.id?Object.assign({},x,{tableId:selTable}):x;});});setAddGuestSearch("");}}
+                                style={{display:"flex",alignItems:"center",padding:"7px 12px",gap:7,cursor:"pointer",borderBottom:"1px solid #f5f5f3"}}>
+                                <div style={{width:5,height:5,borderRadius:"50%",background:g.side==="oglan"?"#2a6f97":"#c2528b",flexShrink:0}} />
+                                <div style={{flex:1,fontSize:11,fontWeight:500}}>{g.name}</div>
+                                <span style={{fontSize:8.5,padding:"2px 6px",borderRadius:6,background:cCol(g.cat)+"15",color:cCol(g.cat),fontWeight:600}}>{g.cat}</span>
+                              </div>
+                            );
+                          })}
+                        </div>
+                      )}
+                    </div>
+                  );
+                })()}
                 <div style={{flex:1,overflowY:"auto"}}>
-                  {(function(){
-                    var unassigned=guests.filter(function(g){return g.tableId===null;});
-                    var q=addGuestSearch.trim().toLowerCase();
-                    var filtered=q?unassigned.filter(function(g){return g.name.toLowerCase().indexOf(q)>=0;}):unassigned;
-                    return(
-                      <div style={{padding:"8px 16px",borderBottom:"1px solid #f0ede5"}}>
-                        <input placeholder="Qonaq axtar və əlavə et..." value={addGuestSearch}
-                          onChange={function(e){setAddGuestSearch(e.target.value);}}
-                          style={{width:"100%",padding:"6px 10px",border:"1.5px solid #e0ddd5",borderRadius:7,fontSize:11,background:"#fafaf7"}} />
-                        {addGuestSearch.trim()&&(
-                          <div style={{maxHeight:160,overflowY:"auto",marginTop:6,borderRadius:7,border:"1px solid #e8e4da",background:"#fff"}}>
-                            {filtered.length===0&&<div style={{padding:"8px 12px",fontSize:11,color:"#bbb",textAlign:"center"}}>Tapılmadı</div>}
-                            {filtered.slice(0,15).map(function(g){
-                              return(
-                                <div key={g.id} onClick={function(){pushHistory();setGuests(function(p){return p.map(function(x){return x.id===g.id?Object.assign({},x,{tableId:selTable}):x;});});setAddGuestSearch("");}}
-                                  style={{display:"flex",alignItems:"center",padding:"6px 12px",gap:7,cursor:"pointer",borderBottom:"1px solid #f5f5f3",transition:"background .1s"}}
-                                  onMouseEnter={function(e){e.currentTarget.style.background="#f0f7ff";}}
-                                  onMouseLeave={function(e){e.currentTarget.style.background="transparent";}}>
-                                  <div style={{width:5,height:5,borderRadius:"50%",background:g.side==="oglan"?"#2a6f97":"#c2528b",flexShrink:0}} />
-                                  <div style={{flex:1,fontSize:11,fontWeight:500}}>{g.name}</div>
-                                  <span style={{fontSize:8.5,padding:"2px 6px",borderRadius:6,background:cCol(g.cat)+"15",color:cCol(g.cat),fontWeight:600}}>{g.cat}</span>
-                                </div>
-                              );
-                            })}
-                          </div>
-                        )}
-                      </div>
-                    );
-                  })()}
                   {selG.length===0?(
                     <div style={{padding:24,textAlign:"center",color:"#ccc",fontSize:12}}>Boş masa<br/><span style={{fontSize:10}}>Soldan qonaq sürüşdür</span></div>
                   ):selG.map(function(g){
