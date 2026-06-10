@@ -989,10 +989,7 @@ export default function WeddingPlanner() {
       var html='<!DOCTYPE html><html><head><meta charset="UTF-8"><title>İsfəndiyar M — Oturma Planı</title>'
         +'<style>*{box-sizing:border-box;margin:0;padding:0}'
         +'body{font-family:system-ui,sans-serif;background:#fff;padding:10px}'
-        +'.layout{display:flex;gap:12px;align-items:flex-start}'
-        +'.hall-col{width:44%;flex-shrink:0}'
         +'.hall{position:relative;width:100%;aspect-ratio:1.5/1;border:1px solid #ccc;border-radius:10px;background:#f7f5f1;overflow:visible}'
-        +'.cards-col{flex:1;border-left:2px solid #111;padding-left:10px}'
         +'.grid{display:grid;grid-template-columns:repeat(3,1fr);gap:6px}'
         +'@page{size:A4 landscape;margin:8mm}'
         +'@media print{body{padding:6px}}'
@@ -1001,18 +998,16 @@ export default function WeddingPlanner() {
         +'<h1 style="font-family:Georgia,serif;font-size:15px;color:#111">İsfəndiyar M — Masa Siyahısı</h1>'
         +'<span style="font-size:9px;color:#888">'+date+'</span>'
         +'</div>'
-        +'<div class="layout">'
-        +'<div class="hall-col">'
+        +'<table style="width:100%;border-collapse:collapse;border-spacing:0"><tr>'
+        +'<td style="width:44%;vertical-align:top;padding-right:12px">'
         +'<div style="font-size:7.5px;font-weight:700;color:#999;letter-spacing:0.8px;margin-bottom:4px;text-transform:uppercase">Zal planı</div>'
         +'<div class="hall">'+hallContent+'</div>'
-        +'</div>'
-        +'<div class="cards-col">'
+        +'</td>'
+        +'<td style="vertical-align:top;padding-left:12px;border-left:2px solid #111">'
         +'<div style="font-size:7.5px;font-weight:700;color:#999;letter-spacing:0.8px;margin-bottom:4px;text-transform:uppercase">İsfəndiyar M · '+isfTables.length+' masa</div>'
         +'<div class="grid">'+cards+'</div>'
-        +'</div>'
-        +'</div>'
-        +'</div>'
-        +'</div>'
+        +'</td>'
+        +'</tr></table>'
         +'</body></html>';
       var win=window.open("","_blank");
       win.document.write(html); win.document.close(); win.focus();
@@ -1369,7 +1364,7 @@ export default function WeddingPlanner() {
               </div>
 
               {/* Hall + name panel area */}
-              <div style={{flex:1,display:"flex",overflow:"hidden"}}>
+              <div style={{flex:1,display:"flex",overflow:"hidden",minHeight:0}}>
               {/* Hall map section */}
               <div style={{
                 flex: hallFocusCat==="isfendiyar"?"0 0 50%":1,
@@ -1451,7 +1446,7 @@ export default function WeddingPlanner() {
                 });
                 if(!isfTables.length)return null;
                 return(
-                  <div style={{flex:1,overflow:"auto",borderLeft:"2px solid #1a1a1a",background:"#fafaf8",padding:"10px 12px"}}>
+                  <div style={{flex:1,overflow:"auto",minHeight:0,borderLeft:"2px solid #1a1a1a",background:"#fafaf8",padding:"10px 12px"}}>
                     <div style={{fontSize:10,fontWeight:800,color:"#444",letterSpacing:0.8,marginBottom:10,textTransform:"uppercase"}}>
                       İsfəndiyar M · {isfTables.length} masa
                     </div>
