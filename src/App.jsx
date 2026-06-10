@@ -924,46 +924,86 @@ export default function WeddingPlanner() {
   selG.forEach(function(g){selCatBreak[g.cat]=(selCatBreak[g.cat]||0)+1;});
 
   function printHall(showNames,isfOnly){
+    var date=new Date().toLocaleDateString("az-AZ",{day:"2-digit",month:"long",year:"numeric"});
+
+    // ── İsfəndiyar M focused: clean card-grid (no overlapping names) ──
+    if(isfOnly){
+      var isfTables=tables.filter(function(t){
+        return t.cap>0&&guests.some(function(g){return g.tableId===t.id&&g.cat==="İsfəndiyar M";});
+      });
+      var cards="";
+      isfTables.forEach(function(t){
+        var tg=guests.filter(function(g){return g.tableId===t.id;});
+        var sc=t.side==="oglan"?"#2a6f97":t.side==="qiz"?"#c2528b":"#b8860b";
+        var isfFirst=tg.find(function(g){return g.cat==="İsfəndiyar M";});
+        var isfNm=isfFirst?isfFirst.name:"";
+        var gRows=tg.map(function(g,i){
+          var dc=g.cat==="İsfəndiyar M"?"#444":g.side==="oglan"?"#2a6f97":"#c2528b";
+          var fw=g.cat==="İsfəndiyar M"?700:400;
+          return '<div style="display:flex;align-items:center;gap:6px;padding:3px 0;border-bottom:1px solid #f0f0ee">'
+            +'<span style="font-size:9px;color:#bbb;width:14px;flex-shrink:0">'+(i+1)+'.</span>'
+            +'<span style="font-size:10.5px;font-weight:'+fw+';color:'+dc+'">'+g.name+'</span>'
+            +'</div>';
+        }).join("");
+        cards+='<div style="border:1px solid #ddd;border-top:3px solid '+sc+';border-radius:8px;overflow:hidden;break-inside:avoid">'
+          +'<div style="background:#f8f8f6;padding:8px 12px;display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid #eee">'
+          +'<div><div style="font-size:15px;font-weight:900;color:#111;font-family:Georgia,serif">'+t.label+'</div>'
+          +(isfNm?'<div style="font-size:9px;color:#666;font-weight:700;margin-top:1px">'+isfNm+'</div>':'')
+          +'</div>'
+          +'<div style="font-size:12px;font-weight:800;color:#555">'+tg.length+'/'+t.cap+'</div>'
+          +'</div>'
+          +'<div style="padding:4px 12px 6px">'+gRows+'</div>'
+          +'</div>';
+      });
+      var html='<!DOCTYPE html><html><head><meta charset="UTF-8"><title>İsfəndiyar M — Oturma Planı</title>'
+        +'<style>*{box-sizing:border-box;margin:0;padding:0}body{font-family:system-ui,sans-serif;background:#fff;padding:16px}'
+        +'.grid{display:grid;grid-template-columns:repeat(4,1fr);gap:10px}'
+        +'@page{size:A4 landscape;margin:10mm}'
+        +'@media print{body{padding:8px}}'
+        +'</style></head><body>'
+        +'<div style="display:flex;justify-content:space-between;align-items:baseline;margin-bottom:12px">'
+        +'<h1 style="font-family:Georgia,serif;font-size:17px;color:#111">İsfəndiyar M — Masa Siyahısı</h1>'
+        +'<span style="font-size:10px;color:#888">'+date+'</span>'
+        +'</div>'
+        +'<div class="grid">'+cards+'</div>'
+        +'</body></html>';
+      var win=window.open("","_blank");
+      win.document.write(html); win.document.close(); win.focus();
+      setTimeout(function(){win.print();},500);
+      return;
+    }
+
+    // ── Normal hall map PDF ──
     var tRows="";
-    var norm=function(s){return s.replace(/İ/g,"I").replace(/ı/g,"i").replace(/ə/g,"e").replace(/Ə/g,"E").toLowerCase();};
     tables.filter(function(t){return t.cap>0;}).forEach(function(t){
       var tg=guests.filter(function(g){return g.tableId===t.id;});
-      var tHasIsf=tg.some(function(g){return g.cat==="İsfəndiyar M";});
       var sc=t.side==="oglan"?"#2a6f97":t.side==="qiz"?"#c2528b":"#b8860b";
-      var w=isfOnly?(tHasIsf?90:30):54;
-      var op=isfOnly?(tHasIsf?1:0.08):1;
       var isfFirst=tg.find(function(g){return g.cat==="İsfəndiyar M";});
       var isfNm=isfFirst?isfFirst.name.split(" ")[0]:"";
       if(isfNm.length>9)isfNm=isfNm.substr(0,8)+"…";
-      var labelSize=isfOnly&&tHasIsf?12:9;
       var nameHtml="";
       if(showNames){
         tg.forEach(function(g,i){
           var angle=(i/Math.max(tg.length,1))*2*Math.PI-Math.PI/2;
-          var dist=(w/2)+(isfOnly&&tHasIsf?30:16);
-          var cx=Math.cos(angle)*dist;
-          var cy=Math.sin(angle)*dist;
+          var dist=38;
+          var cx=Math.cos(angle)*dist; var cy=Math.sin(angle)*dist;
           var nm=g.name.split(" ")[0];
-          if(nm.length>10)nm=nm.substr(0,9)+"…";
+          if(nm.length>9)nm=nm.substr(0,8)+"…";
           var dc=g.cat==="İsfəndiyar M"?"rgba(80,80,80,0.92)":g.side==="oglan"?"rgba(30,90,150,0.9)":"rgba(150,40,100,0.9)";
-          var fs=isfOnly&&tHasIsf?9:6;
-          nameHtml+='<div style="position:absolute;left:50%;top:50%;transform:translate(calc(-50% + '+cx+'px),calc(-50% + '+cy+'px));font-size:'+fs+'px;font-weight:700;background:'+dc+';color:#fff;padding:'+(isfOnly&&tHasIsf?'2px 6px':'1px 4px')+';border-radius:4px;white-space:nowrap;box-shadow:0 1px 3px rgba(0,0,0,.25)">'+nm+'</div>';
+          nameHtml+='<div style="position:absolute;left:50%;top:50%;transform:translate(calc(-50% + '+cx+'px),calc(-50% + '+cy+'px));font-size:6px;font-weight:700;background:'+dc+';color:#fff;padding:1px 4px;border-radius:3px;white-space:nowrap;box-shadow:0 1px 2px rgba(0,0,0,.2)">'+nm+'</div>';
         });
       }
-      var centerHtml=isfFirst&&isfOnly
-        ?'<div style="font-size:'+labelSize+'px;font-weight:900;color:#111;line-height:1.15;text-align:center;padding:0 5px">'+isfNm+'</div>'
-         +'<div style="font-size:9px;font-weight:800;color:#333;margin-top:1px">'+t.label+'</div>'
-         +'<div style="font-size:8px;color:#777;font-weight:700">'+tg.length+'/'+t.cap+'</div>'
-        :'<div style="font-size:'+labelSize+'px;font-weight:900;color:#111;font-family:Georgia,serif;line-height:1.2;text-align:center;padding:0 3px;word-break:break-word">'+t.label+'</div>'
+      var centerHtml=isfFirst
+        ?'<div style="font-size:10px;font-weight:900;color:#111;line-height:1.1;text-align:center;padding:0 3px">'+isfNm+'</div>'
+         +'<div style="font-size:7.5px;font-weight:800;color:#444;margin-top:1px">'+t.label+'</div>'
+         +'<div style="font-size:7px;color:#888;font-weight:600">'+tg.length+'/'+t.cap+'</div>'
+        :'<div style="font-size:9px;font-weight:900;color:#111;font-family:Georgia,serif;text-align:center;padding:0 3px;word-break:break-word">'+t.label+'</div>'
          +'<div style="font-size:7px;color:#aaa;font-weight:600;margin-top:1px">'+tg.length+'/'+t.cap+'</div>';
-      var ring=isfOnly&&tHasIsf?'box-shadow:0 0 0 3px #111,0 2px 8px rgba(0,0,0,.2);':'box-shadow:0 1px 4px rgba(0,0,0,.10);';
+      var ring=isfFirst?'box-shadow:0 0 0 3px #111,0 2px 6px rgba(0,0,0,.18);':'box-shadow:0 1px 4px rgba(0,0,0,.10);';
       tRows+='<div style="position:absolute;left:'+t.x+'%;top:'+t.y+'%;transform:translate(-50%,-50%);'
-        +'width:'+w+'px;height:'+w+'px;border-radius:50%;background:#fff;border:2.5px solid '+sc+';'
-        +'display:flex;flex-direction:column;align-items:center;justify-content:center;opacity:'+op+';'
-        +ring+'">'
-        +centerHtml
-        +nameHtml
-        +'</div>';
+        +'width:54px;height:54px;border-radius:50%;background:#fff;border:2.5px solid '+sc+';'
+        +'display:flex;flex-direction:column;align-items:center;justify-content:center;'+ring+'">'
+        +centerHtml+nameHtml+'</div>';
     });
     var html='<!DOCTYPE html><html><head><meta charset="UTF-8"><title>Oturma Planı — Maket Gallery Hall</title>'
       +'<style>*{box-sizing:border-box;margin:0;padding:0}body{font-family:system-ui,sans-serif;background:#fff;padding:14px}'
@@ -973,7 +1013,7 @@ export default function WeddingPlanner() {
       +'</style></head><body>'
       +'<div style="display:flex;justify-content:space-between;align-items:baseline;margin-bottom:10px">'
       +'<h1 style="font-family:Georgia,serif;font-size:17px;color:#1a1a1a">Maket Gallery Hall — Oturma Planı</h1>'
-      +'<span style="font-size:10px;color:#888">'+new Date().toLocaleDateString("az-AZ",{day:"2-digit",month:"long",year:"numeric"})+'</span>'
+      +'<span style="font-size:10px;color:#888">'+date+'</span>'
       +'</div>'
       +'<div class="hall">'
       +'<div style="position:absolute;left:3%;right:5%;top:2%;height:39%;background:rgba(42,111,151,0.05);border-radius:8px"></div>'
@@ -992,9 +1032,7 @@ export default function WeddingPlanner() {
       +'</div>'
       +'</body></html>';
     var w=window.open("","_blank");
-    w.document.write(html);
-    w.document.close();
-    w.focus();
+    w.document.write(html); w.document.close(); w.focus();
     setTimeout(function(){w.print();},500);
   }
 
