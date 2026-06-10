@@ -833,7 +833,7 @@ export default function WeddingPlanner() {
 
     var hasIsf = asg.some(function(g){return g.cat==="İsfəndiyar M";});
     var focused = hallFocusCat==="isfendiyar";
-    var rScale = focused?(hasIsf?1.55:0.55):1;
+    var rScale = focused?(hasIsf?2.2:0.5):1;
     var r = Math.round(t.r*rScale);
     var dimmed = focused&&!hasIsf;
 
@@ -872,16 +872,16 @@ export default function WeddingPlanner() {
           cursor:layoutMode?"move":addMode?"default":"pointer",
           transition:"width .25s,height .25s,margin .25s,opacity .25s,box-shadow .15s",
           zIndex:sel?5:hasIsf&&focused?4:1,userSelect:"none",overflow:"visible",
-          opacity:dimmed?0.3:1}}>
+          opacity:dimmed?0.07:1}}>
         {isfFirst?(
           <>
-            <div style={{fontSize:r>28?13:10,fontWeight:900,color:"#111",lineHeight:1.15,textAlign:"center",padding:"0 4px",letterSpacing:-0.3}}>{isfName}</div>
-            <div style={{fontSize:r>28?8.5:7,fontWeight:700,color:"#555",marginTop:1}}>{t.label}</div>
-            {t.cap>0&&<div style={{fontSize:r>28?8:7,color:full?"#d33":"#888",fontWeight:700}}>{asg.length}/{t.cap}</div>}
+            <div style={{fontSize:r>36?15:11,fontWeight:900,color:"#111",lineHeight:1.15,textAlign:"center",padding:"0 5px",letterSpacing:-0.3}}>{isfName}</div>
+            <div style={{fontSize:r>36?11:8,fontWeight:800,color:"#333",marginTop:2}}>{t.label}</div>
+            {t.cap>0&&<div style={{fontSize:r>36?9:7,color:full?"#d33":"#777",fontWeight:700}}>{asg.length}/{t.cap}</div>}
           </>
         ):(
           <>
-            <div style={{fontSize:r>28?13:10.5,fontWeight:800,color:"#333",lineHeight:1}}>{t.label}</div>
+            <div style={{fontSize:r>28?13:10.5,fontWeight:900,color:"#111",lineHeight:1}}>{t.label}</div>
             {t.cap>0&&<div style={{fontSize:r>28?10:8.5,color:full?"#d33":"#666",marginTop:2,fontWeight:700}}>{asg.length}/{t.cap}</div>}
           </>
         )}
@@ -892,22 +892,23 @@ export default function WeddingPlanner() {
         )}
         {asg.map(function(g,i){
           var angle = (i/asg.length)*2*Math.PI - Math.PI/2;
-          var dist = r+20;
+          var dist = r+(focused&&hasIsf?28:20);
           var cx = Math.cos(angle)*dist;
           var cy = Math.sin(angle)*dist;
           var nm = g.name.split(" ")[0];
-          if(nm.length>8) nm=nm.substr(0,7)+"…";
+          if(nm.length>10) nm=nm.substr(0,9)+"…";
           var isOg = g.side==="oglan";
           var isIsf = g.cat==="İsfəndiyar M";
+          var labelFs = focused&&hasIsf?10:8;
           return (
             <div key={g.id} style={{
               position:"absolute",left:"50%",top:"50%",
               transform:"translate(calc(-50% + "+cx+"px), calc(-50% + "+cy+"px))",
-              fontSize:8,fontWeight:700,lineHeight:1.3,
-              background:isIsf?"rgba(120,120,120,0.88)":isOg?"rgba(30,90,150,0.88)":"rgba(150,40,100,0.88)",
-              color:"#fff",padding:"1.5px 5px",borderRadius:4,
+              fontSize:labelFs,fontWeight:700,lineHeight:1.3,
+              background:isIsf?"rgba(80,80,80,0.92)":isOg?"rgba(30,90,150,0.88)":"rgba(150,40,100,0.88)",
+              color:"#fff",padding:focused&&hasIsf?"2px 7px":"1.5px 5px",borderRadius:5,
               whiteSpace:"nowrap",pointerEvents:"none",
-              boxShadow:"0 1px 3px rgba(0,0,0,.25)",zIndex:10,
+              boxShadow:"0 1px 4px rgba(0,0,0,.3)",zIndex:10,
             }}>{nm}</div>
           );
         })}
@@ -922,30 +923,45 @@ export default function WeddingPlanner() {
   var selCatBreak={};
   selG.forEach(function(g){selCatBreak[g.cat]=(selCatBreak[g.cat]||0)+1;});
 
-  function printHall(showNames){
+  function printHall(showNames,isfOnly){
     var tRows="";
+    var norm=function(s){return s.replace(/İ/g,"I").replace(/ı/g,"i").replace(/ə/g,"e").replace(/Ə/g,"E").toLowerCase();};
     tables.filter(function(t){return t.cap>0;}).forEach(function(t){
       var tg=guests.filter(function(g){return g.tableId===t.id;});
+      var tHasIsf=tg.some(function(g){return g.cat==="İsfəndiyar M";});
       var sc=t.side==="oglan"?"#2a6f97":t.side==="qiz"?"#c2528b":"#b8860b";
+      var w=isfOnly?(tHasIsf?90:30):54;
+      var op=isfOnly?(tHasIsf?1:0.08):1;
+      var isfFirst=tg.find(function(g){return g.cat==="İsfəndiyar M";});
+      var isfNm=isfFirst?isfFirst.name.split(" ")[0]:"";
+      if(isfNm.length>9)isfNm=isfNm.substr(0,8)+"…";
+      var labelSize=isfOnly&&tHasIsf?12:9;
       var nameHtml="";
       if(showNames){
         tg.forEach(function(g,i){
           var angle=(i/Math.max(tg.length,1))*2*Math.PI-Math.PI/2;
-          var dist=32;
+          var dist=(w/2)+(isfOnly&&tHasIsf?30:16);
           var cx=Math.cos(angle)*dist;
           var cy=Math.sin(angle)*dist;
           var nm=g.name.split(" ")[0];
-          if(nm.length>8)nm=nm.substr(0,7)+"…";
-          var dc=g.cat==="İsfəndiyar M"?"rgba(120,120,120,0.9)":g.side==="oglan"?"rgba(30,90,150,0.9)":"rgba(150,40,100,0.9)";
-          nameHtml+='<div style="position:absolute;left:50%;top:50%;transform:translate(calc(-50% + '+cx+'px),calc(-50% + '+cy+'px));font-size:6px;font-weight:700;background:'+dc+';color:#fff;padding:1px 4px;border-radius:3px;white-space:nowrap;box-shadow:0 1px 2px rgba(0,0,0,.2)">'+nm+'</div>';
+          if(nm.length>10)nm=nm.substr(0,9)+"…";
+          var dc=g.cat==="İsfəndiyar M"?"rgba(80,80,80,0.92)":g.side==="oglan"?"rgba(30,90,150,0.9)":"rgba(150,40,100,0.9)";
+          var fs=isfOnly&&tHasIsf?9:6;
+          nameHtml+='<div style="position:absolute;left:50%;top:50%;transform:translate(calc(-50% + '+cx+'px),calc(-50% + '+cy+'px));font-size:'+fs+'px;font-weight:700;background:'+dc+';color:#fff;padding:'+(isfOnly&&tHasIsf?'2px 6px':'1px 4px')+';border-radius:4px;white-space:nowrap;box-shadow:0 1px 3px rgba(0,0,0,.25)">'+nm+'</div>';
         });
       }
+      var centerHtml=isfFirst&&isfOnly
+        ?'<div style="font-size:'+labelSize+'px;font-weight:900;color:#111;line-height:1.15;text-align:center;padding:0 5px">'+isfNm+'</div>'
+         +'<div style="font-size:9px;font-weight:800;color:#333;margin-top:1px">'+t.label+'</div>'
+         +'<div style="font-size:8px;color:#777;font-weight:700">'+tg.length+'/'+t.cap+'</div>'
+        :'<div style="font-size:'+labelSize+'px;font-weight:900;color:#111;font-family:Georgia,serif;line-height:1.2;text-align:center;padding:0 3px;word-break:break-word">'+t.label+'</div>'
+         +'<div style="font-size:7px;color:#aaa;font-weight:600;margin-top:1px">'+tg.length+'/'+t.cap+'</div>';
+      var ring=isfOnly&&tHasIsf?'box-shadow:0 0 0 3px #111,0 2px 8px rgba(0,0,0,.2);':'box-shadow:0 1px 4px rgba(0,0,0,.10);';
       tRows+='<div style="position:absolute;left:'+t.x+'%;top:'+t.y+'%;transform:translate(-50%,-50%);'
-        +'width:54px;height:54px;border-radius:50%;background:#fff;border:2.5px solid '+sc+';'
-        +'display:flex;flex-direction:column;align-items:center;justify-content:center;'
-        +'box-shadow:0 1px 4px rgba(0,0,0,.10)">'
-        +'<div style="font-size:9px;font-weight:800;color:'+sc+';font-family:Georgia,serif;line-height:1.2;text-align:center;padding:0 3px;word-break:break-word">'+t.label+'</div>'
-        +'<div style="font-size:7px;color:#aaa;font-weight:600;margin-top:1px">'+tg.length+'/'+t.cap+'</div>'
+        +'width:'+w+'px;height:'+w+'px;border-radius:50%;background:#fff;border:2.5px solid '+sc+';'
+        +'display:flex;flex-direction:column;align-items:center;justify-content:center;opacity:'+op+';'
+        +ring+'">'
+        +centerHtml
         +nameHtml
         +'</div>';
     });
@@ -1197,12 +1213,21 @@ export default function WeddingPlanner() {
                   if(!hasIsf)return null;
                   var on=hallFocusCat==="isfendiyar";
                   return(
-                    <button onClick={function(){setHallFocusCat(on?null:"isfendiyar");}}
-                      style={{padding:"6px 13px",fontSize:11,borderRadius:999,cursor:"pointer",flexShrink:0,fontWeight:700,
-                        border:"1.5px solid "+(on?"#222":"#ccc"),
-                        background:on?"#1a1a1a":"#fff",color:on?"#fff":"#888"}}>
-                      {on?"✕ Hamısı":"İsfəndiyar M"}
-                    </button>
+                    <div style={{display:"flex",gap:4,alignItems:"center"}}>
+                      <button onClick={function(){setHallFocusCat(on?null:"isfendiyar");}}
+                        style={{padding:"6px 13px",fontSize:11,borderRadius:999,cursor:"pointer",flexShrink:0,fontWeight:700,
+                          border:"1.5px solid "+(on?"#222":"#ccc"),
+                          background:on?"#1a1a1a":"#fff",color:on?"#fff":"#888"}}>
+                        {on?"✕ Hamısı":"İsfəndiyar M"}
+                      </button>
+                      {on&&(
+                        <button onClick={function(){printHall(true,true);}}
+                          style={{padding:"6px 11px",fontSize:11,borderRadius:999,cursor:"pointer",flexShrink:0,fontWeight:700,
+                            border:"1.5px solid #555",background:"#1a1a1a",color:"#d4a030"}}>
+                          PDF
+                        </button>
+                      )}
+                    </div>
                   );
                 })()}
                 <div style={{display:"flex",gap:0,borderRadius:999,overflow:"hidden",border:"1.5px solid #444",flexShrink:0}}>
