@@ -171,6 +171,7 @@ export default function WeddingPlanner() {
   var draggingTRef = useRef(null);
   var [arrived, setArrived] = useState({});
   var [liveSearch, setLiveSearch] = useState("");
+  var [liveCatFilter, setLiveCatFilter] = useState("all");
   var [showLeftPanel, setShowLeftPanel] = useState(false);
 
   // ── Undo history ──
@@ -1338,6 +1339,25 @@ export default function WeddingPlanner() {
                   </button>
                 </div>
               </div>
+              {(function(){
+                var norm=function(s){return s.replace(/İ/g,"I").replace(/ı/g,"i").replace(/ə/g,"e").replace(/Ə/g,"E").toLowerCase();};
+                var isfTables=tables.filter(function(t){return guests.some(function(g){return g.tableId===t.id&&norm(g.cat).indexOf("isfendiyar")>=0;});});
+                if(!isfTables.length)return null;
+                return(
+                  <div style={{display:"flex",gap:8,marginBottom:12,alignItems:"center",flexWrap:"wrap"}}>
+                    <button onClick={function(){setLiveCatFilter("all");}}
+                      style={{padding:"5px 14px",fontSize:11,borderRadius:999,border:"1.5px solid "+(liveCatFilter==="all"?"#1a1a1a":"#e0ddd5"),
+                        background:liveCatFilter==="all"?"#1a1a1a":"#fff",color:liveCatFilter==="all"?"#fff":"#888",fontWeight:700,cursor:"pointer"}}>
+                      Hamısı
+                    </button>
+                    <button onClick={function(){setLiveCatFilter("isfendiyar");}}
+                      style={{padding:"5px 14px",fontSize:11,borderRadius:999,border:"1.5px solid "+(liveCatFilter==="isfendiyar"?"#888":"#e0ddd5"),
+                        background:liveCatFilter==="isfendiyar"?"#888":"#fff",color:liveCatFilter==="isfendiyar"?"#fff":"#888",fontWeight:700,cursor:"pointer"}}>
+                      İsfəndiyar M · {isfTables.length} masa
+                    </button>
+                  </div>
+                );
+              })()}
               {liveSearch.trim()?(
                 <div style={{background:"#fff",borderRadius:10,border:"1px solid #e0ddd5",overflow:"hidden",marginBottom:20}}>
                   {(function(){
@@ -1367,7 +1387,14 @@ export default function WeddingPlanner() {
                 </div>
               ):(
                 <div className="live-grid" style={{display:"grid",gridTemplateColumns:"repeat(auto-fill,minmax(230px,1fr))",gap:14}}>
-                  {tables.filter(function(t){return t.cap>0;}).map(function(t){
+                  {tables.filter(function(t){
+                    if(!t.cap)return false;
+                    if(liveCatFilter==="isfendiyar"){
+                      var norm=function(s){return s.replace(/İ/g,"I").replace(/ı/g,"i").replace(/ə/g,"e").replace(/Ə/g,"E").toLowerCase();};
+                      return guests.some(function(g){return g.tableId===t.id&&norm(g.cat).indexOf("isfendiyar")>=0;});
+                    }
+                    return true;
+                  }).map(function(t){
                     var tg=guests.filter(function(g){return g.tableId===t.id;});
                     var ac=tg.filter(function(g){return !!arrived[g.id];}).length;
                     var allIn=ac===tg.length&&tg.length>0;
