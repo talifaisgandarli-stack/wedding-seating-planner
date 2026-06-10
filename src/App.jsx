@@ -826,6 +826,11 @@ export default function WeddingPlanner() {
     var sel = selTable===t.id;
     var hov = dropT===t.id;
 
+    var catCnts = {};
+    asg.forEach(function(g){catCnts[g.cat]=(catCnts[g.cat]||0)+1;});
+    var entries = Object.entries(catCnts).sort(function(a,b){return b[1]-a[1];});
+    var dom = entries.length>0?entries[0]:null;
+
     var hasIsf = asg.some(function(g){return g.cat==="İsfəndiyar M";});
     var focused = hallFocusCat==="isfendiyar";
     var rScale = focused?(hasIsf?1.55:0.55):1;
