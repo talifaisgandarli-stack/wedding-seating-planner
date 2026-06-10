@@ -1300,13 +1300,13 @@ export default function WeddingPlanner() {
                 </div>
                 <div style={{flex:1}} />
                 {/* Zoom hint */}
-                {hallZoom<1.5&&guests.some(function(g){return g.tableId!=null;})&&(
+                {hallFocusCat!=="isfendiyar"&&hallZoom<1.5&&guests.some(function(g){return g.tableId!=null;})&&(
                   <span style={{fontSize:9.5,color:"#c0bbb5",fontStyle:"italic",flexShrink:0,display:"flex",alignItems:"center",gap:3}}>
                     <span>👁</span> 150%+ adlar
                   </span>
                 )}
                 {/* Zoom control */}
-                <div style={{display:"flex",gap:0,alignItems:"center",background:"#fff",borderRadius:7,padding:"2px 2px",border:"1px solid #e0ddd5",flexShrink:0}}>
+                {hallFocusCat!=="isfendiyar"&&<div style={{display:"flex",gap:0,alignItems:"center",background:"#fff",borderRadius:7,padding:"2px 2px",border:"1px solid #e0ddd5",flexShrink:0}}>
                   <button onClick={function(e){e.stopPropagation();setHallZoom(function(z){return Math.max(0.4,+(z-0.15).toFixed(2));});}}
                     style={{border:"none",background:"none",cursor:"pointer",fontSize:15,fontWeight:700,color:"#888",padding:"2px 7px",lineHeight:1,borderRadius:5}}>−</button>
                   <button onClick={function(e){e.stopPropagation();setHallZoom(1);}}
@@ -1317,14 +1317,20 @@ export default function WeddingPlanner() {
                     style={{border:"none",background:"none",cursor:"pointer",fontSize:15,fontWeight:700,color:"#888",padding:"2px 7px",lineHeight:1,borderRadius:5}}>＋</button>
                   <button onClick={function(e){e.stopPropagation();setHallZoom(1.5);}}
                     style={{border:"none",background:hallZoom===1.5?"#f0ede5":"none",cursor:"pointer",fontSize:9.5,color:"#aaa",padding:"2px 6px",borderLeft:"1px solid #e8e4da",fontWeight:600}}>150%</button>
-                </div>
+                </div>}
               </div>
 
-              {/* Scrollable hall area */}
-              <div style={{flex:1,overflow:"auto",padding:8,boxSizing:"border-box"}}>
+              {/* Hall + name panel area */}
+              <div style={{flex:1,display:"flex",overflow:"hidden"}}>
+              {/* Hall map section */}
+              <div style={{
+                flex: hallFocusCat==="isfendiyar"?"0 0 42%":1,
+                overflow: hallFocusCat==="isfendiyar"?"hidden":"auto",
+                padding:8,boxSizing:"border-box",display:"flex",flexDirection:"column",
+              }}>
                 <div ref={hallRef} onClick={handleHallClick}
                   style={{position:"relative",
-                    width:(hallZoom*100)+"%",minWidth:280,
+                    width:hallFocusCat==="isfendiyar"?"100%":(hallZoom*100)+"%",minWidth:280,
                     aspectRatio:"1.5/1",
                     border:addMode?"2px dashed #48bb78":layoutMode?"2px dashed #f6ad55":"1px solid #d8d5ce",
                     borderRadius:14,background:addMode?"#f0fff4":layoutMode?"#fffcf0":"#f7f5f1",
@@ -1369,7 +1375,7 @@ export default function WeddingPlanner() {
                   {tables.map(renderT)}
                 </div>
 
-                {activeCats.length>0&&(
+                {hallFocusCat!=="isfendiyar"&&activeCats.length>0&&(
                   <div style={{display:"flex",gap:8,justifyContent:"center",marginTop:10,flexWrap:"wrap"}}>
                     {activeCats.map(function(c){
                       return <span key={c} style={{fontSize:10,display:"flex",alignItems:"center",gap:4}}>
@@ -1378,63 +1384,64 @@ export default function WeddingPlanner() {
                     })}
                   </div>
                 )}
-                <div style={{display:"flex",gap:10,justifyContent:"center",marginTop:10,flexWrap:"wrap"}}>
-                  <Badge l="Masa" v={tables.filter(function(t){return t.cap>0;}).length} a="#555" />
-                  <Badge l="Qonaq" v={stats.total} a="#b8860b" />
-                  <Badge l="Oturub" v={stats.assigned} a="#48bb78" />
-                  <Badge l="Boş" v={stats.unassigned} a="#e53e3e" />
-                </div>
+                {hallFocusCat!=="isfendiyar"&&(
+                  <div style={{display:"flex",gap:10,justifyContent:"center",marginTop:10,flexWrap:"wrap"}}>
+                    <Badge l="Masa" v={tables.filter(function(t){return t.cap>0;}).length} a="#555" />
+                    <Badge l="Qonaq" v={stats.total} a="#b8860b" />
+                    <Badge l="Oturub" v={stats.assigned} a="#48bb78" />
+                    <Badge l="Boş" v={stats.unassigned} a="#e53e3e" />
+                  </div>
+                )}
+              </div>{/* end hall map section */}
 
-                {/* İsfəndiyar M name cards — always visible below hall when filter active */}
-                {(function(){
-                  if(hallFocusCat!=="isfendiyar")return null;
-                  var norm=function(s){return s.replace(/İ/g,"I").replace(/ı/g,"i").replace(/ə/g,"e").replace(/Ə/g,"E").toLowerCase();};
-                  var isfTables=tables.filter(function(t){
-                    return t.cap>0&&guests.some(function(g){return g.tableId===t.id&&norm(g.cat).indexOf("isfendiyar")>=0;});
-                  });
-                  if(!isfTables.length)return null;
-                  return(
-                    <div style={{marginTop:20,borderTop:"2px solid #222",paddingTop:14}}>
-                      <div style={{fontSize:11,fontWeight:800,color:"#222",letterSpacing:1,marginBottom:12,textTransform:"uppercase",display:"flex",alignItems:"center",gap:8}}>
-                        <span style={{width:14,height:14,borderRadius:"50%",background:"#222",display:"inline-block"}} />
-                        İsfəndiyar M — {isfTables.length} masa
-                      </div>
-                      <div style={{display:"grid",gridTemplateColumns:"repeat(auto-fill,minmax(175px,1fr))",gap:10}}>
-                        {isfTables.map(function(t){
-                          var tg=guests.filter(function(g){return g.tableId===t.id;});
-                          var sc=t.side==="oglan"?"#2a6f97":t.side==="qiz"?"#c2528b":"#b8860b";
-                          var isfFirst=tg.find(function(g){return norm(g.cat).indexOf("isfendiyar")>=0;});
-                          return(
-                            <div key={t.id} style={{background:"#fff",borderRadius:10,border:"2px solid "+sc,overflow:"hidden",boxShadow:"0 2px 8px rgba(0,0,0,.08)"}}>
-                              <div style={{padding:"7px 12px",background:t.side==="oglan"?"#edf4fb":t.side==="qiz"?"#faf0f6":"#fffbf0",borderBottom:"1px solid #eee",display:"flex",justifyContent:"space-between",alignItems:"center"}}>
-                                <div>
-                                  <div style={{fontFamily:"'Playfair Display',serif",fontSize:14,fontWeight:900,color:"#111"}}>{t.label}</div>
-                                  {isfFirst&&<div style={{fontSize:8.5,color:"#666",marginTop:1,fontWeight:600}}>{isfFirst.name}</div>}
-                                </div>
-                                <div style={{fontSize:12,fontWeight:800,color:sc}}>{tg.length}/{t.cap}</div>
-                              </div>
-                              <div>
-                                {tg.map(function(g,i){
-                                  var isIsf=norm(g.cat).indexOf("isfendiyar")>=0;
-                                  var isOg=g.side==="oglan";
-                                  var col=isIsf?"#111":isOg?"#1a5fa8":"#a8286a";
-                                  return(
-                                    <div key={g.id} style={{display:"flex",alignItems:"center",padding:"3px 10px",gap:6,borderBottom:"1px solid #f5f5f5",background:isIsf?"#fafafa":"#fff"}}>
-                                      <span style={{fontSize:8,color:"#ccc",width:14,textAlign:"right",flexShrink:0}}>{i+1}.</span>
-                                      <span style={{fontSize:11,fontWeight:isIsf?700:400,color:col,flex:1}}>{g.name}</span>
-                                      {isIsf&&<span style={{width:4,height:4,borderRadius:"50%",background:"#555",flexShrink:0}} />}
-                                    </div>
-                                  );
-                                })}
-                              </div>
-                            </div>
-                          );
-                        })}
-                      </div>
+              {/* Right panel: İsfəndiyar M name cards */}
+              {(function(){
+                if(hallFocusCat!=="isfendiyar")return null;
+                var norm=function(s){return s.replace(/İ/g,"I").replace(/ı/g,"i").replace(/ə/g,"e").replace(/Ə/g,"E").toLowerCase();};
+                var isfTables=tables.filter(function(t){
+                  return t.cap>0&&guests.some(function(g){return g.tableId===t.id&&norm(g.cat).indexOf("isfendiyar")>=0;});
+                });
+                if(!isfTables.length)return null;
+                return(
+                  <div style={{flex:1,overflow:"auto",borderLeft:"2px solid #1a1a1a",background:"#fafaf8",padding:"10px 12px"}}>
+                    <div style={{fontSize:10,fontWeight:800,color:"#444",letterSpacing:0.8,marginBottom:10,textTransform:"uppercase"}}>
+                      İsfəndiyar M · {isfTables.length} masa
                     </div>
-                  );
-                })()}
-              </div>
+                    <div style={{display:"grid",gridTemplateColumns:"repeat(auto-fill,minmax(160px,1fr))",gap:8}}>
+                      {isfTables.map(function(t){
+                        var tg=guests.filter(function(g){return g.tableId===t.id;});
+                        var sc=t.side==="oglan"?"#2a6f97":t.side==="qiz"?"#c2528b":"#b8860b";
+                        var isfFirst=tg.find(function(g){return norm(g.cat).indexOf("isfendiyar")>=0;});
+                        return(
+                          <div key={t.id} style={{background:"#fff",borderRadius:8,border:"1.5px solid "+sc,overflow:"hidden",boxShadow:"0 1px 6px rgba(0,0,0,.07)"}}>
+                            <div style={{padding:"5px 10px",background:t.side==="oglan"?"#edf4fb":t.side==="qiz"?"#faf0f6":"#fffbf0",borderBottom:"1px solid #eee",display:"flex",justifyContent:"space-between",alignItems:"center"}}>
+                              <div>
+                                <div style={{fontFamily:"'Playfair Display',serif",fontSize:13,fontWeight:900,color:"#111"}}>{t.label}</div>
+                                {isfFirst&&<div style={{fontSize:8,color:"#777",fontWeight:600,marginTop:1}}>{isfFirst.name}</div>}
+                              </div>
+                              <div style={{fontSize:11,fontWeight:800,color:sc}}>{tg.length}/{t.cap}</div>
+                            </div>
+                            <div>
+                              {tg.map(function(g,i){
+                                var isIsf=norm(g.cat).indexOf("isfendiyar")>=0;
+                                var isOg=g.side==="oglan";
+                                var col=isIsf?"#111":isOg?"#1a5fa8":"#a8286a";
+                                return(
+                                  <div key={g.id} style={{display:"flex",alignItems:"center",padding:"2.5px 8px",gap:5,borderBottom:"1px solid #f5f5f5",background:isIsf?"#fafafa":"#fff"}}>
+                                    <span style={{fontSize:7.5,color:"#ccc",width:13,textAlign:"right",flexShrink:0}}>{i+1}.</span>
+                                    <span style={{fontSize:10.5,fontWeight:isIsf?700:400,color:col,flex:1}}>{g.name}</span>
+                                  </div>
+                                );
+                              })}
+                            </div>
+                          </div>
+                        );
+                      })}
+                    </div>
+                  </div>
+                );
+              })()}
+              </div>{/* end hall+panel flex row */}
             </div>
           )}
           {view==="list"&&(
