@@ -68,6 +68,7 @@ function parseCSV(text) {
 var CC = {};
 var HUES = [210,340,30,160,270,50,190,0,130,300,80,230];
 function cCol(c) {
+  if (c==="İsfəndiyar M") return "#888888";
   if (!CC[c]) {
     var h = 0;
     for (var i = 0; i < c.length; i++) h = (h*31+c.charCodeAt(i))%HUES.length;
@@ -855,12 +856,13 @@ export default function WeddingPlanner() {
           var nm = g.name.split(" ")[0];
           if(nm.length>8) nm=nm.substr(0,7)+"…";
           var isOg = g.side==="oglan";
+          var isIsf = g.cat==="İsfəndiyar M";
           return (
             <div key={g.id} style={{
               position:"absolute",left:"50%",top:"50%",
               transform:"translate(calc(-50% + "+cx+"px), calc(-50% + "+cy+"px))",
               fontSize:8,fontWeight:700,lineHeight:1.3,
-              background:isOg?"rgba(30,90,150,0.88)":"rgba(150,40,100,0.88)",
+              background:isIsf?"rgba(120,120,120,0.88)":isOg?"rgba(30,90,150,0.88)":"rgba(150,40,100,0.88)",
               color:"#fff",padding:"1.5px 5px",borderRadius:4,
               whiteSpace:"nowrap",pointerEvents:"none",
               boxShadow:"0 1px 3px rgba(0,0,0,.25)",zIndex:10,
