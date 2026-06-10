@@ -890,25 +890,26 @@ export default function WeddingPlanner() {
             <div style={{width:(pct*100)+"%",height:"100%",background:border,borderRadius:2}} />
           </div>
         )}
-        {asg.map(function(g,i){
+        {(sel||hallZoom>=1.5)&&asg.map(function(g,i){
           var angle = (i/asg.length)*2*Math.PI - Math.PI/2;
-          var dist = r+(focused&&hasIsf?28:20);
+          var dist = r+(focused&&hasIsf?32:sel?26:22);
           var cx = Math.cos(angle)*dist;
           var cy = Math.sin(angle)*dist;
           var nm = g.name.split(" ")[0];
           if(nm.length>10) nm=nm.substr(0,9)+"…";
           var isOg = g.side==="oglan";
           var isIsf = g.cat==="İsfəndiyar M";
-          var labelFs = focused&&hasIsf?10:8;
+          var labelFs = sel?9.5:focused&&hasIsf?10:8.5;
           return (
             <div key={g.id} style={{
               position:"absolute",left:"50%",top:"50%",
               transform:"translate(calc(-50% + "+cx+"px), calc(-50% + "+cy+"px))",
               fontSize:labelFs,fontWeight:700,lineHeight:1.3,
-              background:isIsf?"rgba(80,80,80,0.92)":isOg?"rgba(30,90,150,0.88)":"rgba(150,40,100,0.88)",
-              color:"#fff",padding:focused&&hasIsf?"2px 7px":"1.5px 5px",borderRadius:5,
+              background:isIsf?"rgba(70,70,70,0.95)":isOg?"rgba(22,82,144,0.92)":"rgba(140,35,95,0.92)",
+              color:"#fff",padding:sel?"2.5px 7px":"2px 6px",borderRadius:5,
               whiteSpace:"nowrap",pointerEvents:"none",
-              boxShadow:"0 1px 4px rgba(0,0,0,.3)",zIndex:10,
+              boxShadow:"0 1px 5px rgba(0,0,0,.35)",zIndex:10,
+              letterSpacing:0.1,
             }}>{nm}</div>
           );
         })}
@@ -1231,62 +1232,81 @@ export default function WeddingPlanner() {
           {view==="hall"&&(
             <div style={{height:"100%",display:"flex",flexDirection:"column",overflow:"hidden"}}>
               {/* Hall toolbar */}
-              <div style={{padding:"7px 10px",display:"flex",gap:6,alignItems:"center",borderBottom:"1px solid #ece8e0",flexShrink:0,background:"#fafaf7",flexWrap:"wrap"}}>
+              <div style={{padding:"6px 10px",display:"flex",gap:6,alignItems:"center",borderBottom:"1px solid #e8e4dc",flexShrink:0,background:"#f9f7f4",flexWrap:"wrap"}}>
                 <button className="mob-only" onClick={function(){setShowLeftPanel(!showLeftPanel);}}
-                  style={{padding:"6px 12px",fontSize:11,border:"1.5px solid #e0ddd5",borderRadius:999,cursor:"pointer",background:"#fff",color:"#555",fontWeight:700}}>
-                  ☰ {filtUn.length} boş
+                  style={{padding:"5px 11px",fontSize:11,border:"1px solid #e0ddd5",borderRadius:7,cursor:"pointer",background:"#fff",color:"#555",fontWeight:700}}>
+                  ☰ {filtUn.length}
                 </button>
-                <button onClick={function(){setAddMode(!addMode);setLayoutMode(false);setSelTable(null);}}
-                  style={{padding:"6px 14px",fontSize:11,border:"1.5px solid "+(addMode?"#e53e3e":"#b8e0c8"),borderRadius:999,cursor:"pointer",
-                    background:addMode?"#fff5f5":"#f0fff4",color:addMode?"#e53e3e":"#2a7a4a",fontWeight:700}}>
-                  {addMode?"✕ Ləğv et":"＋ Masa əlavə et"}
-                </button>
-                <button onClick={function(){setLayoutMode(!layoutMode);setAddMode(false);setSelTable(null);}}
-                  style={{padding:"6px 14px",fontSize:11,border:"1.5px solid "+(layoutMode?"#f6ad55":"#e8e4da"),borderRadius:999,cursor:"pointer",
-                    background:layoutMode?"#fffbf0":"#fff",color:layoutMode?"#c07800":"#888",fontWeight:layoutMode?700:500}}>
-                  {layoutMode?"✓ Mövqe rejimi":"⤢ Mövqe dəyiş"}
-                </button>
+                {/* Add / Layout mode buttons */}
+                <div style={{display:"flex",gap:4}}>
+                  <button onClick={function(){setAddMode(!addMode);setLayoutMode(false);setSelTable(null);}}
+                    style={{padding:"5px 12px",fontSize:11,borderRadius:7,cursor:"pointer",fontWeight:600,
+                      border:"1px solid "+(addMode?"#e53e3e":"#c8e6c8"),
+                      background:addMode?"#fff0f0":"#f0fff4",color:addMode?"#e53e3e":"#2a7a4a"}}>
+                    {addMode?"✕ Ləğv et":"＋ Masa əlavə et"}
+                  </button>
+                  <button onClick={function(){setLayoutMode(!layoutMode);setAddMode(false);setSelTable(null);}}
+                    style={{padding:"5px 12px",fontSize:11,borderRadius:7,cursor:"pointer",fontWeight:600,
+                      border:"1px solid "+(layoutMode?"#f6ad55":"#e8e4da"),
+                      background:layoutMode?"#fffbf0":"#fff",color:layoutMode?"#b87800":"#999"}}>
+                    {layoutMode?"✓ Mövqe rejimi":"⤢ Mövqe"}
+                  </button>
+                </div>
+                {/* Separator */}
+                <div style={{width:1,height:20,background:"#e0ddd5",flexShrink:0}} />
+                {/* İsfəndiyar M filter */}
                 {(function(){
                   var hasIsf=guests.some(function(g){return g.cat==="İsfəndiyar M"&&g.tableId!=null;});
                   if(!hasIsf)return null;
                   var on=hallFocusCat==="isfendiyar";
                   return(
-                    <div style={{display:"flex",gap:4,alignItems:"center"}}>
+                    <div style={{display:"flex",gap:3,alignItems:"center"}}>
                       <button onClick={function(){setHallFocusCat(on?null:"isfendiyar");}}
-                        style={{padding:"6px 13px",fontSize:11,borderRadius:999,cursor:"pointer",flexShrink:0,fontWeight:700,
-                          border:"1.5px solid "+(on?"#222":"#ccc"),
-                          background:on?"#1a1a1a":"#fff",color:on?"#fff":"#888"}}>
+                        style={{padding:"5px 12px",fontSize:11,borderRadius:7,cursor:"pointer",fontWeight:700,
+                          border:"1px solid "+(on?"#444":"#ddd"),
+                          background:on?"#222":"#fff",color:on?"#fff":"#999"}}>
                         {on?"✕ Hamısı":"İsfəndiyar M"}
                       </button>
                       {on&&(
                         <button onClick={function(){printHall(true,true);}}
-                          style={{padding:"6px 11px",fontSize:11,borderRadius:999,cursor:"pointer",flexShrink:0,fontWeight:700,
-                            border:"1.5px solid #555",background:"#1a1a1a",color:"#d4a030"}}>
+                          style={{padding:"5px 10px",fontSize:11,borderRadius:7,cursor:"pointer",fontWeight:700,
+                            border:"1px solid #555",background:"#1a1a1a",color:"#d4a030"}}>
                           PDF
                         </button>
                       )}
                     </div>
                   );
                 })()}
-                <div style={{display:"flex",gap:0,borderRadius:999,overflow:"hidden",border:"1.5px solid #444",flexShrink:0}}>
+                {/* PDF buttons */}
+                <div style={{display:"flex",gap:1,borderRadius:7,overflow:"hidden",border:"1px solid #ccc",flexShrink:0}}>
                   <button onClick={function(){printHall(false);}}
-                    style={{padding:"6px 12px",fontSize:11,border:"none",borderRight:"1px solid #333",cursor:"pointer",background:"#1a1a1a",color:"#fff",fontWeight:700}}>
+                    style={{padding:"5px 11px",fontSize:11,border:"none",borderRight:"1px solid #ccc",cursor:"pointer",background:"#fff",color:"#444",fontWeight:600}}>
                     PDF
                   </button>
                   <button onClick={function(){printHall(true);}}
-                    style={{padding:"6px 12px",fontSize:11,border:"none",cursor:"pointer",background:"#2a2a2a",color:"#d4a030",fontWeight:700}}>
+                    style={{padding:"5px 11px",fontSize:11,border:"none",cursor:"pointer",background:"#fff",color:"#b8860b",fontWeight:600}}>
                     adlı
                   </button>
                 </div>
                 <div style={{flex:1}} />
-                <div style={{display:"flex",gap:0,alignItems:"center",background:"#f0ede5",borderRadius:10,padding:"3px 4px",border:"1px solid #e8e4da"}}>
+                {/* Zoom hint */}
+                {hallZoom<1.5&&guests.some(function(g){return g.tableId!=null;})&&(
+                  <span style={{fontSize:9.5,color:"#c0bbb5",fontStyle:"italic",flexShrink:0,display:"flex",alignItems:"center",gap:3}}>
+                    <span>👁</span> 150%+ adlar
+                  </span>
+                )}
+                {/* Zoom control */}
+                <div style={{display:"flex",gap:0,alignItems:"center",background:"#fff",borderRadius:7,padding:"2px 2px",border:"1px solid #e0ddd5",flexShrink:0}}>
                   <button onClick={function(e){e.stopPropagation();setHallZoom(function(z){return Math.max(0.4,+(z-0.15).toFixed(2));});}}
-                    style={{border:"none",background:"none",cursor:"pointer",fontSize:16,fontWeight:700,color:"#666",padding:"2px 7px",lineHeight:1,borderRadius:7}}>−</button>
-                  <span style={{fontSize:10.5,fontWeight:700,color:"#666",minWidth:38,textAlign:"center"}}>{Math.round(hallZoom*100)}%</span>
-                  <button onClick={function(e){e.stopPropagation();setHallZoom(function(z){return Math.min(3,+(z+0.15).toFixed(2));});}}
-                    style={{border:"none",background:"none",cursor:"pointer",fontSize:16,fontWeight:700,color:"#666",padding:"2px 7px",lineHeight:1,borderRadius:7}}>＋</button>
+                    style={{border:"none",background:"none",cursor:"pointer",fontSize:15,fontWeight:700,color:"#888",padding:"2px 7px",lineHeight:1,borderRadius:5}}>−</button>
                   <button onClick={function(e){e.stopPropagation();setHallZoom(1);}}
-                    style={{border:"none",background:"none",cursor:"pointer",fontSize:11,color:"#bbb",padding:"2px 6px",borderLeft:"1px solid #e0ddd5"}}>↺</button>
+                    style={{border:"none",background:hallZoom===1?"#f0ede5":"none",cursor:"pointer",fontSize:10,fontWeight:700,color:"#666",padding:"2px 6px",borderRadius:5,minWidth:38,textAlign:"center"}}>
+                    {Math.round(hallZoom*100)}%
+                  </button>
+                  <button onClick={function(e){e.stopPropagation();setHallZoom(function(z){return Math.min(3,+(z+0.15).toFixed(2));});}}
+                    style={{border:"none",background:"none",cursor:"pointer",fontSize:15,fontWeight:700,color:"#888",padding:"2px 7px",lineHeight:1,borderRadius:5}}>＋</button>
+                  <button onClick={function(e){e.stopPropagation();setHallZoom(1.5);}}
+                    style={{border:"none",background:hallZoom===1.5?"#f0ede5":"none",cursor:"pointer",fontSize:9.5,color:"#aaa",padding:"2px 6px",borderLeft:"1px solid #e8e4da",fontWeight:600}}>150%</button>
                 </div>
               </div>
 
