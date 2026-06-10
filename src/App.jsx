@@ -515,6 +515,19 @@ export default function WeddingPlanner() {
     document.addEventListener("mousemove",onMove); document.addEventListener("mouseup",onUp);
   }
 
+  function moveGuestInTable(gid, tid, dir) {
+    setGuests(function(prev){
+      var indexed=prev.map(function(g,i){return {g:g,i:i};}).filter(function(x){return x.g.tableId===tid;});
+      var pos=indexed.findIndex(function(x){return x.g.id===gid;});
+      var newPos=pos+dir;
+      if(newPos<0||newPos>=indexed.length)return prev;
+      var next=prev.slice();
+      var iA=indexed[pos].i; var iB=indexed[newPos].i;
+      next[iA]=prev[iB]; next[iB]=prev[iA];
+      return next;
+    });
+  }
+
   var deleteTable = useCallback(function(tid) {
     pushHistory();
     setGuests(function(prev){return prev.map(function(g){return g.tableId===tid?Object.assign({},g,{tableId:null}):g;});});
@@ -1436,22 +1449,31 @@ export default function WeddingPlanner() {
                         </div>
                         <div style={{padding:"4px 0"}}>
                           {tg.length===0&&<div style={{padding:"10px 14px",fontSize:11,color:"#ccc",textAlign:"center"}}>Boş masa</div>}
-                          {tg.map(function(g){
+                          {tg.map(function(g,gi){
                             var isA=!!arrived[g.id];
                             return (
-                              <div key={g.id} onClick={function(){setArrived(function(p){var n=Object.assign({},p);if(n[g.id])delete n[g.id];else n[g.id]=true;return n;})}}
-                                style={{display:"flex",alignItems:"center",padding:"6px 12px",gap:7,cursor:"pointer",
+                              <div key={g.id}
+                                style={{display:"flex",alignItems:"center",padding:"6px 8px 6px 12px",gap:7,
                                   background:isA?"#f0fff4":"transparent",borderBottom:"1px solid #f8f8f8",transition:"background .12s"}}>
-                                <div style={{width:18,height:18,borderRadius:"50%",border:"1.5px solid "+(isA?"#48bb78":"#ddd"),
-                                  background:isA?"#48bb78":"#fff",display:"flex",alignItems:"center",justifyContent:"center",
-                                  flexShrink:0,fontSize:10,color:"#fff",fontWeight:800,transition:"all .15s"}}>
+                                <div onClick={function(){setArrived(function(p){var n=Object.assign({},p);if(n[g.id])delete n[g.id];else n[g.id]=true;return n;})}}
+                                  style={{width:18,height:18,borderRadius:"50%",border:"1.5px solid "+(isA?"#48bb78":"#ddd"),
+                                    background:isA?"#48bb78":"#fff",display:"flex",alignItems:"center",justifyContent:"center",
+                                    flexShrink:0,fontSize:10,color:"#fff",fontWeight:800,transition:"all .15s",cursor:"pointer"}}>
                                   {isA?"✓":""}
                                 </div>
                                 <div style={{width:5,height:5,borderRadius:"50%",background:g.side==="oglan"?"#2a6f97":"#c2528b",flexShrink:0}} />
-                                <div style={{flex:1,fontSize:11.5,fontFamily:"system-ui",fontWeight:isA?700:400,
-                                  color:isA?"#276749":"#333"}}>{g.name}</div>
+                                <div onClick={function(){setArrived(function(p){var n=Object.assign({},p);if(n[g.id])delete n[g.id];else n[g.id]=true;return n;})}}
+                                  style={{flex:1,fontSize:11.5,fontFamily:"system-ui",fontWeight:isA?700:400,color:isA?"#276749":"#333",cursor:"pointer"}}>{g.name}</div>
                                 <span style={{fontSize:8,padding:"1px 6px",borderRadius:8,background:cCol(g.cat)+"15",
                                   color:cCol(g.cat),fontWeight:600,flexShrink:0}}>{g.cat}</span>
+                                <div style={{display:"flex",flexDirection:"column",gap:1,flexShrink:0}}>
+                                  <button onClick={function(){moveGuestInTable(g.id,t.id,-1);}}
+                                    disabled={gi===0}
+                                    style={{border:"none",background:"none",cursor:gi===0?"default":"pointer",fontSize:9,lineHeight:1,padding:"1px 3px",color:gi===0?"#ddd":"#aaa",minHeight:0}}>▲</button>
+                                  <button onClick={function(){moveGuestInTable(g.id,t.id,1);}}
+                                    disabled={gi===tg.length-1}
+                                    style={{border:"none",background:"none",cursor:gi===tg.length-1?"default":"pointer",fontSize:9,lineHeight:1,padding:"1px 3px",color:gi===tg.length-1?"#ddd":"#aaa",minHeight:0}}>▼</button>
+                                </div>
                               </div>
                             );
                           })}
