@@ -173,6 +173,8 @@ export default function WeddingPlanner() {
   var [arrived, setArrived] = useState({});
   var [liveSearch, setLiveSearch] = useState("");
   var [liveCatFilter, setLiveCatFilter] = useState("all");
+  var [liveEditId, setLiveEditId] = useState(null);
+  var [liveEditVal, setLiveEditVal] = useState("");
   var [showLeftPanel, setShowLeftPanel] = useState(false);
 
   // ── Undo history ──
@@ -1496,18 +1498,38 @@ export default function WeddingPlanner() {
                                   {isA?"✓":""}
                                 </div>
                                 <div style={{width:5,height:5,borderRadius:"50%",background:g.side==="oglan"?"#2a6f97":"#c2528b",flexShrink:0}} />
-                                <div onClick={function(){setArrived(function(p){var n=Object.assign({},p);if(n[g.id])delete n[g.id];else n[g.id]=true;return n;})}}
-                                  style={{flex:1,fontSize:11.5,fontFamily:"system-ui",fontWeight:isA?700:400,color:isA?"#276749":"#333",cursor:"pointer"}}>{g.name}</div>
-                                <span style={{fontSize:8,padding:"1px 6px",borderRadius:8,background:cCol(g.cat)+"15",
-                                  color:cCol(g.cat),fontWeight:600,flexShrink:0}}>{g.cat}</span>
-                                <div style={{display:"flex",flexDirection:"column",gap:1,flexShrink:0}}>
-                                  <button onClick={function(){moveGuestInTable(g.id,t.id,-1);}}
-                                    disabled={gi===0}
-                                    style={{border:"none",background:"none",cursor:gi===0?"default":"pointer",fontSize:9,lineHeight:1,padding:"1px 3px",color:gi===0?"#ddd":"#aaa",minHeight:0}}>▲</button>
-                                  <button onClick={function(){moveGuestInTable(g.id,t.id,1);}}
-                                    disabled={gi===tg.length-1}
-                                    style={{border:"none",background:"none",cursor:gi===tg.length-1?"default":"pointer",fontSize:9,lineHeight:1,padding:"1px 3px",color:gi===tg.length-1?"#ddd":"#aaa",minHeight:0}}>▼</button>
-                                </div>
+                                {liveEditId===g.id?(
+                                  <>
+                                    <input autoFocus value={liveEditVal}
+                                      onChange={function(e){setLiveEditVal(e.target.value);}}
+                                      onKeyDown={function(e){
+                                        if(e.key==="Enter"&&liveEditVal.trim()){setGuests(function(p){return p.map(function(x){return x.id===g.id?Object.assign({},x,{name:liveEditVal.trim()}):x;});});setLiveEditId(null);}
+                                        if(e.key==="Escape"){setLiveEditId(null);}
+                                      }}
+                                      style={{flex:1,fontSize:11,padding:"2px 6px",border:"1.5px solid #93c5fd",borderRadius:6,fontFamily:"system-ui",minWidth:0}} />
+                                    <button onMouseDown={function(e){e.preventDefault();if(liveEditVal.trim()){setGuests(function(p){return p.map(function(x){return x.id===g.id?Object.assign({},x,{name:liveEditVal.trim()}):x;});});}setLiveEditId(null);}}
+                                      style={{border:"none",background:"#2a6f97",color:"#fff",borderRadius:5,fontSize:11,padding:"2px 7px",cursor:"pointer",flexShrink:0,minHeight:0}}>✓</button>
+                                    <button onMouseDown={function(e){e.preventDefault();setLiveEditId(null);}}
+                                      style={{border:"none",background:"#f0f0ee",color:"#aaa",borderRadius:5,fontSize:11,padding:"2px 6px",cursor:"pointer",flexShrink:0,minHeight:0}}>✕</button>
+                                  </>
+                                ):(
+                                  <>
+                                    <div onClick={function(){setArrived(function(p){var n=Object.assign({},p);if(n[g.id])delete n[g.id];else n[g.id]=true;return n;})}}
+                                      style={{flex:1,fontSize:11.5,fontFamily:"system-ui",fontWeight:isA?700:400,color:isA?"#276749":"#333",cursor:"pointer"}}>{g.name}</div>
+                                    <span style={{fontSize:8,padding:"1px 6px",borderRadius:8,background:cCol(g.cat)+"15",
+                                      color:cCol(g.cat),fontWeight:600,flexShrink:0}}>{g.cat}</span>
+                                    <button onClick={function(){setLiveEditId(g.id);setLiveEditVal(g.name);}}
+                                      style={{border:"none",background:"none",color:"#bbb",cursor:"pointer",fontSize:11,padding:"1px 4px",flexShrink:0,minHeight:0}}>✎</button>
+                                    <div style={{display:"flex",flexDirection:"column",gap:1,flexShrink:0}}>
+                                      <button onClick={function(){moveGuestInTable(g.id,t.id,-1);}}
+                                        disabled={gi===0}
+                                        style={{border:"none",background:"none",cursor:gi===0?"default":"pointer",fontSize:9,lineHeight:1,padding:"1px 3px",color:gi===0?"#ddd":"#aaa",minHeight:0}}>▲</button>
+                                      <button onClick={function(){moveGuestInTable(g.id,t.id,1);}}
+                                        disabled={gi===tg.length-1}
+                                        style={{border:"none",background:"none",cursor:gi===tg.length-1?"default":"pointer",fontSize:9,lineHeight:1,padding:"1px 3px",color:gi===tg.length-1?"#ddd":"#aaa",minHeight:0}}>▼</button>
+                                    </div>
+                                  </>
+                                )}
                               </div>
                             );
                           })}
