@@ -166,6 +166,7 @@ export default function WeddingPlanner() {
   var [showRestoreConfirm, setShowRestoreConfirm] = useState(false);
   var [weddingInitialized, setWeddingInitialized] = useState(false);
   var [hallZoom, setHallZoom] = useState(1);
+  var [hallFocusCat, setHallFocusCat] = useState(null);
   var [hallMarkers, setHallMarkers] = useState({gbY:38,giY:52});
   var [layoutMode, setLayoutMode] = useState(false);
   var draggingTRef = useRef(null);
@@ -822,10 +823,12 @@ export default function WeddingPlanner() {
     var empty = asg.length===0;
     var sel = selTable===t.id;
     var hov = dropT===t.id;
-    var catCnts = {};
-    asg.forEach(function(g){catCnts[g.cat]=(catCnts[g.cat]||0)+1;});
-    var entries = Object.entries(catCnts).sort(function(a,b){return b[1]-a[1];});
-    var dom = entries.length>0?entries[0]:null;
+
+    var hasIsf = asg.some(function(g){return g.cat==="İsfəndiyar M";});
+    var focused = hallFocusCat==="isfendiyar";
+    var rScale = focused?(hasIsf?1.55:0.55):1;
+    var r = Math.round(t.r*rScale);
+    var dimmed = focused&&!hasIsf;
 
     var bg,border;
     if(t.special==="musi"){bg="#f4a261";border="#e07530";}
@@ -854,23 +857,25 @@ export default function WeddingPlanner() {
         onDragLeave={function(){setDropT(null);}}
         onDrop={function(e){if(!layoutMode){e.preventDefault();handleDrop(t.id);}}}
         style={{position:"absolute",left:t.x+"%",top:t.y+"%",
-          width:t.r*2,height:t.r*2,marginLeft:-t.r,marginTop:-t.r,
+          width:r*2,height:r*2,marginLeft:-r,marginTop:-r,
           borderRadius:(t.shape||"round")==="square"?10:"50%",background:bg,border:"2.5px solid "+border,
           boxShadow:layoutMode?"0 0 0 2px #f6ad55,0 2px 8px rgba(0,0,0,.15)":shadow,
           display:"flex",flexDirection:"column",
           alignItems:"center",justifyContent:"center",
           cursor:layoutMode?"move":addMode?"default":"pointer",
-          transition:"box-shadow .15s",zIndex:sel?5:1,userSelect:"none",overflow:"visible"}}>
+          transition:"width .25s,height .25s,margin .25s,opacity .25s,box-shadow .15s",
+          zIndex:sel?5:hasIsf&&focused?4:1,userSelect:"none",overflow:"visible",
+          opacity:dimmed?0.3:1}}>
         {isfFirst?(
           <>
-            <div style={{fontSize:t.r>28?13:10,fontWeight:900,color:"#111",lineHeight:1.15,textAlign:"center",padding:"0 4px",letterSpacing:-0.3}}>{isfName}</div>
-            <div style={{fontSize:t.r>28?8.5:7,fontWeight:700,color:"#555",marginTop:1}}>{t.label}</div>
-            {t.cap>0&&<div style={{fontSize:t.r>28?8:7,color:full?"#d33":"#888",fontWeight:700}}>{asg.length}/{t.cap}</div>}
+            <div style={{fontSize:r>28?13:10,fontWeight:900,color:"#111",lineHeight:1.15,textAlign:"center",padding:"0 4px",letterSpacing:-0.3}}>{isfName}</div>
+            <div style={{fontSize:r>28?8.5:7,fontWeight:700,color:"#555",marginTop:1}}>{t.label}</div>
+            {t.cap>0&&<div style={{fontSize:r>28?8:7,color:full?"#d33":"#888",fontWeight:700}}>{asg.length}/{t.cap}</div>}
           </>
         ):(
           <>
-            <div style={{fontSize:t.r>28?13:10.5,fontWeight:800,color:"#333",lineHeight:1}}>{t.label}</div>
-            {t.cap>0&&<div style={{fontSize:t.r>28?10:8.5,color:full?"#d33":"#666",marginTop:2,fontWeight:700}}>{asg.length}/{t.cap}</div>}
+            <div style={{fontSize:r>28?13:10.5,fontWeight:800,color:"#333",lineHeight:1}}>{t.label}</div>
+            {t.cap>0&&<div style={{fontSize:r>28?10:8.5,color:full?"#d33":"#666",marginTop:2,fontWeight:700}}>{asg.length}/{t.cap}</div>}
           </>
         )}
         {pct>0&&pct<1&&(
@@ -880,7 +885,7 @@ export default function WeddingPlanner() {
         )}
         {asg.map(function(g,i){
           var angle = (i/asg.length)*2*Math.PI - Math.PI/2;
-          var dist = t.r+20;
+          var dist = r+20;
           var cx = Math.cos(angle)*dist;
           var cy = Math.sin(angle)*dist;
           var nm = g.name.split(" ")[0];
@@ -1180,6 +1185,19 @@ export default function WeddingPlanner() {
                     background:layoutMode?"#fffbf0":"#fff",color:layoutMode?"#c07800":"#888",fontWeight:layoutMode?700:500}}>
                   {layoutMode?"✓ Mövqe rejimi":"⤢ Mövqe dəyiş"}
                 </button>
+                {(function(){
+                  var hasIsf=guests.some(function(g){return g.cat==="İsfəndiyar M"&&g.tableId!=null;});
+                  if(!hasIsf)return null;
+                  var on=hallFocusCat==="isfendiyar";
+                  return(
+                    <button onClick={function(){setHallFocusCat(on?null:"isfendiyar");}}
+                      style={{padding:"6px 13px",fontSize:11,borderRadius:999,cursor:"pointer",flexShrink:0,fontWeight:700,
+                        border:"1.5px solid "+(on?"#222":"#ccc"),
+                        background:on?"#1a1a1a":"#fff",color:on?"#fff":"#888"}}>
+                      {on?"✕ Hamısı":"İsfəndiyar M"}
+                    </button>
+                  );
+                })()}
                 <div style={{display:"flex",gap:0,borderRadius:999,overflow:"hidden",border:"1.5px solid #444",flexShrink:0}}>
                   <button onClick={function(){printHall(false);}}
                     style={{padding:"6px 12px",fontSize:11,border:"none",borderRight:"1px solid #333",cursor:"pointer",background:"#1a1a1a",color:"#fff",fontWeight:700}}>
