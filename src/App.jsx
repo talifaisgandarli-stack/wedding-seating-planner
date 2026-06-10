@@ -890,21 +890,54 @@ export default function WeddingPlanner() {
             <div style={{width:(pct*100)+"%",height:"100%",background:border,borderRadius:2}} />
           </div>
         )}
-        {(sel||hallZoom>=1.5)&&asg.map(function(g,i){
+        {/* Focused İsfəndiyar M tables: name panel below circle */}
+        {focused&&hasIsf&&(
+          <div style={{
+            position:"absolute",top:"calc(100% + 8px)",left:"50%",
+            transform:"translateX(-50%)",
+            background:"#fff",border:"1.5px solid #222",borderRadius:8,
+            boxShadow:"0 4px 14px rgba(0,0,0,.22)",
+            zIndex:20,pointerEvents:"none",
+            minWidth:130,maxWidth:180,overflow:"hidden",
+          }}>
+            <div style={{display:"grid",gridTemplateColumns:"1fr 1fr"}}>
+              {asg.map(function(g,i){
+                var isIsf=g.cat==="İsfəndiyar M";
+                var isOg=g.side==="oglan";
+                var col=isIsf?"#111":isOg?"#1a5fa8":"#a8286a";
+                var nm=g.name;
+                if(nm.length>14)nm=nm.substr(0,13)+"…";
+                return(
+                  <div key={g.id} style={{
+                    fontSize:8.5,lineHeight:1,padding:"3.5px 5px",
+                    borderBottom:"1px solid #f0f0ee",
+                    borderRight:i%2===0?"1px solid #f0f0ee":"none",
+                    display:"flex",alignItems:"center",gap:3,
+                    background:isIsf?"#f8f8f8":"#fff",
+                  }}>
+                    <span style={{fontSize:7,color:"#ccc",flexShrink:0,width:10}}>{i+1}.</span>
+                    <span style={{fontWeight:isIsf?800:500,color:col,whiteSpace:"nowrap",overflow:"hidden",textOverflow:"ellipsis"}}>{nm}</span>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+        )}
+        {/* Selected or high-zoom: radial badges */}
+        {!focused&&(sel||hallZoom>=1.5)&&asg.map(function(g,i){
           var angle = (i/asg.length)*2*Math.PI - Math.PI/2;
-          var dist = r+(focused&&hasIsf?32:sel?26:22);
+          var dist = r+(sel?26:22);
           var cx = Math.cos(angle)*dist;
           var cy = Math.sin(angle)*dist;
           var nm = g.name.split(" ")[0];
           if(nm.length>10) nm=nm.substr(0,9)+"…";
           var isOg = g.side==="oglan";
           var isIsf = g.cat==="İsfəndiyar M";
-          var labelFs = sel?9.5:focused&&hasIsf?10:8.5;
           return (
             <div key={g.id} style={{
               position:"absolute",left:"50%",top:"50%",
               transform:"translate(calc(-50% + "+cx+"px), calc(-50% + "+cy+"px))",
-              fontSize:labelFs,fontWeight:700,lineHeight:1.3,
+              fontSize:sel?9.5:8.5,fontWeight:700,lineHeight:1.3,
               background:isIsf?"rgba(70,70,70,0.95)":isOg?"rgba(22,82,144,0.92)":"rgba(140,35,95,0.92)",
               color:"#fff",padding:sel?"2.5px 7px":"2px 6px",borderRadius:5,
               whiteSpace:"nowrap",pointerEvents:"none",
@@ -983,16 +1016,23 @@ export default function WeddingPlanner() {
       var isfNm=isfFirst?isfFirst.name.split(" ")[0]:"";
       if(isfNm.length>9)isfNm=isfNm.substr(0,8)+"…";
       var nameHtml="";
-      if(showNames){
-        tg.forEach(function(g,i){
-          var angle=(i/Math.max(tg.length,1))*2*Math.PI-Math.PI/2;
-          var dist=38;
-          var cx=Math.cos(angle)*dist; var cy=Math.sin(angle)*dist;
-          var nm=g.name.split(" ")[0];
-          if(nm.length>9)nm=nm.substr(0,8)+"…";
-          var dc=g.cat==="İsfəndiyar M"?"rgba(80,80,80,0.92)":g.side==="oglan"?"rgba(30,90,150,0.9)":"rgba(150,40,100,0.9)";
-          nameHtml+='<div style="position:absolute;left:50%;top:50%;transform:translate(calc(-50% + '+cx+'px),calc(-50% + '+cy+'px));font-size:6px;font-weight:700;background:'+dc+';color:#fff;padding:1px 4px;border-radius:3px;white-space:nowrap;box-shadow:0 1px 2px rgba(0,0,0,.2)">'+nm+'</div>';
-        });
+      if(showNames&&tg.length>0){
+        var nameRows=tg.map(function(g,i){
+          var isIsf=g.cat==="İsfəndiyar M";
+          var isOg=g.side==="oglan";
+          var col=isIsf?"#111":isOg?"#1a5fa8":"#a8286a";
+          var fw=isIsf?800:500;
+          var bg=isIsf?"#f5f5f5":"#fff";
+          var nm=g.name; if(nm.length>15)nm=nm.substr(0,14)+"…";
+          return '<div style="display:flex;align-items:center;padding:2px 5px;border-bottom:1px solid #f0f0ee;background:'+bg+'">'
+            +'<span style="font-size:6px;color:#bbb;width:10px;flex-shrink:0">'+(i+1)+'.</span>'
+            +'<span style="font-size:7.5px;font-weight:'+fw+';color:'+col+';white-space:nowrap">'+nm+'</span>'
+            +'</div>';
+        }).join("");
+        nameHtml='<div style="position:absolute;top:calc(100% + 5px);left:50%;transform:translateX(-50%);'
+          +'background:#fff;border:1.5px solid '+sc+';border-radius:6px;overflow:hidden;'
+          +'box-shadow:0 3px 10px rgba(0,0,0,.18);z-index:20;min-width:110px;">'
+          +nameRows+'</div>';
       }
       var centerHtml=isfFirst
         ?'<div style="font-size:10px;font-weight:900;color:#111;line-height:1.1;text-align:center;padding:0 3px">'+isfNm+'</div>'
@@ -1001,14 +1041,14 @@ export default function WeddingPlanner() {
         :'<div style="font-size:9px;font-weight:900;color:#111;font-family:Georgia,serif;text-align:center;padding:0 3px;word-break:break-word">'+t.label+'</div>'
          +'<div style="font-size:7px;color:#aaa;font-weight:600;margin-top:1px">'+tg.length+'/'+t.cap+'</div>';
       var ring=isfFirst?'box-shadow:0 0 0 3px #111,0 2px 6px rgba(0,0,0,.18);':'box-shadow:0 1px 4px rgba(0,0,0,.10);';
-      tRows+='<div style="position:absolute;left:'+t.x+'%;top:'+t.y+'%;transform:translate(-50%,-50%);'
+      tRows+='<div style="position:absolute;left:'+t.x+'%;top:'+t.y+'%;transform:translate(-50%,-50%);overflow:visible;'
         +'width:54px;height:54px;border-radius:50%;background:#fff;border:2.5px solid '+sc+';'
         +'display:flex;flex-direction:column;align-items:center;justify-content:center;'+ring+'">'
         +centerHtml+nameHtml+'</div>';
     });
     var html='<!DOCTYPE html><html><head><meta charset="UTF-8"><title>Oturma Planı — Maket Gallery Hall</title>'
       +'<style>*{box-sizing:border-box;margin:0;padding:0}body{font-family:system-ui,sans-serif;background:#fff;padding:14px}'
-      +'.hall{position:relative;width:100%;aspect-ratio:1.5/1;border:1px solid #ccc;border-radius:12px;background:#f7f5f1;overflow:hidden}'
+      +'.hall{position:relative;width:100%;aspect-ratio:1.5/1;border:1px solid #ccc;border-radius:12px;background:#f7f5f1;overflow:visible}'
       +'@page{size:A4 landscape;margin:8mm}'
       +'@media print{body{padding:6px}}'
       +'</style></head><body>'
