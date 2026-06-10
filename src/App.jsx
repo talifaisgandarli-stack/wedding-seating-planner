@@ -881,17 +881,31 @@ export default function WeddingPlanner() {
   var selCatBreak={};
   selG.forEach(function(g){selCatBreak[g.cat]=(selCatBreak[g.cat]||0)+1;});
 
-  function printHall(){
+  function printHall(showNames){
     var tRows="";
     tables.filter(function(t){return t.cap>0;}).forEach(function(t){
       var tg=guests.filter(function(g){return g.tableId===t.id;});
       var sc=t.side==="oglan"?"#2a6f97":t.side==="qiz"?"#c2528b":"#b8860b";
+      var nameHtml="";
+      if(showNames){
+        tg.forEach(function(g,i){
+          var angle=(i/Math.max(tg.length,1))*2*Math.PI-Math.PI/2;
+          var dist=32;
+          var cx=Math.cos(angle)*dist;
+          var cy=Math.sin(angle)*dist;
+          var nm=g.name.split(" ")[0];
+          if(nm.length>8)nm=nm.substr(0,7)+"…";
+          var dc=g.cat==="İsfəndiyar M"?"rgba(120,120,120,0.9)":g.side==="oglan"?"rgba(30,90,150,0.9)":"rgba(150,40,100,0.9)";
+          nameHtml+='<div style="position:absolute;left:50%;top:50%;transform:translate(calc(-50% + '+cx+'px),calc(-50% + '+cy+'px));font-size:6px;font-weight:700;background:'+dc+';color:#fff;padding:1px 4px;border-radius:3px;white-space:nowrap;box-shadow:0 1px 2px rgba(0,0,0,.2)">'+nm+'</div>';
+        });
+      }
       tRows+='<div style="position:absolute;left:'+t.x+'%;top:'+t.y+'%;transform:translate(-50%,-50%);'
         +'width:54px;height:54px;border-radius:50%;background:#fff;border:2.5px solid '+sc+';'
         +'display:flex;flex-direction:column;align-items:center;justify-content:center;'
         +'box-shadow:0 1px 4px rgba(0,0,0,.10)">'
         +'<div style="font-size:9px;font-weight:800;color:'+sc+';font-family:Georgia,serif;line-height:1.2;text-align:center;padding:0 3px;word-break:break-word">'+t.label+'</div>'
         +'<div style="font-size:7px;color:#aaa;font-weight:600;margin-top:1px">'+tg.length+'/'+t.cap+'</div>'
+        +nameHtml
         +'</div>';
     });
     var html='<!DOCTYPE html><html><head><meta charset="UTF-8"><title>Oturma Planı — Maket Gallery Hall</title>'
@@ -1137,10 +1151,16 @@ export default function WeddingPlanner() {
                     background:layoutMode?"#fffbf0":"#fff",color:layoutMode?"#c07800":"#888",fontWeight:layoutMode?700:500}}>
                   {layoutMode?"✓ Mövqe rejimi":"⤢ Mövqe dəyiş"}
                 </button>
-                <button onClick={printHall}
-                  style={{padding:"6px 14px",fontSize:11,border:"1.5px solid #555",borderRadius:999,cursor:"pointer",background:"#1a1a1a",color:"#fff",fontWeight:700}}>
-                  PDF
-                </button>
+                <div style={{display:"flex",gap:0,borderRadius:999,overflow:"hidden",border:"1.5px solid #444",flexShrink:0}}>
+                  <button onClick={function(){printHall(false);}}
+                    style={{padding:"6px 12px",fontSize:11,border:"none",borderRight:"1px solid #333",cursor:"pointer",background:"#1a1a1a",color:"#fff",fontWeight:700}}>
+                    PDF
+                  </button>
+                  <button onClick={function(){printHall(true);}}
+                    style={{padding:"6px 12px",fontSize:11,border:"none",cursor:"pointer",background:"#2a2a2a",color:"#d4a030",fontWeight:700}}>
+                    adlı
+                  </button>
+                </div>
                 <div style={{flex:1}} />
                 <div style={{display:"flex",gap:0,alignItems:"center",background:"#f0ede5",borderRadius:10,padding:"3px 4px",border:"1px solid #e8e4da"}}>
                   <button onClick={function(e){e.stopPropagation();setHallZoom(function(z){return Math.max(0.4,+(z-0.15).toFixed(2));});}}
