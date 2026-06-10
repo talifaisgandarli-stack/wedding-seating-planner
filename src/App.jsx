@@ -836,9 +836,15 @@ export default function WeddingPlanner() {
     else if(t.side==="qiz"){bg=empty?"#f2eff5":"#e5ddf0";border=empty?"#d5d0da":"#a888c0";}
     else{bg="#f0efec";border="#d5d4d0";}
 
+    var isfGuests = asg.filter(function(g){return g.cat==="İsfəndiyar M";});
+    var isfFirst = isfGuests.length>0?isfGuests[0]:null;
+    var isfName = isfFirst?isfFirst.name.split(" ")[0]:"";
+    if(isfName.length>9)isfName=isfName.substr(0,8)+"…";
+
     var shadow="0 2px 6px rgba(0,0,0,.06)";
     if(sel)shadow="0 0 0 3px #2a6f97, 0 4px 16px rgba(42,111,151,.25)";
     else if(hov)shadow="0 0 0 3px #48bb78, 0 4px 16px rgba(72,187,120,.25)";
+    else if(isfFirst)shadow="0 0 0 3px #111, 0 4px 14px rgba(0,0,0,.22)";
 
     return (
       <div key={t.id}
@@ -855,8 +861,18 @@ export default function WeddingPlanner() {
           alignItems:"center",justifyContent:"center",
           cursor:layoutMode?"move":addMode?"default":"pointer",
           transition:"box-shadow .15s",zIndex:sel?5:1,userSelect:"none",overflow:"visible"}}>
-        <div style={{fontSize:t.r>28?13:10.5,fontWeight:800,color:"#333",lineHeight:1}}>{t.label}</div>
-        {t.cap>0&&<div style={{fontSize:t.r>28?10:8.5,color:full?"#d33":"#666",marginTop:2,fontWeight:700}}>{asg.length}/{t.cap}</div>}
+        {isfFirst?(
+          <>
+            <div style={{fontSize:t.r>28?13:10,fontWeight:900,color:"#111",lineHeight:1.15,textAlign:"center",padding:"0 4px",letterSpacing:-0.3}}>{isfName}</div>
+            <div style={{fontSize:t.r>28?8.5:7,fontWeight:700,color:"#555",marginTop:1}}>{t.label}</div>
+            {t.cap>0&&<div style={{fontSize:t.r>28?8:7,color:full?"#d33":"#888",fontWeight:700}}>{asg.length}/{t.cap}</div>}
+          </>
+        ):(
+          <>
+            <div style={{fontSize:t.r>28?13:10.5,fontWeight:800,color:"#333",lineHeight:1}}>{t.label}</div>
+            {t.cap>0&&<div style={{fontSize:t.r>28?10:8.5,color:full?"#d33":"#666",marginTop:2,fontWeight:700}}>{asg.length}/{t.cap}</div>}
+          </>
+        )}
         {pct>0&&pct<1&&(
           <div style={{position:"absolute",bottom:3,width:"55%",height:3,borderRadius:2,background:"#e0e0e0",overflow:"hidden"}}>
             <div style={{width:(pct*100)+"%",height:"100%",background:border,borderRadius:2}} />
