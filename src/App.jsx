@@ -890,41 +890,7 @@ export default function WeddingPlanner() {
             <div style={{width:(pct*100)+"%",height:"100%",background:border,borderRadius:2}} />
           </div>
         )}
-        {/* Focused İsfəndiyar M tables: name panel below circle */}
-        {focused&&hasIsf&&(
-          <div style={{
-            position:"absolute",top:"calc(100% + 8px)",left:"50%",
-            transform:"translateX(-50%)",
-            background:"#fff",border:"1.5px solid #222",borderRadius:8,
-            boxShadow:"0 4px 14px rgba(0,0,0,.22)",
-            zIndex:20,pointerEvents:"none",
-            minWidth:130,maxWidth:180,overflow:"hidden",
-          }}>
-            <div style={{display:"grid",gridTemplateColumns:"1fr 1fr"}}>
-              {asg.map(function(g,i){
-                var isIsf=g.cat==="İsfəndiyar M";
-                var isOg=g.side==="oglan";
-                var col=isIsf?"#111":isOg?"#1a5fa8":"#a8286a";
-                var nm=g.name;
-                if(nm.length>14)nm=nm.substr(0,13)+"…";
-                return(
-                  <div key={g.id} style={{
-                    fontSize:8.5,lineHeight:1,padding:"3.5px 5px",
-                    borderBottom:"1px solid #f0f0ee",
-                    borderRight:i%2===0?"1px solid #f0f0ee":"none",
-                    display:"flex",alignItems:"center",gap:3,
-                    background:isIsf?"#f8f8f8":"#fff",
-                  }}>
-                    <span style={{fontSize:7,color:"#ccc",flexShrink:0,width:10}}>{i+1}.</span>
-                    <span style={{fontWeight:isIsf?800:500,color:col,whiteSpace:"nowrap",overflow:"hidden",textOverflow:"ellipsis"}}>{nm}</span>
-                  </div>
-                );
-              })}
-            </div>
-          </div>
-        )}
-        {/* Selected or high-zoom: radial badges */}
-        {!focused&&(sel||hallZoom>=1.5)&&asg.map(function(g,i){
+        {(sel||hallZoom>=1.5)&&asg.map(function(g,i){
           var angle = (i/asg.length)*2*Math.PI - Math.PI/2;
           var dist = r+(sel?26:22);
           var cx = Math.cos(angle)*dist;
@@ -942,7 +908,6 @@ export default function WeddingPlanner() {
               color:"#fff",padding:sel?"2.5px 7px":"2px 6px",borderRadius:5,
               whiteSpace:"nowrap",pointerEvents:"none",
               boxShadow:"0 1px 5px rgba(0,0,0,.35)",zIndex:10,
-              letterSpacing:0.1,
             }}>{nm}</div>
           );
         })}
@@ -1009,31 +974,13 @@ export default function WeddingPlanner() {
 
     // ── Normal hall map PDF ──
     var tRows="";
+    var nameCards="";
     tables.filter(function(t){return t.cap>0;}).forEach(function(t){
       var tg=guests.filter(function(g){return g.tableId===t.id;});
       var sc=t.side==="oglan"?"#2a6f97":t.side==="qiz"?"#c2528b":"#b8860b";
       var isfFirst=tg.find(function(g){return g.cat==="İsfəndiyar M";});
       var isfNm=isfFirst?isfFirst.name.split(" ")[0]:"";
       if(isfNm.length>9)isfNm=isfNm.substr(0,8)+"…";
-      var nameHtml="";
-      if(showNames&&tg.length>0){
-        var nameRows=tg.map(function(g,i){
-          var isIsf=g.cat==="İsfəndiyar M";
-          var isOg=g.side==="oglan";
-          var col=isIsf?"#111":isOg?"#1a5fa8":"#a8286a";
-          var fw=isIsf?800:500;
-          var bg=isIsf?"#f5f5f5":"#fff";
-          var nm=g.name; if(nm.length>15)nm=nm.substr(0,14)+"…";
-          return '<div style="display:flex;align-items:center;padding:2px 5px;border-bottom:1px solid #f0f0ee;background:'+bg+'">'
-            +'<span style="font-size:6px;color:#bbb;width:10px;flex-shrink:0">'+(i+1)+'.</span>'
-            +'<span style="font-size:7.5px;font-weight:'+fw+';color:'+col+';white-space:nowrap">'+nm+'</span>'
-            +'</div>';
-        }).join("");
-        nameHtml='<div style="position:absolute;top:calc(100% + 5px);left:50%;transform:translateX(-50%);'
-          +'background:#fff;border:1.5px solid '+sc+';border-radius:6px;overflow:hidden;'
-          +'box-shadow:0 3px 10px rgba(0,0,0,.18);z-index:20;min-width:110px;">'
-          +nameRows+'</div>';
-      }
       var centerHtml=isfFirst
         ?'<div style="font-size:10px;font-weight:900;color:#111;line-height:1.1;text-align:center;padding:0 3px">'+isfNm+'</div>'
          +'<div style="font-size:7.5px;font-weight:800;color:#444;margin-top:1px">'+t.label+'</div>'
@@ -1041,22 +988,33 @@ export default function WeddingPlanner() {
         :'<div style="font-size:9px;font-weight:900;color:#111;font-family:Georgia,serif;text-align:center;padding:0 3px;word-break:break-word">'+t.label+'</div>'
          +'<div style="font-size:7px;color:#aaa;font-weight:600;margin-top:1px">'+tg.length+'/'+t.cap+'</div>';
       var ring=isfFirst?'box-shadow:0 0 0 3px #111,0 2px 6px rgba(0,0,0,.18);':'box-shadow:0 1px 4px rgba(0,0,0,.10);';
-      tRows+='<div style="position:absolute;left:'+t.x+'%;top:'+t.y+'%;transform:translate(-50%,-50%);overflow:visible;'
+      tRows+='<div style="position:absolute;left:'+t.x+'%;top:'+t.y+'%;transform:translate(-50%,-50%);'
         +'width:54px;height:54px;border-radius:50%;background:#fff;border:2.5px solid '+sc+';'
         +'display:flex;flex-direction:column;align-items:center;justify-content:center;'+ring+'">'
-        +centerHtml+nameHtml+'</div>';
+        +centerHtml+'</div>';
+      // Build name card for grid below map (only when showNames)
+      if(showNames&&tg.length>0){
+        var sideLabel=t.side==="oglan"?"Oğlan":t.side==="qiz"?"Qız":"Xüsusi";
+        var gRows=tg.map(function(g,i){
+          var isIsf=g.cat==="İsfəndiyar M";
+          var isOg=g.side==="oglan";
+          var col=isIsf?"#111":isOg?"#1a5fa8":"#a8286a";
+          var fw=isIsf?700:400;
+          var bg=isIsf?"#f8f8f8":"#fff";
+          return '<div style="display:flex;align-items:center;padding:2.5px 8px;gap:5px;border-bottom:1px solid #f5f5f5;background:'+bg+'">'
+            +'<span style="font-size:7px;color:#ccc;width:13px;text-align:right;flex-shrink:0">'+(i+1)+'.</span>'
+            +'<span style="font-size:10px;font-weight:'+fw+';color:'+col+'">'+g.name+'</span>'
+            +'</div>';
+        }).join("");
+        nameCards+='<div style="border:1.5px solid '+sc+';border-radius:8px;overflow:hidden;break-inside:avoid">'
+          +'<div style="background:'+(t.side==="oglan"?"#edf4fb":t.side==="qiz"?"#faf0f6":"#fffbf0")+';padding:6px 10px;border-bottom:1px solid #eee;display:flex;justify-content:space-between;align-items:center">'
+          +'<div><div style="font-size:13px;font-weight:900;font-family:Georgia,serif;color:#111">'+t.label+'</div>'
+          +'<div style="font-size:7.5px;color:#999;margin-top:1px">'+sideLabel+(isfFirst?' · '+isfFirst.name:'')+'</div></div>'
+          +'<div style="font-size:11px;font-weight:800;color:'+sc+'">'+tg.length+'/'+t.cap+'</div>'
+          +'</div>'+gRows+'</div>';
+      }
     });
-    var html='<!DOCTYPE html><html><head><meta charset="UTF-8"><title>Oturma Planı — Maket Gallery Hall</title>'
-      +'<style>*{box-sizing:border-box;margin:0;padding:0}body{font-family:system-ui,sans-serif;background:#fff;padding:14px}'
-      +'.hall{position:relative;width:100%;aspect-ratio:1.5/1;border:1px solid #ccc;border-radius:12px;background:#f7f5f1;overflow:visible}'
-      +'@page{size:A4 landscape;margin:8mm}'
-      +'@media print{body{padding:6px}}'
-      +'</style></head><body>'
-      +'<div style="display:flex;justify-content:space-between;align-items:baseline;margin-bottom:10px">'
-      +'<h1 style="font-family:Georgia,serif;font-size:17px;color:#1a1a1a">Maket Gallery Hall — Oturma Planı</h1>'
-      +'<span style="font-size:10px;color:#888">'+date+'</span>'
-      +'</div>'
-      +'<div class="hall">'
+    var hallMap='<div class="hall">'
       +'<div style="position:absolute;left:3%;right:5%;top:2%;height:39%;background:rgba(42,111,151,0.05);border-radius:8px"></div>'
       +'<div style="position:absolute;left:3%;right:5%;top:44%;height:54%;background:rgba(194,82,139,0.05);border-radius:8px"></div>'
       +'<div style="position:absolute;top:6px;left:50%;transform:translateX(-50%);font-size:7.5px;letter-spacing:2.5px;color:#b8860b;font-weight:800;white-space:nowrap">MAKET GALLERY HALL</div>'
@@ -1069,8 +1027,20 @@ export default function WeddingPlanner() {
       +'<div style="position:absolute;left:6%;right:5%;top:43%;height:1px;background:linear-gradient(90deg,transparent,#c8c4bc 15%,#c8c4bc 85%,transparent)"></div>'
       +'<div style="position:absolute;right:0;top:22%;height:50%;width:18px;background:linear-gradient(180deg,#2a6f97,#1a4f77);border-radius:6px 0 0 6px;display:flex;align-items:center;justify-content:center">'
       +'<span style="writing-mode:vertical-rl;color:#fff;font-size:6px;font-weight:800;letter-spacing:3px">SƏHNƏ</span></div>'
-      +tRows
+      +tRows+'</div>';
+    var html='<!DOCTYPE html><html><head><meta charset="UTF-8"><title>Oturma Planı — Maket Gallery Hall</title>'
+      +'<style>*{box-sizing:border-box;margin:0;padding:0}body{font-family:system-ui,sans-serif;background:#fff;padding:12px}'
+      +'.hall{position:relative;width:100%;border:1px solid #ccc;border-radius:10px;background:#f7f5f1;overflow:hidden;'+(showNames?'aspect-ratio:2.2/1':'aspect-ratio:1.5/1')+'}'
+      +'.cards{display:grid;grid-template-columns:repeat(5,1fr);gap:8px;margin-top:14px}'
+      +'@page{size:A4 landscape;margin:8mm}'
+      +'@media print{body{padding:6px}}'
+      +'</style></head><body>'
+      +'<div style="display:flex;justify-content:space-between;align-items:baseline;margin-bottom:10px">'
+      +'<h1 style="font-family:Georgia,serif;font-size:16px;color:#1a1a1a">Maket Gallery Hall — Oturma Planı</h1>'
+      +'<span style="font-size:10px;color:#888">'+date+'</span>'
       +'</div>'
+      +hallMap
+      +(showNames?'<div class="cards">'+nameCards+'</div>':'')
       +'</body></html>';
     var w=window.open("","_blank");
     w.document.write(html); w.document.close(); w.focus();
@@ -1414,6 +1384,56 @@ export default function WeddingPlanner() {
                   <Badge l="Oturub" v={stats.assigned} a="#48bb78" />
                   <Badge l="Boş" v={stats.unassigned} a="#e53e3e" />
                 </div>
+
+                {/* İsfəndiyar M name cards — always visible below hall when filter active */}
+                {(function(){
+                  if(hallFocusCat!=="isfendiyar")return null;
+                  var norm=function(s){return s.replace(/İ/g,"I").replace(/ı/g,"i").replace(/ə/g,"e").replace(/Ə/g,"E").toLowerCase();};
+                  var isfTables=tables.filter(function(t){
+                    return t.cap>0&&guests.some(function(g){return g.tableId===t.id&&norm(g.cat).indexOf("isfendiyar")>=0;});
+                  });
+                  if(!isfTables.length)return null;
+                  return(
+                    <div style={{marginTop:20,borderTop:"2px solid #222",paddingTop:14}}>
+                      <div style={{fontSize:11,fontWeight:800,color:"#222",letterSpacing:1,marginBottom:12,textTransform:"uppercase",display:"flex",alignItems:"center",gap:8}}>
+                        <span style={{width:14,height:14,borderRadius:"50%",background:"#222",display:"inline-block"}} />
+                        İsfəndiyar M — {isfTables.length} masa
+                      </div>
+                      <div style={{display:"grid",gridTemplateColumns:"repeat(auto-fill,minmax(175px,1fr))",gap:10}}>
+                        {isfTables.map(function(t){
+                          var tg=guests.filter(function(g){return g.tableId===t.id;});
+                          var sc=t.side==="oglan"?"#2a6f97":t.side==="qiz"?"#c2528b":"#b8860b";
+                          var isfFirst=tg.find(function(g){return norm(g.cat).indexOf("isfendiyar")>=0;});
+                          return(
+                            <div key={t.id} style={{background:"#fff",borderRadius:10,border:"2px solid "+sc,overflow:"hidden",boxShadow:"0 2px 8px rgba(0,0,0,.08)"}}>
+                              <div style={{padding:"7px 12px",background:t.side==="oglan"?"#edf4fb":t.side==="qiz"?"#faf0f6":"#fffbf0",borderBottom:"1px solid #eee",display:"flex",justifyContent:"space-between",alignItems:"center"}}>
+                                <div>
+                                  <div style={{fontFamily:"'Playfair Display',serif",fontSize:14,fontWeight:900,color:"#111"}}>{t.label}</div>
+                                  {isfFirst&&<div style={{fontSize:8.5,color:"#666",marginTop:1,fontWeight:600}}>{isfFirst.name}</div>}
+                                </div>
+                                <div style={{fontSize:12,fontWeight:800,color:sc}}>{tg.length}/{t.cap}</div>
+                              </div>
+                              <div>
+                                {tg.map(function(g,i){
+                                  var isIsf=norm(g.cat).indexOf("isfendiyar")>=0;
+                                  var isOg=g.side==="oglan";
+                                  var col=isIsf?"#111":isOg?"#1a5fa8":"#a8286a";
+                                  return(
+                                    <div key={g.id} style={{display:"flex",alignItems:"center",padding:"3px 10px",gap:6,borderBottom:"1px solid #f5f5f5",background:isIsf?"#fafafa":"#fff"}}>
+                                      <span style={{fontSize:8,color:"#ccc",width:14,textAlign:"right",flexShrink:0}}>{i+1}.</span>
+                                      <span style={{fontSize:11,fontWeight:isIsf?700:400,color:col,flex:1}}>{g.name}</span>
+                                      {isIsf&&<span style={{width:4,height:4,borderRadius:"50%",background:"#555",flexShrink:0}} />}
+                                    </div>
+                                  );
+                                })}
+                              </div>
+                            </div>
+                          );
+                        })}
+                      </div>
+                    </div>
+                  );
+                })()}
               </div>
             </div>
           )}
