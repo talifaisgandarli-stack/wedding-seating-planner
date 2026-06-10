@@ -930,26 +930,30 @@ export default function WeddingPlanner() {
       var isfTables=tables.filter(function(t){
         return t.cap>0&&guests.some(function(g){return g.tableId===t.id&&g.cat==="İsfəndiyar M";});
       });
-      // Build hall map table circles
+      // Build hall map table circles (with name label below each İsfəndiyar table)
       var pTRows="";
       tables.filter(function(t){return t.cap>0;}).forEach(function(t){
         var tg=guests.filter(function(g){return g.tableId===t.id;});
         var hasI=tg.some(function(g){return g.cat==="İsfəndiyar M";});
         var sc=hasI?(t.side==="oglan"?"#2a6f97":t.side==="qiz"?"#c2528b":"#b8860b"):"#ccc";
-        var opacity=hasI?1:0.18;
+        var opacity=hasI?1:0.15;
         var isfFirst=tg.find(function(g){return g.cat==="İsfəndiyar M";});
         var isfNm=isfFirst?isfFirst.name.split(" ")[0]:"";
         if(isfNm.length>9)isfNm=isfNm.substr(0,8)+"…";
-        var ring=hasI?'box-shadow:0 0 0 2.5px #111,0 2px 6px rgba(0,0,0,.2);':'box-shadow:0 1px 3px rgba(0,0,0,.08);';
-        var center=isfFirst
-          ?'<div style="font-size:9px;font-weight:900;color:#111;line-height:1.1;text-align:center;padding:0 2px">'+isfNm+'</div>'
-           +'<div style="font-size:7px;font-weight:800;color:#444;margin-top:1px">'+t.label+'</div>'
-          :'<div style="font-size:8px;font-weight:800;color:#aaa;font-family:Georgia,serif;text-align:center">'+t.label+'</div>';
-        pTRows+='<div style="position:absolute;left:'+t.x+'%;top:'+t.y+'%;transform:translate(-50%,-50%);'
-          +'width:46px;height:46px;border-radius:50%;background:#fff;border:2px solid '+sc+';'
+        var ring=hasI?'box-shadow:0 0 0 2px #111,0 1px 4px rgba(0,0,0,.15);':'';
+        var center=hasI
+          ?'<div style="font-size:8.5px;font-weight:900;color:#111;line-height:1.1;text-align:center;padding:0 2px">'+isfNm+'</div>'
+           +'<div style="font-size:6.5px;font-weight:800;color:#555;margin-top:1px">'+t.label+'</div>'
+          :'<div style="font-size:7px;font-weight:700;color:#bbb;text-align:center">'+t.label+'</div>';
+        // Name label below the circle (visible since parent is overflow:visible)
+        var nameBelow=hasI
+          ?'<div style="position:absolute;top:calc(100% + 3px);left:50%;transform:translateX(-50%);white-space:nowrap;font-size:6.5px;font-weight:700;color:#111;background:#fff;padding:0 2px;border-radius:2px;text-align:center">'+isfNm+'</div>'
+          :'';
+        pTRows+='<div style="position:absolute;left:'+t.x+'%;top:'+t.y+'%;transform:translate(-50%,-50%);overflow:visible;'
+          +'width:44px;height:44px;border-radius:50%;background:#fff;border:2px solid '+sc+';'
           +'display:flex;flex-direction:column;align-items:center;justify-content:center;'+ring
           +'opacity:'+opacity+'">'
-          +center+'</div>';
+          +center+nameBelow+'</div>';
       });
       // Build name cards
       var cards="";
@@ -975,36 +979,38 @@ export default function WeddingPlanner() {
           +'</div><div style="font-size:10px;font-weight:800;color:'+sc+'">'+tg.length+'/'+t.cap+'</div>'
           +'</div>'+gRows+'</div>';
       });
-      var html='<!DOCTYPE html><html><head><meta charset="UTF-8"><title>İsfəndiyar M — Oturma Planı</title>'
-        +'<style>*{box-sizing:border-box;margin:0;padding:0}'
-        +'body{font-family:system-ui,sans-serif;background:#fff;padding:10px;height:100vh;display:flex;flex-direction:column}'
-        +'.header{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:8px;flex-shrink:0}'
-        +'.body{display:flex;gap:10px;flex:1;overflow:hidden}'
-        +'.hall-wrap{flex:0 0 46%;display:flex;flex-direction:column}'
-        +'.hall{position:relative;width:100%;aspect-ratio:1.5/1;border:1px solid #ccc;border-radius:10px;background:#f7f5f1;overflow:hidden}'
-        +'.cards-wrap{flex:1;overflow:hidden;border-left:2px solid #111;padding-left:10px}'
-        +'.grid{display:grid;grid-template-columns:repeat(3,1fr);gap:6px}'
-        +'@page{size:A4 landscape;margin:8mm}'
-        +'@media print{body{padding:6px;height:auto}}'
-        +'</style></head><body>'
-        +'<div class="header">'
-        +'<h1 style="font-family:Georgia,serif;font-size:15px;color:#111">İsfəndiyar M — Masa Siyahısı</h1>'
-        +'<span style="font-size:9px;color:#888">'+date+'</span>'
-        +'</div>'
-        +'<div class="body">'
-        +'<div class="hall-wrap">'
-        +'<div style="font-size:8px;font-weight:700;color:#888;letter-spacing:0.8px;margin-bottom:5px;text-transform:uppercase">Zal planı</div>'
-        +'<div class="hall">'
-        +'<div style="position:absolute;top:5px;left:50%;transform:translateX(-50%);font-size:6px;letter-spacing:2px;color:#b8860b;font-weight:800;white-space:nowrap">MAKET GALLERY HALL</div>'
+      var hallContent='<div style="position:absolute;top:5px;left:50%;transform:translateX(-50%);font-size:6px;letter-spacing:2px;color:#b8860b;font-weight:800;white-space:nowrap">MAKET GALLERY HALL</div>'
         +'<div style="position:absolute;left:3%;right:5%;top:2%;height:39%;background:rgba(42,111,151,0.05);border-radius:6px"></div>'
         +'<div style="position:absolute;left:3%;right:5%;top:44%;height:54%;background:rgba(194,82,139,0.05);border-radius:6px"></div>'
         +'<div style="position:absolute;left:6%;right:5%;top:43%;height:1px;background:linear-gradient(90deg,transparent,#c8c4bc 15%,#c8c4bc 85%,transparent)"></div>'
         +'<div style="position:absolute;right:0;top:22%;height:50%;width:14px;background:linear-gradient(180deg,#2a6f97,#1a4f77);border-radius:5px 0 0 5px;display:flex;align-items:center;justify-content:center">'
         +'<span style="writing-mode:vertical-rl;color:#fff;font-size:5px;font-weight:800;letter-spacing:2px">SƏHNƏ</span></div>'
-        +pTRows+'</div></div>'
-        +'<div class="cards-wrap">'
-        +'<div style="font-size:8px;font-weight:700;color:#888;letter-spacing:0.8px;margin-bottom:5px;text-transform:uppercase">İsfəndiyar M · '+isfTables.length+' masa</div>'
+        +pTRows;
+      var html='<!DOCTYPE html><html><head><meta charset="UTF-8"><title>İsfəndiyar M — Oturma Planı</title>'
+        +'<style>*{box-sizing:border-box;margin:0;padding:0}'
+        +'body{font-family:system-ui,sans-serif;background:#fff;padding:10px}'
+        +'.layout{display:flex;gap:12px;align-items:flex-start}'
+        +'.hall-col{width:44%;flex-shrink:0}'
+        +'.hall{position:relative;width:100%;aspect-ratio:1.5/1;border:1px solid #ccc;border-radius:10px;background:#f7f5f1;overflow:visible}'
+        +'.cards-col{flex:1;border-left:2px solid #111;padding-left:10px}'
+        +'.grid{display:grid;grid-template-columns:repeat(3,1fr);gap:6px}'
+        +'@page{size:A4 landscape;margin:8mm}'
+        +'@media print{body{padding:6px}}'
+        +'</style></head><body>'
+        +'<div style="display:flex;justify-content:space-between;align-items:baseline;margin-bottom:8px">'
+        +'<h1 style="font-family:Georgia,serif;font-size:15px;color:#111">İsfəndiyar M — Masa Siyahısı</h1>'
+        +'<span style="font-size:9px;color:#888">'+date+'</span>'
+        +'</div>'
+        +'<div class="layout">'
+        +'<div class="hall-col">'
+        +'<div style="font-size:7.5px;font-weight:700;color:#999;letter-spacing:0.8px;margin-bottom:4px;text-transform:uppercase">Zal planı</div>'
+        +'<div class="hall">'+hallContent+'</div>'
+        +'</div>'
+        +'<div class="cards-col">'
+        +'<div style="font-size:7.5px;font-weight:700;color:#999;letter-spacing:0.8px;margin-bottom:4px;text-transform:uppercase">İsfəndiyar M · '+isfTables.length+' masa</div>'
         +'<div class="grid">'+cards+'</div>'
+        +'</div>'
+        +'</div>'
         +'</div>'
         +'</div>'
         +'</body></html>';
