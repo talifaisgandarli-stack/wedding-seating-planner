@@ -109,10 +109,10 @@ var BK_KEY = "wsp_backup";
 
 function lsGet() { try { return JSON.parse(localStorage.getItem(LS_KEY)||"{}"); } catch(e){ return {}; } }
 function lsSet(d) { try { localStorage.setItem(LS_KEY, JSON.stringify(d)); } catch(e){} }
-function bkSave(id, guests, tables, arrived) {
+function bkSave(id, guests, tables, arrived, gifts) {
   try {
     var bk = JSON.parse(localStorage.getItem(BK_KEY)||"{}");
-    bk[id] = { guests:guests, tables:tables, arrived:arrived, at:Date.now() };
+    bk[id] = { guests:guests, tables:tables, arrived:arrived, gifts:gifts||{}, at:Date.now() };
     localStorage.setItem(BK_KEY, JSON.stringify(bk));
   } catch(e){}
 }
@@ -171,10 +171,13 @@ export default function WeddingPlanner() {
   var [layoutMode, setLayoutMode] = useState(false);
   var draggingTRef = useRef(null);
   var [arrived, setArrived] = useState({});
+  var [gifts, setGifts] = useState({});
   var [liveSearch, setLiveSearch] = useState("");
   var [liveCatFilter, setLiveCatFilter] = useState("all");
   var [liveEditId, setLiveEditId] = useState(null);
   var [liveEditVal, setLiveEditVal] = useState("");
+  var [giftEditId, setGiftEditId] = useState(null);
+  var [giftEditVal, setGiftEditVal] = useState("");
   var [showLeftPanel, setShowLeftPanel] = useState(false);
 
   // ── Undo history ──
@@ -240,6 +243,9 @@ export default function WeddingPlanner() {
     if (d.arrived && typeof d.arrived === "object" && !Array.isArray(d.arrived)) {
       setArrived(d.arrived);
     }
+    if (d.gifts && typeof d.gifts === "object" && !Array.isArray(d.gifts)) {
+      setGifts(d.gifts);
+    }
   }
 
   // ── Load initial data when weddingId changes ──
@@ -299,12 +305,12 @@ export default function WeddingPlanner() {
     if (!weddingId || mode !== "app" || !weddingInitialized) return;
     if (fromRemote.current) { fromRemote.current = false; return; }
 
-    var data = { step:step, guests:guests, tables:tables, arrived:arrived };
+    var data = { step:step, guests:guests, tables:tables, arrived:arrived, gifts:gifts };
 
     // Save local backup whenever there are assigned guests (protect good state)
     var assignedCount = guests.filter(function(g){return g.tableId!=null;}).length;
     if (assignedCount > 0) {
-      bkSave(weddingId, guests, tables, arrived);
+      bkSave(weddingId, guests, tables, arrived, gifts);
     }
 
     if (fbDb) {
@@ -322,7 +328,7 @@ export default function WeddingPlanner() {
       ls.weddingId = weddingId;
       lsSet(ls);
     }
-  }, [step, guests, tables, arrived, weddingId, mode, weddingInitialized]);
+  }, [step, guests, tables, arrived, gifts, weddingId, mode, weddingInitialized]);
 
   // ── Create new wedding ──
   async function handleCreate() {
@@ -1191,7 +1197,7 @@ export default function WeddingPlanner() {
             if (showRestoreConfirm) return (
               <span style={{display:"flex",gap:4,alignItems:"center"}}>
                 <span style={{fontSize:10,color:"#48bb78",whiteSpace:"nowrap"}} className="mob-hide">{label} — {bkAssigned} oturub</span>
-                <button onClick={function(){pushHistory();setGuests(bk.guests);setTables(bk.tables);setArrived(bk.arrived||{});setShowRestoreConfirm(false);}} style={{background:"#276749",color:"#fff",border:"none",borderRadius:8,padding:"5px 10px",fontSize:11,cursor:"pointer",fontWeight:700}}>✓ Bərpa et</button>
+                <button onClick={function(){pushHistory();setGuests(bk.guests);setTables(bk.tables);setArrived(bk.arrived||{});setGifts(bk.gifts||{});setShowRestoreConfirm(false);}} style={{background:"#276749",color:"#fff",border:"none",borderRadius:8,padding:"5px 10px",fontSize:11,cursor:"pointer",fontWeight:700}}>✓ Bərpa et</button>
                 <button onClick={function(){setShowRestoreConfirm(false);}} style={{background:"#1e1e1e",color:"#666",border:"1px solid #2a2a2a",borderRadius:8,padding:"5px 8px",fontSize:11,cursor:"pointer"}}>—</button>
               </span>
             );
@@ -1593,13 +1599,18 @@ export default function WeddingPlanner() {
                     style={{flex:1,padding:"8px 12px",border:"1.5px solid #e8e4da",borderRadius:9,fontSize:12,background:"#fafaf7"}} />
                   {liveSearch&&<button onClick={function(){setLiveSearch("");}} style={{background:"#f0f0ee",border:"none",borderRadius:7,cursor:"pointer",color:"#aaa",fontSize:14,padding:"5px 8px"}}>✕</button>}
                 </div>
-                <div style={{display:"flex",gap:8,flexShrink:0,alignItems:"center"}}>
+                <div style={{display:"flex",gap:8,flexShrink:0,alignItems:"center",flexWrap:"wrap"}}>
                   <span style={{fontSize:12,background:"#f0fff4",border:"1.5px solid #9ae6b4",borderRadius:999,padding:"6px 14px",color:"#276749",fontWeight:700}}>
                     ✓ {Object.keys(arrived).length} gəldi
                   </span>
                   <span style={{fontSize:12,background:"#fff5f5",border:"1.5px solid #feb2b2",borderRadius:999,padding:"6px 14px",color:"#c53030",fontWeight:700}}>
                     ⌛ {guests.length-Object.keys(arrived).length} gözlənilir
                   </span>
+                  {Object.keys(gifts).length>0&&(
+                    <span style={{fontSize:12,background:"#fffbf0",border:"1.5px solid #f6c860",borderRadius:999,padding:"6px 14px",color:"#b8860b",fontWeight:700}}>
+                      💰 {Object.values(gifts).reduce(function(s,v){return s+(parseFloat(v)||0);},0).toLocaleString()}₼
+                    </span>
+                  )}
                   <button onClick={printTables}
                     style={{fontSize:12,background:"#1a1a1a",border:"none",borderRadius:999,padding:"7px 14px",color:"#fff",fontWeight:700,cursor:"pointer",display:"flex",alignItems:"center",gap:5,flexShrink:0}}>
                     ⬇ PDF
@@ -1635,16 +1646,35 @@ export default function WeddingPlanner() {
                       var t=tables.find(function(t){return t.id===g.tableId;});
                       var isA=!!arrived[g.id];
                       return (
-                        <div key={g.id} onClick={function(){setArrived(function(p){var n=Object.assign({},p);if(n[g.id])delete n[g.id];else n[g.id]=true;return n;})}}
-                          style={{display:"flex",alignItems:"center",padding:"9px 14px",gap:8,borderBottom:"1px solid #f5f5f3",cursor:"pointer",
+                        <div key={g.id} style={{display:"flex",alignItems:"center",padding:"9px 14px",gap:8,borderBottom:"1px solid #f5f5f3",
                             background:isA?"#f0fff4":"#fff"}}>
-                          <div style={{width:22,height:22,borderRadius:"50%",border:"2px solid "+(isA?"#48bb78":"#ddd"),
-                            background:isA?"#48bb78":"#fff",display:"flex",alignItems:"center",justifyContent:"center",
-                            flexShrink:0,fontSize:12,color:"#fff",fontWeight:800,transition:"all .15s"}}>
+                          <div onClick={function(){setArrived(function(p){var n=Object.assign({},p);if(n[g.id])delete n[g.id];else n[g.id]=true;return n;})}}
+                            style={{width:22,height:22,borderRadius:"50%",border:"2px solid "+(isA?"#48bb78":"#ddd"),
+                              background:isA?"#48bb78":"#fff",display:"flex",alignItems:"center",justifyContent:"center",
+                              flexShrink:0,fontSize:12,color:"#fff",fontWeight:800,transition:"all .15s",cursor:"pointer"}}>
                             {isA?"✓":""}
                           </div>
                           <div style={{width:6,height:6,borderRadius:"50%",background:g.side==="oglan"?"#2a6f97":"#c2528b",flexShrink:0}} />
-                          <div style={{flex:1,fontSize:13,fontFamily:"system-ui",fontWeight:isA?700:400,color:isA?"#276749":"#222"}}>{g.name}</div>
+                          <div onClick={function(){setArrived(function(p){var n=Object.assign({},p);if(n[g.id])delete n[g.id];else n[g.id]=true;return n;})}}
+                            style={{flex:1,fontSize:13,fontFamily:"system-ui",fontWeight:isA?700:400,color:isA?"#276749":"#222",cursor:"pointer"}}>{g.name}</div>
+                          {giftEditId===g.id?(
+                            <input autoFocus type="number" min="0" value={giftEditVal}
+                              onChange={function(e){setGiftEditVal(e.target.value);}}
+                              onBlur={function(){
+                                var v=parseFloat(giftEditVal)||0;
+                                setGifts(function(p){var n=Object.assign({},p);if(v>0)n[g.id]=v;else delete n[g.id];return n;});
+                                setGiftEditId(null);
+                              }}
+                              onKeyDown={function(e){if(e.key==="Enter"){e.target.blur();}if(e.key==="Escape"){setGiftEditId(null);}}}
+                              style={{width:62,fontSize:11,padding:"2px 6px",border:"1.5px solid #d4a030",borderRadius:6,textAlign:"right",outline:"none",background:"#fffbf0",flexShrink:0}} />
+                          ):(
+                            <div onClick={function(e){e.stopPropagation();setGiftEditId(g.id);setGiftEditVal(gifts[g.id]||"");}}
+                              style={{fontSize:11,fontWeight:gifts[g.id]?700:400,color:gifts[g.id]?"#b8860b":"#ccc",cursor:"pointer",
+                                flexShrink:0,minWidth:38,textAlign:"right",borderRadius:5,padding:"1px 6px",
+                                background:gifts[g.id]?"#fffbf0":"transparent"}}>
+                              {gifts[g.id]?gifts[g.id]+"₼":"₼"}
+                            </div>
+                          )}
                           <span style={{fontSize:9,padding:"2px 8px",borderRadius:10,background:cCol(g.cat)+"15",color:cCol(g.cat),fontWeight:600,flexShrink:0}}>{g.cat}</span>
                           <div style={{fontSize:11,fontWeight:700,color:t?"#2a6f97":"#bbb",width:40,textAlign:"right",flexShrink:0}}>{t?t.label:"—"}</div>
                         </div>
@@ -1714,6 +1744,31 @@ export default function WeddingPlanner() {
                                   <>
                                     <div onClick={function(){setArrived(function(p){var n=Object.assign({},p);if(n[g.id])delete n[g.id];else n[g.id]=true;return n;})}}
                                       style={{flex:1,fontSize:11.5,fontFamily:"system-ui",fontWeight:isA?700:400,color:isA?"#276749":"#333",cursor:"pointer"}}>{g.name}</div>
+                                    {giftEditId===g.id?(
+                                      <input autoFocus type="number" min="0" value={giftEditVal}
+                                        onChange={function(e){setGiftEditVal(e.target.value);}}
+                                        onBlur={function(){
+                                          var v=parseFloat(giftEditVal)||0;
+                                          setGifts(function(p){var n=Object.assign({},p);if(v>0)n[g.id]=v;else delete n[g.id];return n;});
+                                          setGiftEditId(null);
+                                        }}
+                                        onKeyDown={function(e){
+                                          if(e.key==="Enter"){e.target.blur();}
+                                          if(e.key==="Escape"){setGiftEditId(null);}
+                                        }}
+                                        style={{width:58,fontSize:10,padding:"2px 5px",border:"1.5px solid #d4a030",borderRadius:6,
+                                          textAlign:"right",outline:"none",background:"#fffbf0",flexShrink:0}} />
+                                    ):(
+                                      <div onClick={function(e){e.stopPropagation();setGiftEditId(g.id);setGiftEditVal(gifts[g.id]||"");}}
+                                        title="Hədiyyə məbləğini daxil et"
+                                        style={{fontSize:10,fontWeight:gifts[g.id]?700:400,
+                                          color:gifts[g.id]?"#b8860b":"#ccc",cursor:"pointer",flexShrink:0,
+                                          minWidth:34,textAlign:"right",borderRadius:5,
+                                          padding:"1px 5px",background:gifts[g.id]?"#fffbf0":"transparent",
+                                          border:gifts[g.id]?"1px solid #f6c86055":"1px solid transparent"}}>
+                                        {gifts[g.id]?gifts[g.id]+"₼":"₼"}
+                                      </div>
+                                    )}
                                     <span style={{fontSize:8,padding:"1px 6px",borderRadius:8,background:cCol(g.cat)+"15",
                                       color:cCol(g.cat),fontWeight:600,flexShrink:0}}>{g.cat}</span>
                                     <button onClick={function(){setLiveEditId(g.id);setLiveEditVal(g.name);}}
