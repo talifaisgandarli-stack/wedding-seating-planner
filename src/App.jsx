@@ -1098,21 +1098,25 @@ export default function WeddingPlanner() {
 
 
   function printTables(){
+    var totalGift=Object.values(gifts).reduce(function(s,v){return s+(parseFloat(v)||0);},0);
     var rows="";
     tables.filter(function(t){return t.cap>0;}).forEach(function(t){
       var tg=guests.filter(function(g){return g.tableId===t.id;});
       var sc=t.side==="oglan"?"#2a6f97":t.side==="qiz"?"#c2528b":"#b8860b";
       var sl=t.side==="oglan"?"Oğlan":t.side==="qiz"?"Qız":"Xüsusi";
+      var tableTotal=tg.reduce(function(s,g){return s+(parseFloat(gifts[g.id])||0);},0);
       var gRows="";
       if(tg.length===0){
         gRows='<div style="padding:8px 12px;font-size:10px;color:#bbb;text-align:center">Boş masa</div>';
       } else {
         tg.forEach(function(g){
           var dc=g.side==="oglan"?"#2a6f97":"#c2528b";
+          var giftAmt=gifts[g.id];
           gRows+='<div style="display:flex;align-items:center;padding:4px 10px;gap:6px;border-bottom:1px solid #f0f0ee;font-size:10.5px;color:#222">'
             +'<span style="width:5px;height:5px;border-radius:50%;background:'+dc+';flex-shrink:0"></span>'
-            +g.name
-            +'<span style="margin-left:auto;font-size:8.5px;color:#999;white-space:nowrap">'+g.cat+'</span>'
+            +'<span style="flex:1">'+g.name+'</span>'
+            +(giftAmt?'<span style="font-size:10px;font-weight:700;color:#b8860b;white-space:nowrap;background:#fffbf0;padding:1px 6px;border-radius:5px;border:1px solid #f6c86088">'+giftAmt+'₼</span>':'')
+            +'<span style="font-size:8.5px;color:#999;white-space:nowrap">'+g.cat+'</span>'
             +'</div>';
         });
       }
@@ -1120,18 +1124,23 @@ export default function WeddingPlanner() {
         +'<div style="background:#f7f7f5;padding:7px 12px;border-bottom:1px solid #e0e0dc;border-top:3px solid '+sc+';display:flex;justify-content:space-between;align-items:center">'
         +'<div><div style="font-size:14px;font-weight:800;font-family:Georgia,serif">'+t.label+'</div>'
         +'<div style="font-size:8.5px;color:#999;margin-top:1px">'+sl+' · '+t.cap+' nəfər</div></div>'
+        +'<div style="text-align:right">'
         +'<div style="font-size:12px;font-weight:700;color:#555">'+tg.length+'/'+t.cap+'</div>'
+        +(tableTotal?'<div style="font-size:10px;font-weight:700;color:#b8860b">'+tableTotal+'₼</div>':'')
+        +'</div>'
         +'</div>'+gRows+'</div>';
     });
     var html='<!DOCTYPE html><html><head><meta charset="UTF-8"><title>Oturma Planı — Maket Gallery Hall</title>'
       +'<style>*{box-sizing:border-box;margin:0;padding:0}body{font-family:system-ui,sans-serif;background:#fff;padding:20px;color:#1a1a1a}'
-      +'h1{font-family:Georgia,serif;font-size:20px;margin-bottom:4px}p{font-size:10px;color:#888;margin-bottom:16px}'
+      +'h1{font-family:Georgia,serif;font-size:20px;margin-bottom:4px}p{font-size:10px;color:#888;margin-bottom:4px}'
+      +'.total-bar{font-size:12px;font-weight:700;color:#b8860b;background:#fffbf0;border:1.5px solid #f6c860;border-radius:8px;padding:6px 14px;display:inline-block;margin-bottom:14px}'
       +'.grid{display:grid;grid-template-columns:repeat(4,1fr);gap:10px}'
       +'@media print{body{padding:12px}.grid{grid-template-columns:repeat(4,1fr)}}'
       +'@page{size:A4 landscape;margin:12mm}'
       +'</style></head><body>'
       +'<h1>Oturma Planı — Maket Gallery Hall</h1>'
       +'<p>'+new Date().toLocaleDateString("az-AZ",{day:"2-digit",month:"long",year:"numeric"})+'</p>'
+      +(totalGift?'<div class="total-bar">💰 Cəmi hədiyyə: '+totalGift.toLocaleString()+'₼</div>':'')
       +'<div class="grid">'+rows+'</div>'
       +'</body></html>';
     var w=window.open("","_blank");
