@@ -1150,6 +1150,76 @@ export default function WeddingPlanner() {
     setTimeout(function(){w.print();},500);
   }
 
+  function printIsfLive(){
+    var norm=function(s){return s.replace(/İ/g,"I").replace(/ı/g,"i").replace(/ə/g,"e").replace(/Ə/g,"E").toLowerCase();};
+    var date=new Date().toLocaleDateString("az-AZ",{day:"2-digit",month:"long",year:"numeric"});
+    var isfTables=tables.filter(function(t){
+      return t.cap>0&&guests.some(function(g){return g.tableId===t.id&&norm(g.cat).indexOf("isfendiyar")>=0;});
+    });
+    var totalGift=isfTables.reduce(function(s,t){
+      return s+guests.filter(function(g){return g.tableId===t.id;}).reduce(function(s2,g){return s2+(parseFloat(gifts[g.id])||0);},0);
+    },0);
+    var arrivedIsf=isfTables.reduce(function(s,t){
+      return s+guests.filter(function(g){return g.tableId===t.id&&!!arrived[g.id];}).length;
+    },0);
+    var totalIsf=isfTables.reduce(function(s,t){
+      return s+guests.filter(function(g){return g.tableId===t.id;}).length;
+    },0);
+    var rows="";
+    isfTables.forEach(function(t){
+      var tg=guests.filter(function(g){return g.tableId===t.id;});
+      var sc=t.side==="oglan"?"#2a6f97":t.side==="qiz"?"#c2528b":"#b8860b";
+      var sl=t.side==="oglan"?"Oğlan":"Qız";
+      var tableTotal=tg.reduce(function(s,g){return s+(parseFloat(gifts[g.id])||0);},0);
+      var tableArrived=tg.filter(function(g){return !!arrived[g.id];}).length;
+      var gRows=tg.map(function(g){
+        var isA=!!arrived[g.id];
+        var giftAmt=gifts[g.id];
+        var dc=g.side==="oglan"?"#2a6f97":"#c2528b";
+        var isIsf=norm(g.cat).indexOf("isfendiyar")>=0;
+        return '<div style="display:flex;align-items:center;padding:4px 10px;gap:6px;border-bottom:1px solid #f0f0ee;background:'+(isA?"#f0fff4":"#fff")+'">'
+          +'<span style="width:16px;height:16px;border-radius:50%;border:1.5px solid '+(isA?"#48bb78":"#ddd")+';background:'+(isA?"#48bb78":"#fff")+';display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:9px;color:#fff;font-weight:800">'+(isA?"✓":"")+'</span>'
+          +'<span style="width:5px;height:5px;border-radius:50%;background:'+dc+';flex-shrink:0"></span>'
+          +'<span style="flex:1;font-size:10.5px;font-weight:'+(isIsf?700:400)+';color:'+(isA?"#276749":"#222")+'">'+(g.name)+'</span>'
+          +(giftAmt?'<span style="font-size:10px;font-weight:700;color:#b8860b;background:#fffbf0;padding:1px 6px;border-radius:5px;border:1px solid #f6c86088;white-space:nowrap">'+giftAmt+'₼</span>':'')
+          +'</div>';
+      }).join("");
+      rows+='<div style="border:1px solid #ddd;border-radius:8px;overflow:hidden;break-inside:avoid;margin-bottom:6px">'
+        +'<div style="background:'+(t.side==="oglan"?"#edf4fb":"#faf0f6")+';padding:7px 12px;border-bottom:1px solid #e0e0dc;border-top:3px solid '+sc+';display:flex;justify-content:space-between;align-items:center">'
+        +'<div><div style="font-size:14px;font-weight:800;font-family:Georgia,serif;color:#111">'+t.label+'</div>'
+        +'<div style="font-size:8px;color:#999;margin-top:1px">'+sl+' · '+t.cap+' nəfər</div></div>'
+        +'<div style="text-align:right">'
+        +'<div style="font-size:11px;font-weight:700;color:'+(tableArrived===tg.length&&tg.length>0?"#48bb78":"#555")+'">'+tableArrived+'/'+tg.length+' gəldi</div>'
+        +(tableTotal?'<div style="font-size:11px;font-weight:700;color:#b8860b">'+tableTotal+'₼</div>':'')
+        +'</div></div>'
+        +gRows+'</div>';
+    });
+    var html='<!DOCTYPE html><html><head><meta charset="UTF-8"><title>İsfəndiyar M — Canlı Siyahı</title>'
+      +'<style>*{box-sizing:border-box;margin:0;padding:0}body{font-family:system-ui,sans-serif;background:#fff;padding:16px;color:#1a1a1a}'
+      +'h1{font-family:Georgia,serif;font-size:18px;margin-bottom:3px}'
+      +'.meta{font-size:10px;color:#888;margin-bottom:10px}'
+      +'.summary{display:flex;gap:10px;margin-bottom:14px;flex-wrap:wrap}'
+      +'.chip{font-size:11px;font-weight:700;border-radius:999px;padding:5px 13px;border:1.5px solid}'
+      +'.grid{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}'
+      +'@media print{body{padding:10px}.grid{grid-template-columns:repeat(4,1fr)}}'
+      +'@page{size:A4 landscape;margin:10mm}'
+      +'</style></head><body>'
+      +'<h1>İsfəndiyar M — Canlı Qeydiyyat</h1>'
+      +'<div class="meta">'+date+' · '+isfTables.length+' masa · '+totalIsf+' qonaq</div>'
+      +'<div class="summary">'
+      +'<span class="chip" style="background:#f0fff4;border-color:#9ae6b4;color:#276749">✓ '+arrivedIsf+' gəldi</span>'
+      +'<span class="chip" style="background:#fff5f5;border-color:#feb2b2;color:#c53030">⌛ '+(totalIsf-arrivedIsf)+' gözlənilir</span>'
+      +(totalGift?'<span class="chip" style="background:#fffbf0;border-color:#f6c860;color:#b8860b">💰 '+totalGift.toLocaleString()+'₼</span>':'')
+      +'</div>'
+      +'<div class="grid">'+rows+'</div>'
+      +'</body></html>';
+    var w=window.open("","_blank");
+    w.document.write(html);
+    w.document.close();
+    w.focus();
+    setTimeout(function(){w.print();},500);
+  }
+
   return (
     <div style={{fontFamily:"system-ui,sans-serif",height:"100vh",display:"flex",flexDirection:"column",background:"#f4f2ed",overflow:"hidden"}}>
       {/* TOP BAR */}
@@ -1641,6 +1711,11 @@ export default function WeddingPlanner() {
                       style={{padding:"5px 14px",fontSize:11,borderRadius:999,border:"1.5px solid "+(liveCatFilter==="isfendiyar"?"#888":"#e0ddd5"),
                         background:liveCatFilter==="isfendiyar"?"#888":"#fff",color:liveCatFilter==="isfendiyar"?"#fff":"#888",fontWeight:700,cursor:"pointer"}}>
                       İsfəndiyar M · {isfTables.length} masa
+                    </button>
+                    <button onClick={printIsfLive}
+                      style={{padding:"5px 13px",fontSize:11,borderRadius:999,border:"1.5px solid #d4a030",
+                        background:"#fffbf0",color:"#b8860b",fontWeight:700,cursor:"pointer",display:"flex",alignItems:"center",gap:4}}>
+                      ⬇ İsfəndiyar PDF
                     </button>
                   </div>
                 );
